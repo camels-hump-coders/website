@@ -6,6 +6,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the Camels Hump Coders website - a static site for a FIRST® LEGO® League robotics team from Huntington, Vermont. The site is designed to be deployed on GitHub Pages.
 
+## Git Version Control
+
+**IMPORTANT**: This project uses Git for version control. You should commit changes regularly:
+
+### When to Commit
+- After completing a major feature or section
+- After fixing significant bugs
+- After adding new pages or major content updates
+- When making substantial styling changes
+- Before starting a new feature (to save current progress)
+
+### Commit Process
+1. Check status: `git status`
+2. Add changes: `git add -A`
+3. Commit with descriptive message:
+```bash
+git commit -m "Brief description of changes
+
+- Detail 1
+- Detail 2
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+### Commit Message Guidelines
+- Use present tense ("Add feature" not "Added feature")
+- First line should be concise (50 chars or less)
+- Include bullet points for multiple changes
+- Be specific about what changed
+
 ## Commands
 
 ### Local Development
