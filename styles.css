@@ -24,6 +24,23 @@ header {
     color: white;
     padding: 1rem 0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+/* Grass decoration on top of header */
+header::before {
+    content: '🌱🌿🌱🌾🌱🌿🌾🌱🌿🌱🌾🌿🌱🌾🌱🌿🌱🌾🌿🌱🌾🌱🌿🌾🌱🌿🌱🌾🌿🌱🌾🌱🌿🌱🌾🌿🌱';
+    position: absolute;
+    top: -12px;
+    left: 0;
+    right: 0;
+    font-size: 1.2rem;
+    line-height: 1;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
 }
 
 .header-container {
