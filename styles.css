@@ -25,25 +25,8 @@ header {
     background: rgb(115, 67, 50);
     color: white;
     padding: 1rem 0;
-    padding-top: 2rem;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     position: relative;
-}
-
-/* Grass decoration on top of header */
-header::after {
-    content: '🌱🌿🌱🌾🌱🌿🌾🌱🌿🌱🌾🌿🌱🌾🌱🌿🌱🌾🌿🌱🌾🌱🌿🌾🌱🌿🌱🌾🌿🌱🌾🌱🌿🌱🌾🌿🌱';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    font-size: 1.5rem;
-    line-height: 1;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 10;
 }
 
 .header-container {
