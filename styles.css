@@ -53,12 +53,14 @@ header {
 nav {
     background: rgba(0,0,0,0.1);
     padding: 0.5rem 0;
-    padding-top: 30px;
+    padding-top: 40px;
     position: relative;
-    background-image: url('https://static.vecteezy.com/system/resources/thumbnails/008/084/183/small_2x/green-grass-transparent-background-free-vector.jpg');
-    background-repeat: repeat-x;
-    background-position: top center;
-    background-size: auto 50px;
+    background-image: 
+        url('https://static.vecteezy.com/system/resources/thumbnails/008/084/183/small_2x/green-grass-transparent-background-free-vector.jpg'),
+        linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1));
+    background-repeat: repeat-x, repeat;
+    background-position: top center, center;
+    background-size: 100px auto, 100%;
 }
 
 nav > ul {
