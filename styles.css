@@ -53,21 +53,12 @@ header {
 nav {
     background: rgba(0,0,0,0.1);
     padding: 0.5rem 0;
+    padding-top: 30px;
     position: relative;
-}
-
-/* Grass on top of navigation */
-nav::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: 0;
-    right: 0;
-    height: 40px;
-    background: url('https://static.vecteezy.com/system/resources/thumbnails/008/084/183/small_2x/green-grass-transparent-background-free-vector.jpg') repeat-x bottom;
-    background-size: auto 40px;
-    pointer-events: none;
-    z-index: 100;
+    background-image: url('https://static.vecteezy.com/system/resources/thumbnails/008/084/183/small_2x/green-grass-transparent-background-free-vector.jpg');
+    background-repeat: repeat-x;
+    background-position: top center;
+    background-size: auto 50px;
 }
 
 nav > ul {
