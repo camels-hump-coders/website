@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024-2025 Season - Camels Hump Coders</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
+    <style>
+        .season-header {
+            background: linear-gradient(135deg, #1e6ba0 0%, #4ca8e4 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .season-logo {
+            max-width: 300px;
+            height: auto;
+            margin: 2rem auto;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+        .ocean-theme {
+            animation: wave 3s ease-in-out infinite;
+            display: inline-block;
+            position: relative;
+            z-index: 2;
+        }
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Bubble animations */
+        .bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+            border-radius: 50%;
+            opacity: 0;
+            animation: float-up 10s infinite ease-in;
+        }
+        .bubble:nth-child(1) {
+            width: 20px;
+            height: 20px;
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 12s;
+        }
+        .bubble:nth-child(2) {
+            width: 15px;
+            height: 15px;
+            left: 20%;
+            animation-delay: 2s;
+            animation-duration: 10s;
+        }
+        .bubble:nth-child(3) {
+            width: 25px;
+            height: 25px;
+            left: 35%;
+            animation-delay: 4s;
+            animation-duration: 14s;
+        }
+        .bubble:nth-child(4) {
+            width: 18px;
+            height: 18px;
+            left: 50%;
+            animation-delay: 0s;
+            animation-duration: 11s;
+        }
+        .bubble:nth-child(5) {
+            width: 22px;
+            height: 22px;
+            left: 65%;
+            animation-delay: 3s;
+            animation-duration: 13s;
+        }
+        .bubble:nth-child(6) {
+            width: 16px;
+            height: 16px;
+            left: 75%;
+            animation-delay: 1s;
+            animation-duration: 9s;
+        }
+        .bubble:nth-child(7) {
+            width: 28px;
+            height: 28px;
+            left: 85%;
+            animation-delay: 5s;
+            animation-duration: 15s;
+        }
+        .bubble:nth-child(8) {
+            width: 12px;
+            height: 12px;
+            left: 90%;
+            animation-delay: 2.5s;
+            animation-duration: 10s;
+        }
+        @keyframes float-up {
+            0% {
+                bottom: -100px;
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 0.6;
+            }
+            100% {
+                bottom: 100%;
+                opacity: 0;
+            }
+        }
+        
+        .presentation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .team-photo {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+        
+        /* Ensure text stays on top */
+        .season-header h2,
+        .season-header p {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1 class="site-title">Camels Hump Coders</h1>
+            <p class="tagline">FIRST® LEGO® League Team from Huntington, Vermont</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="about.html">About Us</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="2024-2025.html" class="active">2024-2025</a></li>
+                        <li><a href="2023-2024.html">2023-2024</a></li>
+                    </ul>
+                </li>
+                <li><a href="coders.html">Coders</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="season-header">
+            <div class="bubbles">
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+            </div>
+            <div class="container">
+                <h2>2024-2025 Season: <span class="ocean-theme">SUBMERGED</span></h2>
+                <img src="https://lh3.googleusercontent.com/57tKfdDkQ8Cc3MSVX6DXrpeV2lPcWhTYCz7ilQRnAReWc7KsB20tV_a7S2JrA5tidmS6ut9B7a8suLjIPFAOFms" alt="SUBMERGED Season Animation" class="season-logo">
+                <p style="font-size: 1.2rem;">Exploring the Depths of Our Oceans</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Season Theme: SUBMERGED</h2>
+                <p>The 2024-2025 FIRST® LEGO® League season challenged teams to explore our oceans and waterways. Teams investigated ocean-related issues and developed innovative solutions to protect and preserve our marine ecosystems.</p>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Our Innovation Project: Measuring Sea Ice Thickness</h2>
+                <p>Our team focused on a critical aspect of climate change research: accurately measuring sea ice thickness. This data is essential for:</p>
+                <ul>
+                    <li>Understanding climate change impacts</li>
+                    <li>Predicting future sea level changes</li>
+                    <li>Protecting Arctic ecosystems</li>
+                    <li>Improving navigation safety in polar regions</li>
+                </ul>
+                
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Competition Highlights</h2>
+                <div class="team-info">
+                    <h3>🏆 Major Achievements</h3>
+                    <ul>
+                        <li><strong>Vermont State Championship:</strong> 2nd Place Winners!</li>
+                        <li><strong>Award:</strong> $1,000 advancement grant from GlobalFoundries</li>
+                        <li><strong>Advancement:</strong> Qualified for the Florida Sunshine Invitational in Daytona Beach</li>
+                    </ul>
+                    
+                    <h3>🌴 Florida Sunshine Tournament</h3>
+                    <p>Our team traveled to Daytona Beach, Florida to compete against teams from across the nation. During the tournament, we:</p>
+                    <ul>
+                        <li>Presented our sea ice measurement innovation project</li>
+                        <li>Competed in robot game missions</li>
+                        <li>Met with experts and researchers in marine science</li>
+                        <li>Shared ideas with teams from different states</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Our Presentations</h2>
+                <p>Throughout the season, we developed and refined our presentations to share our research and solutions:</p>
+                
+                <div class="presentation-grid">
+                    <div class="resource-card">
+                        <h3>Lego Club Slideshow</h3>
+                        <p>Introduction to our team and FIRST® LEGO® League</p>
+                        <a href="#" class="presentation-link">View Presentation</a>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <h3>Florida Presentation</h3>
+                        <p>Competition presentation for the Sunshine Invitational</p>
+                        <a href="#" class="presentation-link">View Presentation</a>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <h3>Innovation Project</h3>
+                        <p>Sea ice measurement research and solution</p>
+                        <a href="#" class="presentation-link">View Presentation</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Robot Design & Performance</h2>
+                <p>Our robot was designed to complete ocean-themed missions including:</p>
+                <ul>
+                    <li>Coral reef restoration</li>
+                    <li>Marine animal rescue</li>
+                    <li>Ocean floor exploration</li>
+                    <li>Pollution cleanup</li>
+                    <li>Research vessel navigation</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Looking Forward</h2>
+                <p>The 2024-2025 season taught us valuable lessons about our oceans, teamwork, and innovation. As we prepare for next season, we're excited to apply what we've learned and continue making a positive impact in our community and the world.</p>
+                
+                <div class="media-links" style="margin-top: 2rem;">
+                    <a href="https://vermontbiz.com/news/2025/february/01/globalfoundries-hosts-vermont-state-championship-first-lego-league" class="media-link" target="_blank">Read About State Championship</a>
+                    <a href="https://www.wcax.com/2025/01/17/kids-compete-vermont-lego-league-championships/" class="media-link" target="_blank">WCAX Coverage</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Camels Hump Coders. All rights reserved.</p>
+            <p>A FIRST® LEGO® League team from Huntington, Vermont</p>
+        </div>
+    </footer>
+</body>
+</html>

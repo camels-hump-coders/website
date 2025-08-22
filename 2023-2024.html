@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2023-2024 Season - Camels Hump Coders</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
+    <style>
+        .season-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .season-logo {
+            max-width: 300px;
+            height: auto;
+            margin: 2rem auto;
+            display: block;
+        }
+        .art-theme {
+            position: relative;
+            display: inline-block;
+        }
+        .art-theme::before,
+        .art-theme::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 30%, transparent 70%);
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+        .art-theme::before {
+            animation: spotlight1 6s ease-in-out infinite;
+        }
+        .art-theme::after {
+            animation: spotlight2 6s ease-in-out infinite;
+            animation-delay: -3s;
+        }
+        @keyframes spotlight1 {
+            0% {
+                top: -30px;
+                left: -40px;
+            }
+            25% {
+                top: -20px;
+                left: 50%;
+            }
+            50% {
+                top: -30px;
+                right: -40px;
+                left: auto;
+            }
+            75% {
+                top: -40px;
+                left: 30%;
+            }
+            100% {
+                top: -30px;
+                left: -40px;
+            }
+        }
+        @keyframes spotlight2 {
+            0% {
+                bottom: -30px;
+                right: -40px;
+            }
+            25% {
+                bottom: -20px;
+                right: 50%;
+            }
+            50% {
+                bottom: -30px;
+                left: -40px;
+                right: auto;
+            }
+            75% {
+                bottom: -40px;
+                right: 30%;
+            }
+            100% {
+                bottom: -30px;
+                right: -40px;
+            }
+        }
+        .art-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .art-feature {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .team-photo {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1 class="site-title">Camels Hump Coders</h1>
+            <p class="tagline">FIRST® LEGO® League Team from Huntington, Vermont</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="about.html">About Us</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="2024-2025.html">2024-2025</a></li>
+                        <li><a href="2023-2024.html" class="active">2023-2024</a></li>
+                    </ul>
+                </li>
+                <li><a href="coders.html">Coders</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="season-header">
+            <div class="container">
+                <h2>2023-2024 Season: <span class="art-theme">MASTERPIECE</span></h2>
+                <img src="https://lh4.googleusercontent.com/p9HNm6TglsyOJCtwJkeXeXnyZLeAS4H2ujJfOY308stPKYFAyLgtVYb53AkvyE4mvYaF9QUy28dtMD3m7Ye1Vq0" alt="MASTERPIECE Season Animation" class="season-logo">
+                <p style="font-size: 1.2rem;">Imagine and Innovate New Ways to Create and Communicate Art</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Season Theme: MASTERPIECE</h2>
+                <p>The 2023-2024 FIRST® LEGO® League season challenged teams to explore the world of art and innovation. Teams were tasked with imagining and innovating new ways to create and communicate art across the globe, bridging cultures and communities through creative expression.</p>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Our Innovation Project: Art Without Borders</h2>
+                <p>Our team explored how technology can break down barriers in art creation and sharing. We investigated:</p>
+                
+                <div class="art-gallery">
+                    <div class="art-feature">
+                        <h3>🎨 Digital Art Tools</h3>
+                        <p>Making art accessible to everyone</p>
+                    </div>
+                    <div class="art-feature">
+                        <h3>🌍 Global Collaboration</h3>
+                        <p>Connecting artists worldwide</p>
+                    </div>
+                    <div class="art-feature">
+                        <h3>🤖 AI & Creativity</h3>
+                        <p>Technology enhancing artistic expression</p>
+                    </div>
+                    <div class="art-feature">
+                        <h3>♿ Accessibility</h3>
+                        <p>Art for all abilities</p>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Our First Season Journey</h2>
+                <img src="https://lh6.googleusercontent.com/z5Yf9LJGT3hjA4vcfxpI9dXlB9YUgoxGFfRTzjkcaoxo7YKiEfZ3GUHC0ntcCEt8bz7t-6TmzJkpHhh1o_ZA90_fhMsmFXkT3X0cf97YwwkBWmZavKhXSaMNks61-ERCbgtYCX8rc_kpk_RRC2QseAG0F9d0w2Bw-65vIkFkFE460-u9-3AJiQ=w1280" alt="Camels Hump Coders Team Photo" class="team-photo">
+                <div class="team-info">
+                    <p>The 2023-2024 season marked the official formation of the Camels Hump Coders! This was our inaugural year as a team, bringing together middle school students from Huntington who share a passion for robotics, coding, and innovation.</p>
+                    
+                    <h3>🎯 Key Milestones</h3>
+                    <ul>
+                        <li><strong>Team Formation:</strong> United by one experienced teammate who brought friends together</li>
+                        <li><strong>First Competition:</strong> Vermont State Qualifier - North at Norwich University</li>
+                        <li><strong>Learning Experience:</strong> Built our first competition robot</li>
+                        <li><strong>Community Engagement:</strong> Presented our project to local organizations</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Robot Design & Missions</h2>
+                <p>In our first season, we designed and programmed a robot to complete art-themed missions including:</p>
+                <ul>
+                    <li>Delivering art supplies to different zones</li>
+                    <li>Creating collaborative art pieces</li>
+                    <li>Setting up museum exhibits</li>
+                    <li>Building performance stages</li>
+                    <li>Connecting cultural centers</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>What We Learned</h2>
+                <div class="features">
+                    <div class="feature">
+                        <h3>Teamwork</h3>
+                        <p>Working together as a new team, we learned to combine our different strengths and perspectives to solve challenges creatively.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Problem-Solving</h3>
+                        <p>Every robot mission taught us to think critically, debug our code, and iterate on our designs.</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Communication</h3>
+                        <p>Presenting our innovation project helped us develop confidence in sharing our ideas with judges and the community.</p>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Competition Experience</h2>
+                <p>Competing at the Vermont State Qualifier - North at Norwich University was an incredible experience for our newly formed team. We:</p>
+                <ul>
+                    <li>Competed against established teams from across Vermont</li>
+                    <li>Presented our innovation project to expert judges</li>
+                    <li>Completed robot game missions on the official table</li>
+                    <li>Made connections with other teams and mentors</li>
+                    <li>Gained valuable experience that set us up for future success</li>
+                </ul>
+                
+                <div class="media-links" style="margin-top: 2rem;">
+                    <a href="https://www.norwich.edu/news/4954-norwich-hosts-vermont-north-qualifier-first-lego-league" class="media-link" target="_blank">Norwich University Coverage</a>
+                    <a href="https://docs.google.com/document/d/1aYXbwT7L2_u8H-cSxVzmKN6C0h-7YzBHUJIyJI6WLOM/edit" class="media-link" target="_blank">State Qualifier Details</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Building Our Foundation</h2>
+                <p>The 2023-2024 MASTERPIECE season was just the beginning of our journey. As a first-year team, we:</p>
+                <ul>
+                    <li>Established our team identity and values</li>
+                    <li>Learned the fundamentals of FIRST® LEGO® League competition</li>
+                    <li>Built relationships within our community</li>
+                    <li>Set ambitious goals for future seasons</li>
+                </ul>
+                <p>This foundational year prepared us for the success we would achieve in the following season, including our 2nd place finish at the 2025 Vermont State Championship!</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Camels Hump Coders. All rights reserved.</p>
+            <p>A FIRST® LEGO® League team from Huntington, Vermont</p>
+        </div>
+    </footer>
+</body>
+</html>
