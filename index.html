@@ -14,8 +14,22 @@
             <p class="tagline">FIRST® LEGO® League Team from Huntington, Vermont</p>
         </div>
         <nav>
-            <div style="position: absolute; top: -15px; left: 0; width: 100%; height: 30px; pointer-events: none; z-index: 10; overflow: hidden;">
-                <div style="width: 100%; height: 100%; background-image: url('https://static.vecteezy.com/system/resources/thumbnails/008/084/183/small_2x/green-grass-transparent-background-free-vector.jpg'); background-repeat: repeat-x; background-size: auto 50px; background-position: center bottom; filter: brightness(0.8) contrast(1.5);"></div>
+            <div style="position: absolute; top: -40px; left: 0; width: 100%; height: 50px; pointer-events: none; z-index: 10; overflow: hidden;">
+                <div style="width: 100%; height: 100%; background-image: url('./assets/green-grass-transparent-background-free-vector.png'); background-repeat: repeat-x; background-size: auto 80px; background-position: center bottom; animation: grassWave 4s ease-in-out infinite;">
+                    <style>
+                        @keyframes grassWave {
+                            0%, 100% { 
+                                transform: translateX(0) skewX(0deg);
+                            }
+                            25% { 
+                                transform: translateX(-5px) skewX(-2deg);
+                            }
+                            75% { 
+                                transform: translateX(5px) skewX(2deg);
+                            }
+                        }
+                    </style>
+                </div>
             </div>
             <ul>
                 <li><a href="index.html" class="active">Home</a></li>
@@ -151,7 +165,7 @@
             <div class="hero-content" style="position: relative; z-index: 1;">
                 <h2 style="color: white;">Welcome to Camels Hump Coders!</h2>
                 <p class="season-tag" style="color: #f9f9f9;">2025-2026 Season: "Unearthed!"</p>
-                <img src="https://lh4.googleusercontent.com/I-pCqY2c8EbjB-JcKeu1jDjKoGRv_NEuUdWFegyjGXuJ3nMvAGiFryj4DljvgezKJfSfBbGFxdyeaWDPzCoYIYs" alt="UNEARTHED Season Animation" style="max-width: 300px; height: auto; margin: 1.5rem auto; display: block;">
+                <img src="./assets/unearthed.gif" alt="UNEARTHED Season Animation" style="max-width: 300px; height: auto; margin: 1.5rem auto; display: block;">
                 <p style="color: white;">We are a middle school robotics team from Huntington, Vermont, participating in FIRST® LEGO® League (FLL).</p>
             </div>
         </section>
