@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUBMERGED Ocean Explorer - Camels Hump Coders</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
+    <style>
+        .game-container {
+            background: linear-gradient(to bottom, #87CEEB 0%, #4682B4 30%, #191970 70%, #000080 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ocean-layers {
+            position: relative;
+            height: 800px;
+            width: 100%;
+        }
+
+        /* Visual boundary indicators for safe play area */
+        .ocean-layers::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 240px;
+            right: 240px;
+            bottom: 0;
+            border-left: 2px dashed rgba(255, 255, 255, 0.1);
+            border-right: 2px dashed rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .layer {
+            position: absolute;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        /* Water Surface Layer */
+        .water-surface {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to bottom, 
+                #87CEEB 0%, 
+                #6BB6FF 30%, 
+                #4682B4 70%, 
+                #2E5984 100%);
+            z-index: 10;
+            overflow: hidden;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Main Ocean Swells - Large, slow waves */
+        .waves {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 400%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60"><path d="M0,35 C50,20 100,45 150,30 C200,15 250,40 300,25 C350,35 380,30 400,35 V60 H0 Z" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/></svg>') repeat-x;
+            background-size: 400px 60px;
+            animation: ocean-swell 45s ease-in-out infinite;
+        }
+
+        /* Medium waves with realistic crests */
+        .waves::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 350%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 50"><path d="M0,30 C40,15 80,35 120,25 C160,15 200,30 240,20 C280,25 290,20 300,25 V50 H0 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/></svg>') repeat-x;
+            background-size: 300px 50px;
+            animation: ocean-swell 35s ease-in-out infinite reverse;
+        }
+
+        /* Small surface ripples */
+        .waves::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 250%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40"><path d="M0,25 C30,18 70,28 100,22 C130,18 170,26 200,23 V40 H0 Z" fill="rgba(255,255,255,0.08)"/></svg>') repeat-x;
+            background-size: 200px 40px;
+            animation: ocean-swell 22s linear infinite;
+        }
+
+        /* Foam and whitecaps */
+        .water-surface::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 500%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 80"><defs><filter id="foam"><feTurbulence baseFrequency="0.02" numOctaves="3"/><feColorMatrix values="1 1 1 0 0 1 1 1 0 0 1 1 1 0 0 0 0 0 0.4 0"/></filter></defs><path d="M0,40 C60,25 120,50 180,35 C240,20 300,45 360,30 C420,35 460,25 500,35 V80 H0 Z" fill="rgba(255,255,255,0.12)" filter="url(%23foam)"/></svg>') repeat-x;
+            background-size: 500px 80px;
+            animation: ocean-swell 60s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        /* Surface sparkles and light reflection */
+        .water-surface::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 0;
+            width: 300%;
+            height: 70px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 70"><circle cx="50" cy="20" r="2" fill="rgba(255,255,255,0.4)" opacity="0.6"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" repeatCount="indefinite"/></circle><circle cx="150" cy="35" r="1.5" fill="rgba(255,255,255,0.5)" opacity="0.4"><animate attributeName="opacity" values="0.1;0.7;0.1" dur="4s" repeatCount="indefinite"/></circle><circle cx="250" cy="15" r="1" fill="rgba(255,255,255,0.6)" opacity="0.5"><animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.5s" repeatCount="indefinite"/></circle></svg>') repeat-x;
+            background-size: 300px 70px;
+            animation: ocean-swell 40s linear infinite reverse;
+            z-index: 3;
+        }
+
+        @keyframes ocean-swell {
+            0% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-12.5%) translateY(-2px); }
+            50% { transform: translateX(-25%) translateY(0); }
+            75% { transform: translateX(-37.5%) translateY(-1px); }
+            100% { transform: translateX(-50%) translateY(0); }
+        }
+
+        .surface { top: 80px; height: 20px; background: rgba(135, 206, 235, 0.6); }
+        .sunlight { top: 100px; height: 200px; background: rgba(70, 130, 180, 0.7); }
+        .twilight { top: 300px; height: 200px; background: rgba(25, 25, 112, 0.8); }
+        .midnight { top: 500px; height: 150px; background: rgba(0, 0, 139, 0.9); }
+        .abyssal { top: 650px; height: 150px; background: rgba(0, 0, 0, 0.9); }
+
+        .submarine {
+            position: absolute;
+            width: 90px;
+            height: 45px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+            border-radius: 25px;
+            left: 300px;
+            top: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), inset 0 3px 0 rgba(255,255,255,0.3);
+            border: 2px solid #B8860B;
+        }
+
+        /* Main body details */
+        .submarine::before {
+            content: '';
+            position: absolute;
+            right: -18px;
+            top: 12px;
+            width: 0;
+            height: 0;
+            border-left: 22px solid #FFA500;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            filter: drop-shadow(2px 0 2px rgba(0,0,0,0.3));
+        }
+
+        /* Conning tower */
+        .submarine::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 25px;
+            width: 35px;
+            height: 12px;
+            background: linear-gradient(135deg, #B8860B 0%, #8B7355 100%);
+            border-radius: 6px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+            border: 1px solid #696969;
+        }
+
+        /* Periscope */
+        .submarine-periscope {
+            position: absolute;
+            top: -15px;
+            left: 40px;
+            width: 3px;
+            height: 10px;
+            background: #2F4F4F;
+            border-radius: 1px;
+            z-index: 101;
+        }
+
+        /* Propeller housing */
+        .submarine-propeller {
+            position: absolute;
+            right: -25px;
+            top: 17px;
+            width: 12px;
+            height: 12px;
+            background: #4682B4;
+            border-radius: 50%;
+            border: 1px solid #2F4F4F;
+        }
+
+        /* Porthole windows */
+        .submarine-porthole {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
+            border-radius: 50%;
+            border: 1px solid #2F4F4F;
+            top: 18px;
+        }
+
+        .submarine-porthole:nth-child(1) { left: 15px; }
+        .submarine-porthole:nth-child(2) { left: 35px; }
+        .submarine-porthole:nth-child(3) { left: 55px; }
+
+        /* Robot emoji on conning tower */
+        .submarine-robot {
+            position: absolute;
+            top: -6px;
+            left: 30px;
+            font-size: 16px;
+            z-index: 102;
+        }
+
+        .mission-item {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 24px;
+        }
+
+        .mission-item:hover {
+            transform: scale(1.2);
+            filter: brightness(1.2);
+        }
+
+        .coral { color: #FF6B6B; }
+        .sample { color: #4ECDC4; }
+        .plankton { color: #45B7D1; }
+        .fish { color: #FFA726; }
+        .treasure { color: #FFD700; }
+
+        .control-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .depth-meter {
+            margin: 15px 0;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 50, 100, 0.3);
+        }
+
+        .depth-meter h4 {
+            margin: 0 0 10px 0;
+            color: #87CEEB;
+            font-size: 14px;
+        }
+
+        .depth-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFD700;
+            margin: 5px 0;
+        }
+
+        .unit-toggle {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .unit-btn {
+            flex: 1;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .unit-btn.active {
+            background: rgb(115, 67, 50);
+            border-color: rgb(115, 67, 50);
+        }
+
+        .unit-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .unit-btn.active:hover {
+            background: rgb(204, 67, 49);
+        }
+
+        .control-btn {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            background: rgb(115, 67, 50);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .control-btn:hover {
+            background: rgb(204, 67, 49);
+        }
+
+        .score-board {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .mission-status {
+            margin: 10px 0;
+            padding: 5px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .completed { background: rgba(76, 175, 80, 0.3) !important; }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: bubble-float 3s infinite ease-in-out;
+        }
+
+        @keyframes bubble-float {
+            0% { transform: translateY(0) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-20px) scale(1.1); opacity: 1; }
+            100% { transform: translateY(-40px) scale(0.8); opacity: 0; }
+        }
+
+        .kelp {
+            position: absolute;
+            width: 4px;
+            background: linear-gradient(to top, #2E7D32, #4CAF50);
+            animation: kelp-sway 4s infinite ease-in-out;
+            transform-origin: bottom;
+        }
+
+        @keyframes kelp-sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .game-info {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .depth-indicator {
+            position: fixed;
+            left: 50%;
+            top: 120px;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            font-weight: bold;
+        }
+
+        .mission-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            z-index: 2000;
+            display: none;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .popup-btn {
+            margin: 10px;
+            padding: 10px 20px;
+            background: rgb(115, 67, 50);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .popup-btn:hover {
+            background: rgb(204, 67, 49);
+        }
+
+        /* Difficulty Selection */
+        .difficulty-section {
+            margin: 15px 0;
+            padding: 15px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 50, 100, 0.3);
+        }
+
+        .difficulty-section h4 {
+            margin: 0 0 10px 0;
+            color: #FFD700;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, rgb(115, 67, 50), rgb(204, 67, 49));
+            border-color: #FFD700;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .difficulty-btn.easy { border-left: 3px solid #4CAF50; }
+        .difficulty-btn.medium { border-left: 3px solid #FFA726; }
+        .difficulty-btn.hard { border-left: 3px solid #F44336; }
+
+        .difficulty-info {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            font-size: 11px;
+            color: #87CEEB;
+            text-align: center;
+        }
+
+        .current-difficulty {
+            position: fixed;
+            top: 170px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 999;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .current-difficulty span {
+            color: #FFD700;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1 class="site-title">Camels Hump Coders</h1>
+            <p class="tagline">FIRST® LEGO® League Team from Huntington, Vermont</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="about.html">About Us</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="2024-2025.html">2024-2025</a></li>
+                        <li><a href="2023-2024.html">2023-2024</a></li>
+                    </ul>
+                </li>
+                <li><a href="coders.html">Coders</a></li>
+                <li class="dropdown">
+                    <a href="#">Games</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="unearthed.html">Unearthed</a></li>
+                        <li><a href="submerged.html" class="active">Submerged</a></li>
+                        <li><a href="masterpiece.html">Masterpiece</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="game-container">
+        <div class="game-info">
+            <h1>🌊 SUBMERGED: Ocean Explorer Mission 🌊</h1>
+            <p>Navigate your robotic submarine through the ocean depths to complete FLL 2024-2025 SUBMERGED missions!</p>
+            <p><strong>Use WASD keys or control buttons to move. Navigate over mission items to collect them automatically!</strong></p>
+        </div>
+
+        <div class="depth-indicator" id="depthIndicator">Surface Level - 0m</div>
+
+        <div class="score-board">
+            <h3>🎯 Mission Status</h3>
+            <div class="mission-status" id="coralMission">
+                🪸 Coral Habitat: <span class="mission-count">0/5</span>
+            </div>
+            <div class="mission-status" id="sampleMission">
+                🧪 Sample Collection: <span class="mission-count">0/4</span>
+            </div>
+            <div class="mission-status" id="planktonMission">
+                🦠 Plankton Study: <span class="mission-count">0/3</span>
+            </div>
+            <div class="mission-status" id="fishMission">
+                🐟 Marine Life: <span class="mission-count">0/6</span>
+            </div>
+            <div class="mission-status" id="treasureMission">
+                💎 Deep Sea Treasure: <span class="mission-count">0/2</span>
+            </div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+                <strong>Total Score: <span id="totalScore">0/20</span></strong>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <h3>🎮 Controls</h3>
+            <button class="control-btn" onclick="moveSubmarine('up')">⬆️ Surface</button>
+            <button class="control-btn" onclick="moveSubmarine('left')">⬅️ West</button>
+            <button class="control-btn" onclick="moveSubmarine('right')">➡️ East</button>
+            <button class="control-btn" onclick="moveSubmarine('down')">⬇️ Dive</button>
+            
+            <div class="depth-meter">
+                <h4>📏 Depth Meter</h4>
+                <div class="depth-value" id="depthMeter">0</div>
+                <div class="unit-toggle">
+                    <button class="unit-btn active" id="metricBtn" onclick="toggleUnits('metric')">Metric</button>
+                    <button class="unit-btn" id="imperialBtn" onclick="toggleUnits('imperial')">Imperial</button>
+                </div>
+            </div>
+            
+            <div class="difficulty-section">
+                <h4>⚡ Difficulty Mode</h4>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn easy" id="easyBtn" onclick="setDifficulty('easy')">Easy</button>
+                    <button class="difficulty-btn medium active" id="mediumBtn" onclick="setDifficulty('medium')">Medium</button>
+                    <button class="difficulty-btn hard" id="hardBtn" onclick="setDifficulty('hard')">Hard</button>
+                </div>
+                <div class="difficulty-info" id="difficultyInfo">Medium: Standard challenge</div>
+            </div>
+            
+            <button class="control-btn" onclick="resetGame()">🔄 Reset Game</button>
+            <button class="control-btn" onclick="showInstructions()">ℹ️ Instructions</button>
+        </div>
+
+        <div class="current-difficulty">
+            Mode: <span id="currentMode">MEDIUM</span>
+        </div>
+
+        <div class="ocean-layers">
+            <div class="water-surface">
+                <div class="waves"></div>
+            </div>
+            <div class="layer surface"></div>
+            <div class="layer sunlight"></div>
+            <div class="layer twilight"></div>
+            <div class="layer midnight"></div>
+            <div class="layer abyssal"></div>
+            
+            <div class="submarine" id="submarine">
+                <div class="submarine-periscope"></div>
+                <div class="submarine-propeller"></div>
+                <div class="submarine-porthole"></div>
+                <div class="submarine-porthole"></div>
+                <div class="submarine-porthole"></div>
+                <div class="submarine-robot">🤖</div>
+            </div>
+        </div>
+    </main>
+
+    <div class="mission-popup" id="missionPopup">
+        <h3 id="popupTitle">Mission Complete!</h3>
+        <p id="popupMessage">Great job collecting that item!</p>
+        <button class="popup-btn" onclick="closeMissionPopup()">Continue Exploring</button>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Camels Hump Coders. All rights reserved.</p>
+            <p>A FIRST® LEGO® League team from Huntington, Vermont</p>
+        </div>
+    </footer>
+
+    <script>
+        let submarine = document.getElementById('submarine');
+        let gameState = {
+            x: 300, // Start in safe zone, away from UI
+            y: 25, // Start on the surface
+            depth: 0,
+            missions: {
+                coral: 0,
+                sample: 0,
+                plankton: 0,
+                fish: 0,
+                treasure: 0
+            },
+            totalScore: 0,
+            units: 'metric',
+            difficulty: 'medium'
+        };
+
+        const difficultySettings = {
+            easy: {
+                kelpCount: 8,
+                kelpWidth: 4,
+                moveSpeed: 35,
+                collectDistance: 120,
+                bubbleInterval: 3000,
+                missionRequirements: { coral: 3, sample: 2, plankton: 2, fish: 4, treasure: 1 },
+                description: "Fewer obstacles, easier collection"
+            },
+            medium: {
+                kelpCount: 15,
+                kelpWidth: 4,
+                moveSpeed: 30,
+                collectDistance: 100,
+                bubbleInterval: 2000,
+                missionRequirements: { coral: 5, sample: 4, plankton: 3, fish: 6, treasure: 2 },
+                description: "Standard challenge"
+            },
+            hard: {
+                kelpCount: 25,
+                kelpWidth: 6,
+                moveSpeed: 25,
+                collectDistance: 80,
+                bubbleInterval: 1000,
+                missionRequirements: { coral: 7, sample: 6, plankton: 5, fish: 8, treasure: 3 },
+                description: "More obstacles, precise control needed"
+            }
+        };
+
+        const depthLevels = [
+            { name: "Surface Level", metric: "0m", imperial: "0ft", min: 0, max: 100 },
+            { name: "Sunlight Zone", metric: "200m", imperial: "656ft", min: 100, max: 300 },
+            { name: "Twilight Zone", metric: "1000m", imperial: "3280ft", min: 300, max: 500 },
+            { name: "Midnight Zone", metric: "4000m", imperial: "13123ft", min: 500, max: 650 },
+            { name: "Abyssal Zone", metric: "6000m", imperial: "19685ft", min: 650, max: 800 }
+        ];
+
+        const missionItems = [];
+        const kelpElements = [];
+        let bubbleInterval;
+
+        function initializeGame() {
+            generateMissionItems();
+            generateEnvironmentalElements();
+            updateDisplay();
+            updateDepth();
+            
+            // Clear existing bubble interval if any
+            if (bubbleInterval) clearInterval(bubbleInterval);
+            bubbleInterval = setInterval(createBubbles, difficultySettings[gameState.difficulty].bubbleInterval);
+        }
+
+        function generateMissionItems() {
+            const requirements = difficultySettings[gameState.difficulty].missionRequirements;
+            const itemTypes = [
+                { type: 'coral', emoji: '🪸', count: requirements.coral, zones: [1, 2] },
+                { type: 'sample', emoji: '🧪', count: requirements.sample, zones: [1, 2, 3] },
+                { type: 'plankton', emoji: '🦠', count: requirements.plankton, zones: [0, 1] },
+                { type: 'fish', emoji: '🐟', count: requirements.fish, zones: [0, 1, 2] },
+                { type: 'treasure', emoji: '💎', count: requirements.treasure, zones: [3, 4] }
+            ];
+
+            itemTypes.forEach(itemType => {
+                for (let i = 0; i < itemType.count; i++) {
+                    const zone = itemType.zones[Math.floor(Math.random() * itemType.zones.length)];
+                    const zoneInfo = depthLevels[zone];
+                    
+                    const item = document.createElement('div');
+                    item.className = `mission-item ${itemType.type}`;
+                    item.innerHTML = itemType.emoji;
+                    
+                    // Define safe spawn zones to avoid UI elements
+                    const leftUIBoundary = 250; // Avoid score board (left: 20px + width: 200px + buffer)
+                    const rightUIBoundary = window.innerWidth - 250; // Avoid control panel (right: 20px + width: 200px + buffer)
+                    const topUIBoundary = Math.max(150, zoneInfo.min); // Avoid depth indicator and ensure we're below UI
+                    
+                    // Generate position within safe bounds
+                    const x = Math.random() * (rightUIBoundary - leftUIBoundary) + leftUIBoundary;
+                    const y = Math.random() * (zoneInfo.max - topUIBoundary) + topUIBoundary;
+                    
+                    item.style.left = x + 'px';
+                    item.style.top = y + 'px';
+                    
+                    document.querySelector('.ocean-layers').appendChild(item);
+                    missionItems.push({
+                        element: item,
+                        type: itemType.type,
+                        x: x,
+                        y: y,
+                        collected: false
+                    });
+                }
+            });
+        }
+
+        function generateEnvironmentalElements() {
+            const settings = difficultySettings[gameState.difficulty];
+            
+            // Define safe spawn zones to avoid UI elements
+            const leftUIBoundary = 250; // Avoid score board
+            const rightUIBoundary = window.innerWidth - 250; // Avoid control panel
+            
+            for (let i = 0; i < settings.kelpCount; i++) {
+                const kelp = document.createElement('div');
+                kelp.className = 'kelp';
+                const x = Math.random() * (rightUIBoundary - leftUIBoundary) + leftUIBoundary;
+                const y = Math.random() * 400 + 200;
+                const height = Math.random() * 150 + 100;
+                
+                kelp.style.left = x + 'px';
+                kelp.style.top = y + 'px';
+                kelp.style.height = height + 'px';
+                kelp.style.width = settings.kelpWidth + 'px';
+                kelp.style.animationDelay = Math.random() * 4 + 's';
+                
+                // Store kelp data for collision detection
+                kelpElements.push({
+                    element: kelp,
+                    x: x,
+                    y: y,
+                    width: settings.kelpWidth,
+                    height: height
+                });
+                
+                document.querySelector('.ocean-layers').appendChild(kelp);
+            }
+        }
+
+        function createBubbles() {
+            if (gameState.y > 50) {
+                for (let i = 0; i < 3; i++) {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    bubble.style.left = gameState.x + Math.random() * 80 + 'px';
+                    bubble.style.top = gameState.y + 40 + 'px';
+                    bubble.style.width = bubble.style.height = Math.random() * 10 + 5 + 'px';
+                    bubble.style.animationDelay = Math.random() * 1 + 's';
+                    
+                    document.querySelector('.ocean-layers').appendChild(bubble);
+                    
+                    setTimeout(() => {
+                        if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
+                    }, 3000);
+                }
+            }
+        }
+
+        function checkCollision(newX, newY) {
+            // Submarine dimensions (updated for new design)
+            const subWidth = 90;
+            const subHeight = 45;
+            
+            // Check collision with kelp
+            for (let kelp of kelpElements) {
+                if (newX < kelp.x + kelp.width &&
+                    newX + subWidth > kelp.x &&
+                    newY < kelp.y + kelp.height &&
+                    newY + subHeight > kelp.y) {
+                    return true; // Collision detected
+                }
+            }
+            return false; // No collision
+        }
+
+        function moveSubmarine(direction) {
+            const step = difficultySettings[gameState.difficulty].moveSpeed;
+            const maxX = window.innerWidth - 115; // Updated for new submarine width
+            const maxY = 740; // Updated for new submarine height
+            let newX = gameState.x;
+            let newY = gameState.y;
+
+            switch(direction) {
+                case 'up':
+                    newY = Math.max(25, gameState.y - step); // Can't go above surface
+                    break;
+                case 'down':
+                    newY = Math.min(maxY, gameState.y + step);
+                    break;
+                case 'left':
+                    newX = Math.max(10, gameState.x - step);
+                    break;
+                case 'right':
+                    newX = Math.min(maxX, gameState.x + step);
+                    break;
+            }
+            
+            // Check for collision before moving
+            if (!checkCollision(newX, newY)) {
+                gameState.x = newX;
+                gameState.y = newY;
+                updateSubmarinePosition();
+                updateDepth();
+            } else {
+                // Optional: Show collision feedback
+                showCollisionFeedback();
+            }
+        }
+
+        function showCollisionFeedback() {
+            // Brief visual feedback for collision
+            submarine.style.boxShadow = '0 0 20px rgba(255, 0, 0, 0.8)';
+            setTimeout(() => {
+                submarine.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.6)';
+            }, 200);
+        }
+
+        function updateSubmarinePosition() {
+            submarine.style.left = gameState.x + 'px';
+            submarine.style.top = gameState.y + 'px';
+            checkItemCollection(); // Check for item collection after moving
+        }
+
+        function checkItemCollection() {
+            const subWidth = 90;
+            const subHeight = 45;
+            const collectDistance = difficultySettings[gameState.difficulty].collectDistance;
+            
+            missionItems.forEach(item => {
+                if (!item.collected) {
+                    // Calculate distance from submarine center to item center
+                    const subCenterX = gameState.x + subWidth / 2;
+                    const subCenterY = gameState.y + subHeight / 2;
+                    const itemCenterX = item.x + 15; // Half of item width (30px)
+                    const itemCenterY = item.y + 15; // Half of item height (30px)
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(subCenterX - itemCenterX, 2) + 
+                        Math.pow(subCenterY - itemCenterY, 2)
+                    );
+                    
+                    // Auto-collect if within range
+                    if (distance <= collectDistance / 2) { // Use half the collect distance for auto-collection
+                        collectItem(item.type, item);
+                    }
+                }
+            });
+        }
+
+        function updateDepth() {
+            let currentZone = depthLevels.find(zone => 
+                gameState.y >= zone.min && gameState.y <= zone.max
+            );
+            
+            if (currentZone) {
+                const depthDisplay = gameState.units === 'metric' ? currentZone.metric : currentZone.imperial;
+                document.getElementById('depthIndicator').textContent = 
+                    `${currentZone.name} - ${depthDisplay}`;
+                
+                // Update depth meter
+                const actualDepth = calculateActualDepth(gameState.y);
+                document.getElementById('depthMeter').textContent = actualDepth;
+            }
+        }
+
+        function calculateActualDepth(yPosition) {
+            // Convert Y position to depth (starting from surface at y=25)
+            const maxDepthMetric = 6000;
+            const maxDepthImperial = 19685;
+            const surfaceY = 25;
+            const maxY = 800;
+            
+            // Calculate depth from surface (y=25 = 0 depth)
+            const adjustedY = Math.max(0, yPosition - surfaceY);
+            const maxAdjustedY = maxY - surfaceY;
+            
+            if (gameState.units === 'metric') {
+                const depthM = Math.round((adjustedY / maxAdjustedY) * maxDepthMetric);
+                return `${depthM}m`;
+            } else {
+                const depthFt = Math.round((adjustedY / maxAdjustedY) * maxDepthImperial);
+                return `${depthFt}ft`;
+            }
+        }
+
+        function toggleUnits(unit) {
+            gameState.units = unit;
+            
+            // Update button states
+            document.getElementById('metricBtn').classList.toggle('active', unit === 'metric');
+            document.getElementById('imperialBtn').classList.toggle('active', unit === 'imperial');
+            
+            // Update all depth displays
+            updateDepth();
+        }
+
+        function collectItem(type, item) {
+            if (item.collected) return; // Already collected
+            
+            // Mark as collected
+            item.collected = true;
+            gameState.missions[type]++;
+            gameState.totalScore++;
+            item.element.remove();
+            
+            showMissionPopup(type);
+            updateDisplay();
+            
+            const totalRequired = Object.values(difficultySettings[gameState.difficulty].missionRequirements).reduce((a, b) => a + b, 0);
+            if (gameState.totalScore === totalRequired) {
+                setTimeout(() => {
+                    alert(`🎉 Congratulations! You completed all SUBMERGED missions on ${gameState.difficulty.toUpperCase()} mode! 🎉`);
+                }, 500);
+            }
+        }
+
+        function showMissionPopup(type) {
+            const popup = document.getElementById('missionPopup');
+            const title = document.getElementById('popupTitle');
+            const message = document.getElementById('popupMessage');
+            
+            const messages = {
+                coral: { title: '🪸 Coral Habitat Mission', msg: 'Great! You helped restore the coral reef ecosystem!' },
+                sample: { title: '🧪 Sample Collection', msg: 'Excellent! Scientific sample collected for research!' },
+                plankton: { title: '🦠 Plankton Study', msg: 'Amazing! You studied microscopic ocean life!' },
+                fish: { title: '🐟 Marine Life Protection', msg: 'Wonderful! You helped protect marine biodiversity!' },
+                treasure: { title: '💎 Deep Sea Discovery', msg: 'Incredible! You found a rare deep sea treasure!' },
+                tooFar: { title: '🤖 Navigation Error', msg: 'Move closer to the item to collect it!' }
+            };
+            
+            title.textContent = messages[type].title;
+            message.textContent = messages[type].msg;
+            popup.style.display = 'block';
+            
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+
+        function closeMissionPopup() {
+            document.getElementById('missionPopup').style.display = 'none';
+        }
+
+        function updateDisplay() {
+            const requirements = difficultySettings[gameState.difficulty].missionRequirements;
+            
+            // Update mission counts while preserving the emoji and text
+            document.querySelector('#coralMission .mission-count').textContent = `${gameState.missions.coral}/${requirements.coral}`;
+            document.querySelector('#sampleMission .mission-count').textContent = `${gameState.missions.sample}/${requirements.sample}`;
+            document.querySelector('#planktonMission .mission-count').textContent = `${gameState.missions.plankton}/${requirements.plankton}`;
+            document.querySelector('#fishMission .mission-count').textContent = `${gameState.missions.fish}/${requirements.fish}`;
+            document.querySelector('#treasureMission .mission-count').textContent = `${gameState.missions.treasure}/${requirements.treasure}`;
+            
+            const totalRequired = Object.values(requirements).reduce((a, b) => a + b, 0);
+            document.getElementById('totalScore').textContent = `${gameState.totalScore}/${totalRequired}`;
+            
+            Object.keys(gameState.missions).forEach(mission => {
+                if (gameState.missions[mission] >= requirements[mission]) {
+                    document.getElementById(mission + 'Mission').classList.add('completed');
+                } else {
+                    document.getElementById(mission + 'Mission').classList.remove('completed');
+                }
+            });
+            
+            // Check for game completion
+            if (gameState.totalScore === totalRequired) {
+                setTimeout(() => {
+                    alert(`🎉 Congratulations! You completed all missions on ${gameState.difficulty.toUpperCase()} mode! 🎉`);
+                }, 500);
+            }
+        }
+
+        function setDifficulty(difficulty) {
+            gameState.difficulty = difficulty;
+            
+            // Update UI
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(difficulty + 'Btn').classList.add('active');
+            document.getElementById('difficultyInfo').textContent = 
+                difficulty.charAt(0).toUpperCase() + difficulty.slice(1) + ': ' + 
+                difficultySettings[difficulty].description;
+            document.getElementById('currentMode').textContent = difficulty.toUpperCase();
+            
+            // Reset game with new difficulty
+            resetGame();
+        }
+
+        function resetGame() {
+            gameState = {
+                x: 300, // Reset to safe zone
+                y: 25, // Reset to surface
+                depth: 0,
+                missions: { coral: 0, sample: 0, plankton: 0, fish: 0, treasure: 0 },
+                totalScore: 0,
+                units: gameState.units, // Preserve current unit setting
+                difficulty: gameState.difficulty // Preserve difficulty setting
+            };
+            
+            missionItems.forEach(item => {
+                if (item.element) item.element.remove();
+            });
+            missionItems.length = 0;
+            
+            // Clear kelp elements
+            kelpElements.forEach(kelp => kelp.element.remove());
+            kelpElements.length = 0;
+            
+            document.querySelectorAll('.kelp, .bubble').forEach(el => el.remove());
+            document.querySelectorAll('.mission-status').forEach(el => el.classList.remove('completed'));
+            
+            updateSubmarinePosition();
+            updateDepth();
+            updateDisplay();
+            generateMissionItems();
+            generateEnvironmentalElements();
+        }
+
+        function showInstructions() {
+            alert(`🌊 SUBMERGED Ocean Explorer Instructions 🌊
+
+🎯 Mission: Complete all FLL 2024-2025 SUBMERGED challenges!
+
+🎮 Controls:
+• WASD keys or control buttons to move submarine
+• Move over mission items to collect them automatically
+
+🏆 Missions:
+• 🪸 Coral Habitat (5 items) - Restore coral ecosystems
+• 🧪 Sample Collection (4 items) - Gather scientific samples  
+• 🦠 Plankton Study (3 items) - Study microscopic life
+• 🐟 Marine Life (6 items) - Protect ocean biodiversity
+• 💎 Deep Sea Treasure (2 items) - Discover rare artifacts
+
+🌊 Ocean Zones:
+• Surface Level - Bright blue waters
+• Sunlight Zone - Most marine life lives here
+• Twilight Zone - Mysterious deeper waters
+• Midnight Zone - Dark, deep ocean
+• Abyssal Zone - The deepest, darkest depths
+
+Complete all 20 missions to win! Good luck, ocean explorer! 🤖`);
+        }
+
+        document.addEventListener('keydown', function(event) {
+            switch(event.key.toLowerCase()) {
+                case 'w': moveSubmarine('up'); break;
+                case 's': moveSubmarine('down'); break;
+                case 'a': moveSubmarine('left'); break;
+                case 'd': moveSubmarine('right'); break;
+            }
+        });
+
+        initializeGame();
+    </script>
+</body>
+</html>

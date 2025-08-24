@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unearthed - Camels Hump Coders</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(115, 67, 50) !important;
+        }
+        html {
+            background-color: rgb(115, 67, 50) !important;
+        }
+        main {
+            background-color: rgb(115, 67, 50) !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1 class="site-title">Camels Hump Coders</h1>
+            <p class="tagline">FIRST® LEGO® League Team from Huntington, Vermont</p>
+        </div>
+        <nav>
+            <div style="position: absolute; top: -30px; left: 0; width: 100%; height: 180px; pointer-events: none; z-index: 5; overflow: visible;">
+                <div style="width: 100%; height: 35px; background-image: url('./assets/green-grass-transparent-background-free-vector.png'); background-repeat: repeat-x; background-size: auto 60px; background-position: center bottom;"></div>
+                
+                
+                <!-- Permanent Mine Shafts -->
+                <div class="mine-shaft shaft1" style="position: absolute; top: 30px; left: 15%; height: 140px;"></div>
+                <div class="mine-shaft shaft2" style="position: absolute; top: 30px; left: 35%; height: 140px;"></div>
+                <div class="mine-shaft shaft3" style="position: absolute; top: 30px; left: 55%; height: 140px;"></div>
+                <div class="mine-shaft shaft4" style="position: absolute; top: 30px; left: 75%; height: 140px;"></div>
+                
+                <!-- Horizontal mining tunnels -->
+                <div class="horizontal-tunnel tunnel1" style="position: absolute; top: 100px; left: 15%; animation: tunnelGrow1 15s linear infinite;"></div>
+                <div class="horizontal-tunnel tunnel2" style="position: absolute; top: 120px; left: 35%; animation: tunnelGrow2 18s linear infinite;"></div>
+                <div class="horizontal-tunnel tunnel3" style="position: absolute; top: 110px; left: 55%; animation: tunnelGrow3 17s linear infinite;"></div>
+                <div class="horizontal-tunnel tunnel4" style="position: absolute; top: 130px; left: 75%; animation: tunnelGrow4 13s linear infinite;"></div>
+                
+                <!-- Comprehensive mine shaft system - follows every archaeologist path -->
+                
+                <!-- Archaeologist 1 mine shafts -->
+                <div class="mine-shaft shaft1-vertical" style="position: absolute; top: 5px; left: 15%; width: 6px; animation: verticalShaft1 15s linear infinite;"></div>
+                <div class="mine-shaft shaft1-horizontal-1" style="position: absolute; top: 85px; left: 15%; height: 6px; animation: horizontalShaft1_1 15s linear infinite;"></div>
+                <div class="mine-shaft shaft1-horizontal-2" style="position: absolute; top: 125px; left: 17%; height: 6px; animation: horizontalShaft1_2 15s linear infinite;"></div>
+                <div class="mine-shaft shaft1-vertical-2" style="position: absolute; top: 105px; left: 17.5%; width: 6px; animation: verticalShaft1_2 15s linear infinite;"></div>
+                
+                <!-- Archaeologist 2 mine shafts -->
+                <div class="mine-shaft shaft2-vertical" style="position: absolute; top: 5px; left: 35%; width: 6px; animation: verticalShaft2 18s linear infinite;"></div>
+                <div class="mine-shaft shaft2-horizontal-1" style="position: absolute; top: 75px; left: 32%; height: 6px; animation: horizontalShaft2_1 18s linear infinite;"></div>
+                <div class="mine-shaft shaft2-horizontal-2" style="position: absolute; top: 115px; left: 30%; height: 6px; animation: horizontalShaft2_2 18s linear infinite;"></div>
+                <div class="mine-shaft shaft2-vertical-2" style="position: absolute; top: 95px; left: 32%; width: 6px; animation: verticalShaft2_2 18s linear infinite;"></div>
+                
+                <!-- Archaeologist 3 mine shafts -->
+                <div class="mine-shaft shaft3-vertical" style="position: absolute; top: 5px; left: 55%; width: 6px; animation: verticalShaft3 17s linear infinite;"></div>
+                <div class="mine-shaft shaft3-horizontal-1" style="position: absolute; top: 65px; left: 53%; height: 6px; animation: horizontalShaft3_1 17s linear infinite;"></div>
+                <div class="mine-shaft shaft3-horizontal-2" style="position: absolute; top: 100px; left: 51%; height: 6px; animation: horizontalShaft3_2 17s linear infinite;"></div>
+                <div class="mine-shaft shaft3-vertical-2" style="position: absolute; top: 80px; left: 53%; width: 6px; animation: verticalShaft3_2 17s linear infinite;"></div>
+                
+                <!-- Archaeologist 4 mine shafts -->
+                <div class="mine-shaft shaft4-vertical" style="position: absolute; top: 5px; left: 75%; width: 6px; animation: verticalShaft4 13s linear infinite;"></div>
+                <div class="mine-shaft shaft4-horizontal-1" style="position: absolute; top: 90px; left: 76%; height: 6px; animation: horizontalShaft4_1 13s linear infinite;"></div>
+                <div class="mine-shaft shaft4-horizontal-2" style="position: absolute; top: 120px; left: 78%; height: 6px; animation: horizontalShaft4_2 13s linear infinite;"></div>
+                <div class="mine-shaft shaft4-vertical-2" style="position: absolute; top: 100px; left: 78%; width: 6px; animation: verticalShaft4_2 13s linear infinite;"></div>
+                
+                <!-- Underground bone deposits - disappear permanently when excavated -->
+                <div class="bone-in-dirt bone-deposit1" style="position: absolute; top: 80px; left: 18%; animation: boneExcavation1 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit2" style="position: absolute; top: 110px; left: 25%; animation: boneExcavation2 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit3" style="position: absolute; top: 90px; left: 37%; animation: boneExcavation3 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit4" style="position: absolute; top: 130px; left: 45%; animation: boneExcavation4 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit5" style="position: absolute; top: 85px; left: 58%; animation: boneExcavation5 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit6" style="position: absolute; top: 120px; left: 65%; animation: boneExcavation6 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit7" style="position: absolute; top: 95px; left: 78%; animation: boneExcavation7 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit8" style="position: absolute; top: 135px; left: 83%; animation: boneExcavation8 300s linear forwards; z-index: 3;">🦴</div>
+                
+                <!-- Additional bone deposits for longer excavation -->
+                <div class="bone-in-dirt bone-deposit9" style="position: absolute; top: 75px; left: 22%; animation: boneExcavation9 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit10" style="position: absolute; top: 115px; left: 35%; animation: boneExcavation10 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit11" style="position: absolute; top: 100px; left: 48%; animation: boneExcavation11 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit12" style="position: absolute; top: 125px; left: 62%; animation: boneExcavation12 300s linear forwards; z-index: 3;">🦴</div>
+                
+                <!-- Final batch of bones for complete excavation -->
+                <div class="bone-in-dirt bone-deposit13" style="position: absolute; top: 105px; left: 20%; animation: boneExcavation13 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit14" style="position: absolute; top: 145px; left: 40%; animation: boneExcavation14 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit15" style="position: absolute; top: 110px; left: 70%; animation: boneExcavation15 300s linear forwards; z-index: 3;">🦴</div>
+                <div class="bone-in-dirt bone-deposit16" style="position: absolute; top: 140px; left: 80%; animation: boneExcavation16 300s linear forwards; z-index: 3;">🦴</div>
+                
+                <!-- Mine shaft support structures -->
+                <div class="shaft-support support1" style="position: absolute; top: 60px; left: 15.5%;"></div>
+                <div class="shaft-support support2" style="position: absolute; top: 90px; left: 15.5%;"></div>
+                <div class="shaft-support support3" style="position: absolute; top: 60px; left: 35.5%;"></div>
+                <div class="shaft-support support4" style="position: absolute; top: 90px; left: 35.5%;"></div>
+                <div class="shaft-support support5" style="position: absolute; top: 60px; left: 55.5%;"></div>
+                <div class="shaft-support support6" style="position: absolute; top: 90px; left: 55.5%;"></div>
+                <div class="shaft-support support7" style="position: absolute; top: 60px; left: 75.5%;"></div>
+                <div class="shaft-support support8" style="position: absolute; top: 90px; left: 75.5%;"></div>
+                
+                <!-- Archaeologist 1: Female with red hair and safety helmet -->
+                <div class="archaeologist arch1" style="position: absolute; top: 5px; left: 15%; animation: variedMining1 15s linear infinite;">
+                    <div class="person">
+                        <div class="head red-hair"></div>
+                        <div class="body red-shirt"></div>
+                        <div class="helmet yellow"></div>
+                        <div class="legs"></div>
+                        <div class="boots"></div>
+                        <div class="arm-left mining"></div>
+                        <div class="arm-right"></div>
+                        <div class="pickaxe"></div>
+                        <div class="hair red-ponytail"></div>
+                    </div>
+                </div>
+                
+                <!-- Archaeologist 2: Male with beard and blue overalls -->
+                <div class="archaeologist arch2" style="position: absolute; top: 5px; left: 35%; animation: variedMining2 18s linear infinite;">
+                    <div class="person">
+                        <div class="head dark-skin"></div>
+                        <div class="body blue-overalls"></div>
+                        <div class="helmet white"></div>
+                        <div class="legs denim"></div>
+                        <div class="boots work-boots"></div>
+                        <div class="beard full"></div>
+                        <div class="arm-left drilling"></div>
+                        <div class="arm-right"></div>
+                        <div class="drill heavy"></div>
+                        <div class="suspenders"></div>
+                    </div>
+                </div>
+                
+                <!-- Archaeologist 3: Elderly with glasses and green vest -->
+                <div class="archaeologist arch3" style="position: absolute; top: 5px; left: 55%; animation: variedMining3 17s linear infinite;">
+                    <div class="person">
+                        <div class="head elderly"></div>
+                        <div class="body green-vest"></div>
+                        <div class="hat explorer"></div>
+                        <div class="legs khaki"></div>
+                        <div class="boots hiking-boots"></div>
+                        <div class="glasses wire-frame"></div>
+                        <div class="arm-left brushing"></div>
+                        <div class="arm-right"></div>
+                        <div class="brush delicate"></div>
+                        <div class="hair gray-hair"></div>
+                    </div>
+                </div>
+                
+                <!-- Archaeologist 4: Young person with purple shirt -->
+                <div class="archaeologist arch4" style="position: absolute; top: 5px; left: 75%; animation: variedMining4 13s linear infinite;">
+                    <div class="person">
+                        <div class="head young"></div>
+                        <div class="body purple-shirt"></div>
+                        <div class="helmet orange"></div>
+                        <div class="legs cargo-pants"></div>
+                        <div class="boots safety-boots"></div>
+                        <div class="arm-left digging"></div>
+                        <div class="arm-right"></div>
+                        <div class="shovel wide"></div>
+                        <div class="tool-belt"></div>
+                    </div>
+                </div>
+                
+                <!-- Bones being transported up -->
+                <div class="bone-transport bone1" style="position: absolute; top: 140px; left: 15%; animation: boneTransport1 12s linear infinite;"></div>
+                <div class="bone-transport bone2" style="position: absolute; top: 145px; left: 35%; animation: boneTransport2 14s linear infinite;"></div>
+                <div class="bone-transport bone3" style="position: absolute; top: 135px; left: 55%; animation: boneTransport3 13s linear infinite;"></div>
+                <div class="bone-transport bone4" style="position: absolute; top: 150px; left: 75%; animation: boneTransport4 11s linear infinite;"></div>
+                
+                <!-- Enhanced Realistic Trucks with Persistent Bones -->
+                <div class="truck truck1" style="position: absolute; top: -15px; left: 8%; animation: persistentTruckCycle1 70s linear infinite;">
+                    <div class="truck-cab red-cab">
+                        <div class="windshield"></div>
+                        <div class="door-handle"></div>
+                        <div class="headlight"></div>
+                    </div>
+                    <div class="flatbed-base">
+                        <div class="flatbed-rails"></div>
+                        <div class="flatbed-deck"></div>
+                    </div>
+                    <div class="wheel wheel-front">
+                        <div class="rim"></div>
+                    </div>
+                    <div class="wheel wheel-back">
+                        <div class="rim"></div>
+                    </div>
+                    <div class="persistent-bones truck1-bones">
+                        <div class="bone-on-flatbed bone1"></div>
+                        <div class="bone-on-flatbed bone2"></div>
+                        <div class="rope-tiedown rope1"></div>
+                        <div class="rope-tiedown rope2"></div>
+                    </div>
+                    <div class="exhaust-pipe"></div>
+                </div>
+                
+                <div class="truck truck2" style="position: absolute; top: -15px; left: 68%; animation: persistentTruckCycle2 80s linear infinite;">
+                    <div class="truck-cab blue-cab">
+                        <div class="windshield"></div>
+                        <div class="door-handle"></div>
+                        <div class="headlight"></div>
+                    </div>
+                    <div class="flatbed-base">
+                        <div class="flatbed-rails"></div>
+                        <div class="flatbed-deck"></div>
+                    </div>
+                    <div class="wheel wheel-front">
+                        <div class="rim"></div>
+                    </div>
+                    <div class="wheel wheel-back">
+                        <div class="rim"></div>
+                    </div>
+                    <div class="persistent-bones truck2-bones">
+                        <div class="bone-on-flatbed bone1"></div>
+                        <div class="bone-on-flatbed bone2"></div>
+                        <div class="rope-tiedown rope1"></div>
+                        <div class="rope-tiedown rope2"></div>
+                    </div>
+                    <div class="exhaust-pipe"></div>
+                </div>
+
+                <!-- Completion truck - appears when excavation is done -->
+                <div class="completion-truck" style="position: absolute; top: -15px; left: -20%; opacity: 0; animation: completionTruckArrival 10s linear forwards; animation-play-state: paused;">
+                    <div class="truck-cab yellow-cab">
+                        <div class="windshield"></div>
+                        <div class="door-handle"></div>
+                        <div class="headlight"></div>
+                    </div>
+                    <div class="flatbed-base">
+                        <div class="flatbed-rails"></div>
+                        <div class="flatbed-deck"></div>
+                        <!-- Banner on the truck -->
+                        <div class="completion-banner" style="position: absolute; top: -10px; left: 2px; width: 35px; height: 10px; background: #dc3545; color: white; font-size: 4px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 1px solid #a71e2a; font-family: Arial, sans-serif;">EXCAVATION COMPLETE</div>
+                    </div>
+                    <div class="wheel wheel-front">
+                        <div class="rim"></div>
+                    </div>
+                    <div class="wheel wheel-back">
+                        <div class="rim"></div>
+                    </div>
+                    <div class="exhaust-pipe"></div>
+                </div>
+
+                <!-- Planted banner in grass - appears after archaeologists plant it -->
+                <div class="planted-banner" style="position: absolute; top: 2px; left: 15%; opacity: 0; z-index: 15;">
+                    <div class="banner-pole" style="width: 4px; height: 50px; background: #8B4513; position: relative; box-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                        <div class="banner-flag" style="position: absolute; top: 4px; left: 4px; width: 120px; height: 30px; background: #dc3545; color: white; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid #a71e2a; font-family: Arial, sans-serif; text-shadow: 2px 2px 2px rgba(0,0,0,0.8); box-shadow: 3px 3px 6px rgba(0,0,0,0.4);">EXCAVATION COMPLETE</div>
+                    </div>
+                </div>
+                
+                <style>
+                    .archaeologist {
+                        width: 24px;
+                        height: 40px;
+                        z-index: 10;
+                    }
+                    
+                    .person {
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                    }
+                    
+                    /* Realistic head styles */
+                    .head {
+                        width: 10px;
+                        height: 12px;
+                        border-radius: 50% 50% 45% 45%;
+                        position: absolute;
+                        top: 2px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        box-shadow: inset -1px -1px 2px rgba(0,0,0,0.1);
+                    }
+                    
+                    .head.red-hair { background: #f4c2a1; }
+                    .head.dark-skin { background: #8B4513; }
+                    .head.elderly { background: #f0e6d2; }
+                    .head.young { background: #FDBCB4; }
+                    
+                    /* Hair styles */
+                    .hair.red-ponytail {
+                        position: absolute;
+                        top: 0;
+                        right: -2px;
+                        width: 6px;
+                        height: 8px;
+                        background: #B22222;
+                        border-radius: 0 3px 6px 0;
+                    }
+                    
+                    .hair.gray-hair {
+                        position: absolute;
+                        top: -1px;
+                        left: -1px;
+                        width: 12px;
+                        height: 8px;
+                        background: #C0C0C0;
+                        border-radius: 6px 6px 0 0;
+                    }
+                    
+                    /* Legs */
+                    .legs {
+                        width: 8px;
+                        height: 12px;
+                        position: absolute;
+                        top: 23px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        border-radius: 0 0 2px 2px;
+                    }
+                    
+                    .legs { background: #4169E1; } /* default blue */
+                    .legs.denim { background: #1e3a8a; }
+                    .legs.khaki { background: #c19a6b; }
+                    .legs.cargo-pants { background: #556b2f; }
+                    
+                    /* Boots */
+                    .boots {
+                        width: 10px;
+                        height: 4px;
+                        position: absolute;
+                        top: 35px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        border-radius: 2px;
+                    }
+                    
+                    .boots { background: #654321; }
+                    .boots.work-boots { background: #2F4F4F; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+                    .boots.hiking-boots { background: #8B4513; border: 1px solid #654321; }
+                    .boots.safety-boots { background: #FFD700; border: 1px solid #FFA500; }
+                    
+                    /* Fixed helmet positioning */
+                    .helmet, .hat {
+                        position: absolute;
+                        top: -1px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 12px;
+                        height: 8px;
+                        border-radius: 6px 6px 2px 2px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        z-index: 5;
+                    }
+                    
+                    .helmet.yellow { background: linear-gradient(135deg, #FFD700, #FFA500); border: 1px solid #FF8C00; }
+                    .helmet.white { background: linear-gradient(135deg, #F8F8FF, #E0E0E0); border: 1px solid #D3D3D3; }
+                    .helmet.orange { background: linear-gradient(135deg, #FF6B35, #FF4500); border: 1px solid #FF2500; }
+                    .hat.explorer { background: linear-gradient(135deg, #8B4513, #654321); border-radius: 10px; height: 8px; border: 1px solid #5D4037; }
+                    
+                    /* Detailed facial features */
+                    .beard.full {
+                        position: absolute;
+                        top: 8px;
+                        left: 2px;
+                        width: 8px;
+                        height: 6px;
+                        background: linear-gradient(135deg, #654321, #3E2723);
+                        border-radius: 0 0 4px 4px;
+                        box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+                    }
+                    
+                    .glasses.wire-frame {
+                        position: absolute;
+                        top: 4px;
+                        left: 1px;
+                        width: 10px;
+                        height: 4px;
+                        border: 1px solid #2F2F2F;
+                        border-radius: 3px;
+                        background: rgba(135, 206, 235, 0.1);
+                    }
+                    
+                    .glasses.wire-frame::before {
+                        content: '';
+                        position: absolute;
+                        top: 1px;
+                        left: 4px;
+                        width: 2px;
+                        height: 1px;
+                        background: #2F2F2F;
+                    }
+                    
+                    /* Realistic body variations */
+                    .body {
+                        width: 14px;
+                        height: 18px;
+                        position: absolute;
+                        top: 10px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        border-radius: 2px 2px 4px 4px;
+                        box-shadow: inset -1px -1px 2px rgba(0,0,0,0.1);
+                    }
+                    
+                    .body.red-shirt { background: linear-gradient(135deg, #DC143C, #B71C1C); }
+                    .body.blue-overalls { 
+                        background: linear-gradient(135deg, #4169E1, #1565C0); 
+                        border: 2px solid #0D47A1;
+                        border-top: none;
+                    }
+                    .body.green-vest { background: linear-gradient(135deg, #228B22, #1B5E20); }
+                    .body.purple-shirt { background: linear-gradient(135deg, #9932CC, #6A1B9A); }
+                    
+                    /* Suspenders */
+                    .suspenders {
+                        position: absolute;
+                        top: 10px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 2px;
+                        height: 18px;
+                        background: #654321;
+                    }
+                    
+                    .suspenders::before, .suspenders::after {
+                        content: '';
+                        position: absolute;
+                        top: 2px;
+                        width: 8px;
+                        height: 2px;
+                        background: #654321;
+                    }
+                    
+                    .suspenders::before { left: -3px; transform: rotate(20deg); }
+                    .suspenders::after { right: -3px; transform: rotate(-20deg); }
+                    
+                    /* Tool belt */
+                    .tool-belt {
+                        position: absolute;
+                        top: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 16px;
+                        height: 3px;
+                        background: #8B4513;
+                        border-radius: 2px;
+                        border: 1px solid #654321;
+                    }
+                    
+                    .tool-belt::before {
+                        content: '';
+                        position: absolute;
+                        top: -1px;
+                        left: 2px;
+                        width: 3px;
+                        height: 5px;
+                        background: #2F2F2F;
+                        border-radius: 1px;
+                    }
+                    
+                    .arm-left, .arm-right {
+                        width: 3px;
+                        height: 8px;
+                        background: #f4c2a1;
+                        position: absolute;
+                        top: 10px;
+                        border-radius: 2px;
+                    }
+                    
+                    .arm-left {
+                        left: 2px;
+                        transform-origin: top center;
+                    }
+                    
+                    .arm-right {
+                        right: 2px;
+                    }
+                    
+                    /* Enhanced tools */
+                    .pickaxe {
+                        width: 2px;
+                        height: 12px;
+                        background: #8B4513;
+                        position: absolute;
+                        top: 12px;
+                        left: 0px;
+                    }
+                    
+                    .pickaxe::after {
+                        content: '';
+                        position: absolute;
+                        top: -3px;
+                        left: -2px;
+                        width: 6px;
+                        height: 3px;
+                        background: #C0C0C0;
+                    }
+                    
+                    .drill.heavy {
+                        width: 3px;
+                        height: 18px;
+                        background: #2F2F2F;
+                        position: absolute;
+                        top: 12px;
+                        left: -1px;
+                    }
+                    
+                    .drill.heavy::after {
+                        content: '';
+                        position: absolute;
+                        top: -3px;
+                        left: -1px;
+                        width: 5px;
+                        height: 5px;
+                        background: #FF4444;
+                        border-radius: 3px;
+                    }
+                    
+                    .brush.delicate {
+                        width: 1px;
+                        height: 10px;
+                        background: #8B4513;
+                        position: absolute;
+                        top: 12px;
+                        left: 1px;
+                    }
+                    
+                    .brush.delicate::after {
+                        content: '';
+                        position: absolute;
+                        top: -2px;
+                        left: -2px;
+                        width: 5px;
+                        height: 3px;
+                        background: #DAA520;
+                        border-radius: 2px;
+                    }
+                    
+                    .shovel.wide {
+                        width: 2px;
+                        height: 12px;
+                        background: #8B4513;
+                        position: absolute;
+                        top: 12px;
+                        left: 0px;
+                    }
+                    
+                    .shovel.wide::after {
+                        content: '';
+                        position: absolute;
+                        top: -4px;
+                        left: -2px;
+                        width: 6px;
+                        height: 5px;
+                        background: #708090;
+                        border-radius: 0 0 3px 3px;
+                    }
+                    
+                    /* Permanent mine shafts */
+                    .mine-shaft {
+                        width: 10px;
+                        background: #654321;
+                        border: 1px solid #4A4A4A;
+                        border-radius: 5px 5px 0 0;
+                        position: relative;
+                        box-shadow: inset 0 0 4px rgba(0,0,0,0.3);
+                    }
+                    
+                    .mine-shaft::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 1px;
+                        width: 8px;
+                        height: 100%;
+                        background: linear-gradient(to right, #543A2A, #6B4423, #543A2A);
+                        border-radius: 3px 3px 0 0;
+                    }
+                    
+                    .mine-shaft::after {
+                        content: '';
+                        position: absolute;
+                        top: 10px;
+                        left: 2px;
+                        width: 6px;
+                        height: 2px;
+                        background: #3E2723;
+                        opacity: 0.6;
+                        border-radius: 1px;
+                        box-shadow: 0 20px 0 #3E2723, 0 40px 0 #3E2723, 0 60px 0 #3E2723, 0 80px 0 #3E2723, 0 100px 0 #3E2723;
+                    }
+                    
+                    /* Realistic mine shaft supports */
+                    .shaft-support {
+                        width: 8px;
+                        height: 4px;
+                        background: linear-gradient(135deg, #8B4513, #654321);
+                        border: 1px solid #5D4037;
+                        border-radius: 2px;
+                        position: relative;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                    }
+                    
+                    .shaft-support::before {
+                        content: '';
+                        position: absolute;
+                        top: -1px;
+                        left: 1px;
+                        width: 1px;
+                        height: 6px;
+                        background: #654321;
+                        box-shadow: 3px 0 0 #654321, 6px 0 0 #654321;
+                    }
+                    
+                    .shaft-support::after {
+                        content: '';
+                        position: absolute;
+                        top: 2px;
+                        left: 0;
+                        width: 8px;
+                        height: 1px;
+                        background: #3E2723;
+                        opacity: 0.5;
+                    }
+                    
+                    /* Underground bone deposits */
+                    .bone-deposit {
+                        width: 4px;
+                        height: 2px;
+                        background: #F5F5DC;
+                        border-radius: 2px;
+                        position: relative;
+                        opacity: 0.8;
+                        animation: boneGlow 3s ease-in-out infinite;
+                    }
+                    
+                    .bone-deposit::before {
+                        content: '';
+                        position: absolute;
+                        top: -1px;
+                        left: -1px;
+                        width: 2px;
+                        height: 2px;
+                        background: #F5F5DC;
+                        border-radius: 50%;
+                    }
+                    
+                    .bone-deposit::after {
+                        content: '';
+                        position: absolute;
+                        top: -1px;
+                        right: -1px;
+                        width: 2px;
+                        height: 2px;
+                        background: #F5F5DC;
+                        border-radius: 50%;
+                    }
+                    
+                    @keyframes boneGlow {
+                        0%, 100% { opacity: 0.6; }
+                        50% { opacity: 1; }
+                    }
+                    
+                    /* Horizontal mining tunnels */
+                    .horizontal-tunnel {
+                        height: 8px;
+                        background: #543A2A;
+                        border: 1px solid #4A4A4A;
+                        border-left: none;
+                        position: relative;
+                        box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+                    }
+                    
+                    .horizontal-tunnel::before {
+                        content: '';
+                        position: absolute;
+                        top: 1px;
+                        left: 0;
+                        width: 100%;
+                        height: 6px;
+                        background: linear-gradient(to bottom, #6B4423, #543A2A);
+                    }
+                    
+                    .horizontal-tunnel::after {
+                        content: '';
+                        position: absolute;
+                        top: 2px;
+                        left: 5px;
+                        width: 2px;
+                        height: 2px;
+                        background: #2F2F2F;
+                        border-radius: 50%;
+                        box-shadow: 10px 0 0 #2F2F2F, 20px 0 0 #2F2F2F, 30px 0 0 #2F2F2F;
+                    }
+                    
+                    /* Bone transport */
+                    .bone-transport {
+                        width: 6px;
+                        height: 2px;
+                        background: #F5F5DC;
+                        border-radius: 1px;
+                    }
+                    
+                    .bone-transport::before, .bone-transport::after {
+                        content: '';
+                        position: absolute;
+                        width: 2px;
+                        height: 2px;
+                        background: #F5F5DC;
+                        border-radius: 50%;
+                        top: 0;
+                    }
+                    
+                    .bone-transport::before { left: -1px; }
+                    .bone-transport::after { right: -1px; }
+                    
+                    /* Realistic trucks */
+                    .truck {
+                        width: 50px;
+                        height: 25px;
+                        position: relative;
+                    }
+                    
+                    .truck-cab {
+                        width: 20px;
+                        height: 16px;
+                        position: absolute;
+                        top: 2px;
+                        left: 0;
+                        border-radius: 3px 3px 2px 2px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    }
+                    
+                    .truck-cab.red-cab { 
+                        background: linear-gradient(135deg, #FF6B6B, #FF4444);
+                        border: 1px solid #FF2222;
+                    }
+                    .truck-cab.blue-cab { 
+                        background: linear-gradient(135deg, #4A90E2, #2171B5);
+                        border: 1px solid #1565C0;
+                    }
+                    
+                    .truck-cab.yellow-cab { 
+                        background: linear-gradient(135deg, #FFD700, #FFA500);
+                        border: 1px solid #FF8C00;
+                    }
+                    
+                    .windshield {
+                        position: absolute;
+                        top: 2px;
+                        left: 2px;
+                        width: 16px;
+                        height: 8px;
+                        background: linear-gradient(135deg, rgba(135, 206, 235, 0.6), rgba(173, 216, 230, 0.4));
+                        border: 1px solid #87CEEB;
+                        border-radius: 2px;
+                    }
+                    
+                    .door-handle {
+                        position: absolute;
+                        top: 8px;
+                        right: 2px;
+                        width: 2px;
+                        height: 1px;
+                        background: #C0C0C0;
+                        border-radius: 1px;
+                    }
+                    
+                    .headlight {
+                        position: absolute;
+                        bottom: 4px;
+                        left: -1px;
+                        width: 3px;
+                        height: 3px;
+                        background: radial-gradient(circle, #FFFACD, #F0E68C);
+                        border: 1px solid #DAA520;
+                        border-radius: 50%;
+                    }
+                    
+                    /* Flatbed truck design */
+                    .flatbed-base {
+                        width: 28px;
+                        height: 3px;
+                        background: linear-gradient(135deg, #A0A0A0, #808080);
+                        position: absolute;
+                        top: 15px;
+                        right: 0;
+                        border: 1px solid #606060;
+                        border-radius: 1px;
+                        box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+                    }
+                    
+                    .flatbed-deck {
+                        position: absolute;
+                        top: -2px;
+                        left: 0;
+                        width: 100%;
+                        height: 2px;
+                        background: linear-gradient(90deg, #8B4513, #654321);
+                        border-radius: 1px;
+                    }
+                    
+                    .flatbed-rails {
+                        position: absolute;
+                        top: -8px;
+                        left: 0;
+                        width: 100%;
+                        height: 8px;
+                        border-left: 1px solid #606060;
+                        border-right: 1px solid #606060;
+                    }
+                    
+                    .flatbed-rails::before,
+                    .flatbed-rails::after {
+                        content: '';
+                        position: absolute;
+                        width: 1px;
+                        height: 8px;
+                        background: #606060;
+                    }
+                    
+                    .flatbed-rails::before { left: 8px; }
+                    .flatbed-rails::after { right: 8px; }
+                    
+                    .tailgate {
+                        position: absolute;
+                        right: -2px;
+                        top: 2px;
+                        width: 2px;
+                        height: 8px;
+                        background: #654321;
+                        border-radius: 0 1px 1px 0;
+                    }
+                    
+                    .wheel {
+                        width: 8px;
+                        height: 8px;
+                        background: radial-gradient(circle, #2F2F2F, #1C1C1C);
+                        border: 1px solid #000;
+                        border-radius: 50%;
+                        position: absolute;
+                        bottom: -4px;
+                    }
+                    
+                    .rim {
+                        position: absolute;
+                        top: 2px;
+                        left: 2px;
+                        width: 4px;
+                        height: 4px;
+                        background: radial-gradient(circle, #C0C0C0, #A0A0A0);
+                        border-radius: 50%;
+                    }
+                    
+                    .wheel-front { left: 4px; }
+                    .wheel-back { right: 4px; }
+                    
+                    .exhaust-pipe {
+                        position: absolute;
+                        top: 8px;
+                        left: 18px;
+                        width: 2px;
+                        height: 6px;
+                        background: #2F2F2F;
+                        border-radius: 1px 1px 0 0;
+                    }
+                    
+                    .exhaust-pipe::after {
+                        content: '';
+                        position: absolute;
+                        top: -2px;
+                        left: -1px;
+                        width: 4px;
+                        height: 3px;
+                        background: radial-gradient(ellipse, rgba(169, 169, 169, 0.6), transparent);
+                        border-radius: 2px;
+                    }
+                    
+                    /* Flatbed bone system - max 2 bones */
+                    .bone-on-flatbed {
+                        position: absolute;
+                        width: 6px;
+                        height: 3px;
+                        background: #F5F5DC;
+                        border-radius: 1px;
+                        opacity: 0;
+                        top: 8px;
+                        border: 1px solid #E6E6E6;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                    }
+                    
+                    .bone-on-flatbed::before,
+                    .bone-on-flatbed::after {
+                        content: '';
+                        position: absolute;
+                        width: 2px;
+                        height: 2px;
+                        background: #F5F5DC;
+                        border-radius: 50%;
+                        top: 0.5px;
+                    }
+                    
+                    .bone-on-flatbed::before { left: -1px; }
+                    .bone-on-flatbed::after { right: -1px; }
+                    
+                    .bone-on-flatbed.bone1 { left: 8px; }
+                    .bone-on-flatbed.bone2 { left: 18px; }
+                    
+                    /* Rope tie-down system */
+                    .rope-tiedown {
+                        position: absolute;
+                        opacity: 0;
+                        top: 8px;
+                        height: 6px;
+                    }
+                    
+                    .rope-tiedown::before {
+                        content: '';
+                        position: absolute;
+                        width: 1px;
+                        height: 6px;
+                        background: #8B4513;
+                        left: 0;
+                        top: 0;
+                        opacity: 0.8;
+                    }
+                    
+                    .rope-tiedown::after {
+                        content: '';
+                        position: absolute;
+                        width: 1px;
+                        height: 6px;
+                        background: #8B4513;
+                        right: 0;
+                        top: 0;
+                        opacity: 0.8;
+                    }
+                    
+                    .rope-tiedown.rope1 { left: 8px; width: 6px; }
+                    .rope-tiedown.rope2 { left: 18px; width: 6px; }
+                    
+                    /* Persistent bone system */
+                    .persistent-bones {
+                        position: absolute;
+                        top: 4px;
+                        right: 3px;
+                        width: 22px;
+                        height: 8px;
+                    }
+                    
+                    .bone-pile {
+                        position: absolute;
+                        width: 3px;
+                        height: 2px;
+                        background: #F5F5DC;
+                        border-radius: 1px;
+                        opacity: 0;
+                    }
+                    
+                    .bone-pile::before, .bone-pile::after {
+                        content: '';
+                        position: absolute;
+                        width: 1px;
+                        height: 1px;
+                        background: #F5F5DC;
+                        border-radius: 50%;
+                        top: 0;
+                    }
+                    
+                    .bone-pile::before { left: -0.5px; }
+                    .bone-pile::after { right: -0.5px; }
+                    
+                    .bone-pile.pile1 { top: 1px; left: 2px; }
+                    .bone-pile.pile2 { top: 3px; left: 8px; }
+                    .bone-pile.pile3 { top: 0px; left: 14px; }
+                    .bone-pile.pile4 { top: 2px; left: 18px; }
+                    
+                    /* Truck 1 bone accumulation */
+                    /* Flatbed bone loading animations - max 2 bones */
+                    .truck1-bones .bone1 { animation: loadFlatbedBone1_1 70s linear infinite; }
+                    .truck1-bones .bone2 { animation: loadFlatbedBone1_2 70s linear infinite; }
+                    .truck1-bones .rope1 { animation: loadFlatbedRope1_1 70s linear infinite; }
+                    .truck1-bones .rope2 { animation: loadFlatbedRope1_2 70s linear infinite; }
+                    
+                    /* Truck 2 bone accumulation */
+                    .truck2-bones .bone1 { animation: loadFlatbedBone2_1 80s linear infinite; }
+                    .truck2-bones .bone2 { animation: loadFlatbedBone2_2 80s linear infinite; }
+                    .truck2-bones .rope1 { animation: loadFlatbedRope2_1 80s linear infinite; }
+                    .truck2-bones .rope2 { animation: loadFlatbedRope2_2 80s linear infinite; }
+                    
+                    /* Animations */
+                    .mining { animation: miningMotion 0.4s ease-in-out infinite; }
+                    .drilling { animation: drillingMotion 0.15s ease-in-out infinite; }
+                    .brushing { animation: brushingMotion 0.6s ease-in-out infinite; }
+                    .digging { animation: diggingMotion 0.5s ease-in-out infinite; }
+                    
+                    @keyframes miningMotion {
+                        0%, 100% { transform: rotate(-20deg); }
+                        50% { transform: rotate(20deg); }
+                    }
+                    
+                    @keyframes drillingMotion {
+                        0%, 100% { transform: rotate(-3deg); }
+                        50% { transform: rotate(3deg); }
+                    }
+                    
+                    @keyframes brushingMotion {
+                        0%, 100% { transform: rotate(-8deg); }
+                        50% { transform: rotate(8deg); }
+                    }
+                    
+                    @keyframes diggingMotion {
+                        0%, 100% { transform: rotate(-25deg); }
+                        50% { transform: rotate(15deg); }
+                    }
+                    
+                    /* Varied mining patterns - each archaeologist has unique behavior */
+                    @keyframes variedMining1 {
+                        0%, 12% { transform: translateY(0) translateX(0); }
+                        24% { transform: translateY(80px) translateX(0); }
+                        30% { transform: translateY(80px) translateX(8px); }
+                        40% { transform: translateY(120px) translateX(8px); }
+                        50% { transform: translateY(120px) translateX(20px); }
+                        62% { transform: translateY(130px) translateX(20px); }
+                        70% { transform: translateY(130px) translateX(12px); }
+                        78% { transform: translateY(100px) translateX(12px); }
+                        84% { transform: translateY(100px) translateX(0); }
+                        92% { transform: translateY(60px) translateX(0); }
+                        100% { transform: translateY(0) translateX(0); }
+                    }
+                    
+                    @keyframes variedMining2 {
+                        0%, 8% { transform: translateY(0) translateX(0); }
+                        18% { transform: translateY(70px) translateX(0); }
+                        28% { transform: translateY(70px) translateX(-12px); }
+                        35% { transform: translateY(110px) translateX(-12px); }
+                        45% { transform: translateY(110px) translateX(-25px); }
+                        55% { transform: translateY(135px) translateX(-25px); }
+                        65% { transform: translateY(135px) translateX(-15px); }
+                        72% { transform: translateY(90px) translateX(-15px); }
+                        80% { transform: translateY(90px) translateX(-5px); }
+                        88% { transform: translateY(50px) translateX(-5px); }
+                        94% { transform: translateY(50px) translateX(0); }
+                        100% { transform: translateY(0) translateX(0); }
+                    }
+                    
+                    @keyframes variedMining3 {
+                        0%, 15% { transform: translateY(0) translateX(0); }
+                        25% { transform: translateY(60px) translateX(0); }
+                        32% { transform: translateY(60px) translateX(-8px); }
+                        42% { transform: translateY(95px) translateX(-8px); }
+                        50% { transform: translateY(95px) translateX(-18px); }
+                        60% { transform: translateY(125px) translateX(-18px); }
+                        68% { transform: translateY(125px) translateX(-25px); }
+                        76% { transform: translateY(105px) translateX(-25px); }
+                        84% { transform: translateY(105px) translateX(-10px); }
+                        90% { transform: translateY(70px) translateX(-10px); }
+                        96% { transform: translateY(70px) translateX(0); }
+                        100% { transform: translateY(0) translateX(0); }
+                    }
+                    
+                    @keyframes variedMining4 {
+                        0%, 10% { transform: translateY(0) translateX(0); }
+                        22% { transform: translateY(85px) translateX(0); }
+                        30% { transform: translateY(85px) translateX(15px); }
+                        38% { transform: translateY(115px) translateX(15px); }
+                        48% { transform: translateY(115px) translateX(28px); }
+                        58% { transform: translateY(140px) translateX(28px); }
+                        66% { transform: translateY(140px) translateX(18px); }
+                        74% { transform: translateY(110px) translateX(18px); }
+                        82% { transform: translateY(110px) translateX(5px); }
+                        88% { transform: translateY(75px) translateX(5px); }
+                        95% { transform: translateY(75px) translateX(0); }
+                        100% { transform: translateY(0) translateX(0); }
+                    }
+                    
+                    /* Horizontal tunnel growth */
+                    @keyframes tunnelGrow1 {
+                        0%, 40% { width: 0; }
+                        60%, 80% { width: 40px; }
+                        100% { width: 0; }
+                    }
+                    
+                    @keyframes tunnelGrow2 {
+                        0%, 35% { width: 0; }
+                        55%, 75% { width: 50px; }
+                        100% { width: 0; }
+                    }
+                    
+                    @keyframes tunnelGrow3 {
+                        0%, 45% { width: 0; }
+                        65%, 85% { width: 45px; }
+                        100% { width: 0; }
+                    }
+                    
+                    @keyframes tunnelGrow4 {
+                        0%, 38% { width: 0; }
+                        58%, 78% { width: 35px; }
+                        100% { width: 0; }
+                    }
+                    
+                    @keyframes boneTransport1 {
+                        0%, 65% { opacity: 0; transform: translateY(80px); }
+                        70%, 85% { opacity: 1; transform: translateY(-40px); }
+                        90%, 100% { opacity: 0; transform: translateY(-40px) translateX(30px); }
+                    }
+                    
+                    @keyframes boneTransport2 {
+                        0%, 60% { opacity: 0; transform: translateY(85px); }
+                        65%, 80% { opacity: 1; transform: translateY(-35px); }
+                        85%, 100% { opacity: 0; transform: translateY(-35px) translateX(-30px); }
+                    }
+                    
+                    @keyframes boneTransport3 {
+                        0%, 70% { opacity: 0; transform: translateY(75px); }
+                        75%, 85% { opacity: 1; transform: translateY(-30px); }
+                        90%, 100% { opacity: 0; transform: translateY(-30px) translateX(-40px); }
+                    }
+                    
+                    @keyframes boneTransport4 {
+                        0%, 58% { opacity: 0; transform: translateY(90px); }
+                        63%, 82% { opacity: 1; transform: translateY(-38px); }
+                        87%, 100% { opacity: 0; transform: translateY(-38px) translateX(25px); }
+                    }
+                    
+                    @keyframes truckCycle1 {
+                        0%, 75% { transform: translateX(0); }
+                        80% { transform: translateX(0); }
+                        100% { transform: translateX(250px); }
+                    }
+                    
+                    @keyframes truckCycle2 {
+                        0%, 70% { transform: translateX(0); }
+                        75% { transform: translateX(0); }
+                        100% { transform: translateX(-280px); }
+                    }
+                    
+                    /* Persistent truck cycles - drive off sides of screen for emptying */
+                    @keyframes persistentTruckCycle1 {
+                        0%, 80% { transform: translateX(0); }
+                        85%, 92% { transform: translateX(calc(100vw - 8%)); }
+                        93%, 97% { transform: translateX(calc(100vw - 8%)); }
+                        98%, 100% { transform: translateX(0); }
+                    }
+                    
+                    @keyframes persistentTruckCycle2 {
+                        0%, 75% { transform: translateX(0); }
+                        80%, 87% { transform: translateX(calc(-100vw + 68%)); }
+                        88%, 92% { transform: translateX(calc(-100vw + 68%)); }
+                        93%, 100% { transform: translateX(0); }
+                    }
+                    
+                    /* Flatbed bone loading animations for truck 1 - faster loading */
+                    @keyframes loadFlatbedBone1_1 {
+                        0%, 15% { opacity: 0; }
+                        20%, 84% { opacity: 1; }
+                        85%, 97% { opacity: 0; }
+                        98%, 100% { opacity: 0; }
+                    }
+                    
+                    @keyframes loadFlatbedBone1_2 {
+                        0%, 25% { opacity: 0; }
+                        30%, 84% { opacity: 1; }
+                        85%, 97% { opacity: 0; }
+                        98%, 100% { opacity: 0; }
+                    }
+                    
+                    @keyframes loadFlatbedRope1_1 {
+                        0%, 20% { opacity: 0; }
+                        25%, 84% { opacity: 1; }
+                        85%, 97% { opacity: 0; }
+                        98%, 100% { opacity: 0; }
+                    }
+                    
+                    @keyframes loadFlatbedRope1_2 {
+                        0%, 30% { opacity: 0; }
+                        35%, 84% { opacity: 1; }
+                        85%, 97% { opacity: 0; }
+                        98%, 100% { opacity: 0; }
+                    }
+                    
+                    /* Flatbed bone loading animations for truck 2 - faster loading */
+                    @keyframes loadFlatbedBone2_1 {
+                        0%, 12% { opacity: 0; }
+                        17%, 79% { opacity: 1; }
+                        80%, 92% { opacity: 0; }
+                        93%, 100% { opacity: 0; }
+                    }
+                    
+                    @keyframes loadFlatbedBone2_2 {
+                        0%, 22% { opacity: 0; }
+                        27%, 79% { opacity: 1; }
+                        80%, 92% { opacity: 0; }
+                        93%, 100% { opacity: 0; }
+                    }
+                    
+                    @keyframes loadFlatbedRope2_1 {
+                        0%, 17% { opacity: 0; }
+                        22%, 79% { opacity: 1; }
+                        80%, 92% { opacity: 0; }
+                        93%, 100% { opacity: 0; }
+                    }
+                    
+                    @keyframes loadFlatbedRope2_2 {
+                        0%, 27% { opacity: 0; }
+                        32%, 79% { opacity: 1; }
+                        80%, 92% { opacity: 0; }
+                        93%, 100% { opacity: 0; }
+                    }
+                    
+                    /* Dynamic Mine Shaft Animations - appear wherever archaeologists go underground */
+                    
+                    /* Archaeologist 1 shaft animations - only appear when archaeologist is there */
+                    @keyframes verticalShaft1 {
+                        0%, 24% { height: 0; }
+                        25%, 92% { height: 80px; }
+                        93%, 100% { height: 0; }
+                    }
+                    
+                    @keyframes horizontalShaft1_1 {
+                        0%, 29% { width: 0; }
+                        30%, 39% { width: 20px; }
+                        40%, 100% { width: 0; }
+                    }
+                    
+                    @keyframes horizontalShaft1_2 {
+                        0%, 49% { width: 0; }
+                        50%, 61% { width: 25px; }
+                        62%, 100% { width: 0; }
+                    }
+                    
+                    @keyframes verticalShaft1_2 {
+                        0%, 39% { width: 0; }
+                        40%, 69% { width: 6px; }
+                        70%, 100% { width: 0; }
+                    }
+                    
+                    /* Archaeologist 2 shaft animations - only appear when archaeologist is there */
+                    @keyframes verticalShaft2 {
+                        0%, 17% { height: 0; }
+                        18%, 94% { height: 70px; }
+                        95%, 100% { height: 0; }
+                    }
+                    
+                    @keyframes horizontalShaft2_1 {
+                        0%, 27% { width: 0; }
+                        28%, 34% { width: 25px; }
+                        35%, 100% { width: 0; }
+                    }
+                    
+                    @keyframes horizontalShaft2_2 {
+                        0%, 44% { width: 0; }
+                        45%, 54% { width: 30px; }
+                        55%, 100% { width: 0; }
+                    }
+                    
+                    @keyframes verticalShaft2_2 {
+                        0%, 34% { width: 0; }
+                        35%, 64% { width: 6px; }
+                        65%, 100% { width: 0; }
+                    }
+                    
+                    /* Archaeologist 3 shaft animations - only appear when archaeologist is there */
+                    @keyframes verticalShaft3 {
+                        0%, 24% { height: 0; }
+                        25%, 96% { height: 60px; }
+                        97%, 100% { height: 0; }
+                    }
+                    
+                    @keyframes horizontalShaft3_1 {
+                        0%, 31% { width: 0; }
+                        32%, 41% { width: 18px; }
+                        42%, 100% { width: 0; }
+                    }
+                    
+                    @keyframes horizontalShaft3_2 {
+                        0%, 49% { width: 0; }
+                        50%, 59% { width: 22px; }
+                        60%, 100% { width: 0; }
+                    }
+                    
+                    @keyframes verticalShaft3_2 {
+                        0%, 41% { width: 0; }
+                        42%, 67% { width: 6px; }
+                        68%, 100% { width: 0; }
+                    }
+                    
+                    /* Archaeologist 4 shaft animations - only appear when archaeologist is there */
+                    @keyframes verticalShaft4 {
+                        0%, 21% { height: 0; }
+                        22%, 95% { height: 85px; }
+                        96%, 100% { height: 0; }
+                    }
+                    
+                    @keyframes horizontalShaft4_1 {
+                        0%, 29% { width: 0; }
+                        30%, 37% { width: 28px; }
+                        38%, 100% { width: 0; }
+                    }
+                    
+                    @keyframes horizontalShaft4_2 {
+                        0%, 47% { width: 0; }
+                        48%, 57% { width: 25px; }
+                        58%, 100% { width: 0; }
+                    }
+                    
+                    @keyframes verticalShaft4_2 {
+                        0%, 37% { width: 0; }
+                        38%, 65% { width: 6px; }
+                        66%, 100% { width: 0; }
+                    }
+                    
+                    
+                    /* Bone-in-dirt styling */
+                    .bone-in-dirt {
+                        font-size: 20px;
+                        filter: sepia(100%) saturate(0%) brightness(80%);
+                        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+                        pointer-events: none;
+                    }
+                    
+                    /* Bone excavation animations - bones disappear permanently over 5 minutes */
+                    @keyframes boneExcavation1 { 0%, 5% { opacity: 1; } 6%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation2 { 0%, 8% { opacity: 1; } 9%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation3 { 0%, 12% { opacity: 1; } 13%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation4 { 0%, 15% { opacity: 1; } 16%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation5 { 0%, 18% { opacity: 1; } 19%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation6 { 0%, 22% { opacity: 1; } 23%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation7 { 0%, 25% { opacity: 1; } 26%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation8 { 0%, 28% { opacity: 1; } 29%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation9 { 0%, 32% { opacity: 1; } 33%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation10 { 0%, 35% { opacity: 1; } 36%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation11 { 0%, 40% { opacity: 1; } 41%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation12 { 0%, 45% { opacity: 1; } 46%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation13 { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation14 { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation15 { 0%, 75% { opacity: 1; } 76%, 100% { opacity: 0; } }
+                    @keyframes boneExcavation16 { 0%, 90% { opacity: 1; } 91%, 100% { opacity: 0; } }
+                    
+                    /* Excavation complete - archaeologists and trucks leave */
+                    .excavation-complete .archaeologist {
+                        animation-name: leaveScene !important;
+                        animation-duration: 5s !important;
+                        animation-fill-mode: forwards !important;
+                    }
+                    
+                    .excavation-complete .truck {
+                        animation-name: truckLeaveScene !important;
+                        animation-duration: 5s !important;
+                        animation-fill-mode: forwards !important;
+                    }
+                    
+                    @keyframes leaveScene {
+                        0% { transform: translateX(0) translateY(0); }
+                        100% { transform: translateX(-150vw) translateY(-50px); opacity: 0; }
+                    }
+                    
+                    @keyframes truckLeaveScene {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(-150vw); opacity: 0; }
+                    }
+                    
+                    /* Completion truck animations */
+                    @keyframes completionTruckArrival {
+                        0% { left: -20%; opacity: 0; transform: translateY(0px); }
+                        20% { left: 40%; opacity: 1; transform: translateY(0px); }
+                        80% { left: 40%; opacity: 1; transform: translateY(0px); }
+                        100% { left: 40%; opacity: 1; transform: translateY(0px); }
+                    }
+                    
+                    @keyframes bannerPlanting {
+                        0% { opacity: 0; }
+                        100% { opacity: 1; }
+                    }
+                    
+                    @keyframes allTrucksLeave {
+                        0% { transform: translateX(0); opacity: 1; }
+                        100% { transform: translateX(-150vw); opacity: 0; }
+                    }
+                    
+                    @keyframes archaeologistsToBanner {
+                        0% { transform: translateX(0) translateY(0); }
+                        50% { transform: translateX(20px) translateY(-10px); }
+                        100% { transform: translateX(0) translateY(-5px); }
+                    }
+                    
+                    @keyframes archaeologistsToTruck {
+                        0% { transform: translateX(0) translateY(-5px); opacity: 1; }
+                        100% { transform: translateX(25px) translateY(-5px); opacity: 0; }
+                    }
+                </style>
+            </div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="about.html">About Us</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="2024-2025.html">2024-2025</a></li>
+                        <li><a href="2023-2024.html">2023-2024</a></li>
+                    </ul>
+                </li>
+                <li><a href="coders.html">Coders</a></li>
+                <li class="dropdown">
+                    <a href="#">Games</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="unearthed.html" class="active">Unearthed</a></li>
+                        <li><a href="submerged.html">Submerged</a></li>
+                        <li><a href="masterpiece.html">Masterpiece</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero" style="background: rgb(115, 67, 50); color: white; position: relative; overflow: hidden;">
+            <!-- Speed Control Panel -->
+            <div class="speed-controls" style="position: absolute; top: 10px; right: 10px; z-index: 100; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; font-family: Arial, sans-serif;">
+                <div style="color: white; font-size: 12px; margin-bottom: 10px; line-height: 1.3;">
+                    <strong>Excavation Speed Control</strong><br>
+                    Adjust how fast the archaeologists work.<br>
+                    Click multiple times for bigger changes.
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <button id="slowDown" style="background: #d9534f; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">Slower</button>
+                    <span id="speedDisplay" style="color: white; font-size: 12px; min-width: 60px; text-align: center;">Speed: 1x</span>
+                    <button id="speedUp" style="background: #5cb85c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">Faster</button>
+                    <button id="resetSpeed" style="background: #f0ad4e; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">Reset</button>
+                    <button id="startOver" style="background: #5bc0de; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">Start Over</button>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div style="margin-top: 15px; width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <span id="progressPercent" style="color: white; font-size: 11px; font-weight: bold;">Progress: 0%</span>
+                        <span id="timeRemaining" style="color: white; font-size: 11px; font-weight: bold;">Time Remaining: 5:00</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden;">
+                        <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #28a745 0%, #20c997 50%, #17a2b8 100%); transition: width 0.5s ease; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                
+                <!-- Fossil Counter -->
+                <div style="margin-top: 12px; text-align: center;">
+                    <span id="fossilCounter" style="color: #F5F5DC; font-size: 12px; font-weight: bold; background: rgba(139, 69, 19, 0.8); padding: 6px 12px; border-radius: 4px; border: 1px solid #8B4513;">🦕 Fossils: 0/16</span>
+                </div>
+            </div>
+            <style>
+                .fossil {
+                    position: absolute;
+                    opacity: 0.3;
+                    font-size: 3rem;
+                    color: rgba(255, 255, 255, 0.5);
+                    transform: rotate(-15deg);
+                    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+                }
+                .fossil-1 {
+                    top: 20%;
+                    left: 5%;
+                    font-size: 2.5rem;
+                    transform: rotate(25deg);
+                }
+                .fossil-2 {
+                    top: 60%;
+                    right: 8%;
+                    font-size: 3.5rem;
+                    transform: rotate(-30deg);
+                }
+                .fossil-3 {
+                    bottom: 20%;
+                    left: 10%;
+                    font-size: 2.8rem;
+                    transform: rotate(45deg);
+                }
+                .fossil-4 {
+                    top: 40%;
+                    right: 5%;
+                    font-size: 2.2rem;
+                    transform: rotate(-20deg);
+                }
+                .fossil-5 {
+                    top: 15%;
+                    right: 15%;
+                    font-size: 3rem;
+                    transform: rotate(10deg);
+                }
+                .fossil-6 {
+                    bottom: 30%;
+                    right: 12%;
+                    font-size: 2.6rem;
+                    transform: rotate(-45deg);
+                }
+                .fossil-7 {
+                    top: 35%;
+                    left: 8%;
+                    font-size: 3.2rem;
+                    transform: rotate(-10deg);
+                }
+                .fossil-8 {
+                    bottom: 15%;
+                    left: 25%;
+                    font-size: 2.4rem;
+                    transform: rotate(35deg);
+                }
+                .fossil-9 {
+                    top: 50%;
+                    left: 15%;
+                    font-size: 2.9rem;
+                    transform: rotate(-25deg);
+                }
+                .fossil-10 {
+                    top: 25%;
+                    right: 25%;
+                    font-size: 2.7rem;
+                    transform: rotate(15deg);
+                }
+                .fossil-11 {
+                    bottom: 35%;
+                    left: 20%;
+                    font-size: 2.3rem;
+                    transform: rotate(-35deg);
+                }
+                .fossil-12 {
+                    top: 45%;
+                    right: 18%;
+                    font-size: 3.1rem;
+                    transform: rotate(40deg);
+                }
+                .fossil-13 {
+                    top: 70%;
+                    left: 30%;
+                    font-size: 2.5rem;
+                    transform: rotate(-15deg);
+                }
+                .fossil-14 {
+                    bottom: 25%;
+                    right: 30%;
+                    font-size: 2.8rem;
+                    transform: rotate(20deg);
+                }
+                .fossil-15 {
+                    top: 55%;
+                    right: 35%;
+                    font-size: 2.6rem;
+                    transform: rotate(-40deg);
+                }
+            </style>
+            <div class="fossil fossil-1">🦴</div>
+            <div class="fossil fossil-2">🦴</div>
+            <div class="fossil fossil-3">🦴</div>
+            <div class="fossil fossil-4">🦴</div>
+            <div class="fossil fossil-5">🦴</div>
+            <div class="fossil fossil-6">🦴</div>
+            <div class="fossil fossil-7">🦴</div>
+            <div class="fossil fossil-8">🦴</div>
+            <div class="fossil fossil-9">🦴</div>
+            <div class="fossil fossil-10">🦴</div>
+            <div class="fossil fossil-11">🦴</div>
+            <div class="fossil fossil-12">🦴</div>
+            <div class="fossil fossil-13">🦴</div>
+            <div class="fossil fossil-14">🦴</div>
+            <div class="fossil fossil-15">🦴</div>
+            <div class="hero-content" style="position: relative; z-index: 1;">
+                <h2 style="color: white;">Welcome to the Unearthed Excavation!</h2>
+                <p class="season-tag" style="color: #f9f9f9;">2025-2026 Season: "Unearthed!"</p>
+                <img src="./assets/unearthed.gif" alt="UNEARTHED Season Animation" style="max-width: 300px; height: auto; margin: 1.5rem auto; display: block;">
+                <p style="color: white;">Experience our archaeological excavation simulation below! Use the controls in the top-right to adjust the dig speed.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer style="background: rgb(115, 67, 50);">
+        <div class="container">
+            <p>&copy; 2024 Camels Hump Coders. All rights reserved.</p>
+            <p>A FIRST® LEGO® League team from Huntington, Vermont</p>
+        </div>
+    </footer>
+
+    <script>
+        // Speed control system for archaeological excavation
+        let currentSpeedMultiplier = 1.0;
+        const speedStep = 0.25;
+        const minSpeed = 0.25;
+        const maxSpeed = 4.0;
+        
+        // Store original animation durations
+        const originalAnimations = new Map();
+        
+        // Global tracking variables
+        let excavationCompleted = false;
+        let collectedBones = 0;
+        let currentSpeed = 1.0;
+        let baseElapsedTime = 0; // Track elapsed time at normal speed
+        let lastSpeedChangeTime = 0;
+        let collectedByTimer = 0;
+        let activeTimeouts = [];
+        let activeIntervals = [];
+        let boneCheckInterval = null;
+        
+        function initializeSpeedControls() {
+            const speedDisplay = document.getElementById('speedDisplay');
+            const slowDownBtn = document.getElementById('slowDown');
+            const speedUpBtn = document.getElementById('speedUp');
+            const resetBtn = document.getElementById('resetSpeed');
+            const startOverBtn = document.getElementById('startOver');
+            
+            if (!speedDisplay || !slowDownBtn || !speedUpBtn || !resetBtn || !startOverBtn) {
+                setTimeout(initializeSpeedControls, 100);
+                return;
+            }
+            
+            console.log('Initializing speed controls and excavation monitoring');
+            
+            const totalBones = 16;
+            
+            // Function to trigger excavation completion
+            function triggerExcavationComplete() {
+                if (excavationCompleted) return;
+                excavationCompleted = true;
+                
+                // Stop all mining movement immediately
+                const archaeologists = document.querySelectorAll('.archaeologist');
+                const mineShafts = document.querySelectorAll('.mine-shaft');
+                const boneTransports = document.querySelectorAll('.bone-transport');
+                const trucks = document.querySelectorAll('.truck');
+                
+                // Pause all archaeologist animations
+                archaeologists.forEach(arch => {
+                    arch.style.animationPlayState = 'paused';
+                });
+                
+                // Pause all mine shaft animations
+                mineShafts.forEach(shaft => {
+                    shaft.style.animationPlayState = 'paused';
+                });
+                
+                // Pause all bone transport animations
+                boneTransports.forEach(transport => {
+                    transport.style.animationPlayState = 'paused';
+                });
+                
+                // Pause regular truck operations (they'll be overridden by completion sequence)
+                trucks.forEach(truck => {
+                    truck.style.animationPlayState = 'paused';
+                });
+                
+                const completionTruck = document.querySelector('.completion-truck');
+                const plantedBanner = document.querySelector('.planted-banner');
+                const allTrucks = document.querySelectorAll('.truck, .completion-truck');
+                
+                // Step 1: Completion truck arrives (2 seconds)
+                completionTruck.style.animationPlayState = 'running';
+                
+                // Step 2: Archaeologists move to plant banner (3 seconds after truck arrives)
+                setTimeout(() => {
+                    archaeologists.forEach(arch => {
+                        arch.style.animation = 'archaeologistsToBanner 3s ease-in-out forwards';
+                    });
+                    
+                    // Step 3: Plant banner (1 second after archaeologists reach center)
+                    setTimeout(() => {
+                        plantedBanner.style.animation = 'bannerPlanting 1s ease-out forwards';
+                        
+                        // Step 4: Archaeologists board yellow truck (2 seconds after banner planted)
+                        setTimeout(() => {
+                            archaeologists.forEach(arch => {
+                                arch.style.animation = 'archaeologistsToTruck 2s ease-in-out forwards';
+                            });
+                            
+                            // Step 5: All trucks leave permanently (2 seconds after boarding)
+                            setTimeout(() => {
+                                allTrucks.forEach(truck => {
+                                    truck.style.animation = 'allTrucksLeave 5s ease-in-out forwards';
+                                });
+                                
+                                // Make bones disappear as trucks leave
+                                setTimeout(() => {
+                                    const bonesOnTrucks = document.querySelectorAll('.bone-on-flatbed, .rope-tiedown');
+                                    bonesOnTrucks.forEach(bone => {
+                                        bone.style.opacity = '0';
+                                    });
+                                }, 1000); // 1 second after trucks start leaving
+                                
+                            }, 2000);
+                        }, 2000);
+                    }, 1000);
+                }, 3000);
+            }
+            
+            // Store original animation durations
+            const animatedElements = document.querySelectorAll('[style*="animation"]');
+            animatedElements.forEach((element, index) => {
+                const style = element.getAttribute('style');
+                if (style && style.includes('animation:')) {
+                    originalAnimations.set(index, style);
+                }
+            });
+            
+            function updateSpeed() {
+                const currentAnimatedElements = document.querySelectorAll('[style*="animation"]');
+                currentAnimatedElements.forEach((element, index) => {
+                    const originalStyle = originalAnimations.get(index);
+                    if (originalStyle) {
+                        // Extract original duration and calculate new duration
+                        const newStyle = originalStyle.replace(/(\d+(?:\.\d+)?)s/g, (match, duration) => {
+                            const originalDuration = parseFloat(duration);
+                            const newDuration = originalDuration / currentSpeedMultiplier;
+                            return newDuration + 's';
+                        });
+                        element.setAttribute('style', newStyle);
+                    }
+                });
+                
+                // Update display
+                speedDisplay.textContent = `Speed: ${currentSpeedMultiplier.toFixed(2)}x`;
+                
+                // Update current speed for progress bar calculations
+                const now = Date.now();
+                const realElapsedSinceLastChange = now - lastSpeedChangeTime;
+                const speedAdjustedElapsed = realElapsedSinceLastChange * currentSpeed;
+                baseElapsedTime += speedAdjustedElapsed;
+                lastSpeedChangeTime = now;
+                currentSpeed = currentSpeedMultiplier;
+                
+                // Update button states
+                slowDownBtn.disabled = currentSpeedMultiplier <= minSpeed;
+                speedUpBtn.disabled = currentSpeedMultiplier >= maxSpeed;
+                
+                slowDownBtn.style.opacity = slowDownBtn.disabled ? '0.5' : '1';
+                speedUpBtn.style.opacity = speedUpBtn.disabled ? '0.5' : '1';
+            }
+            
+            function slowDown() {
+                if (currentSpeedMultiplier > minSpeed) {
+                    currentSpeedMultiplier = Math.max(minSpeed, currentSpeedMultiplier - speedStep);
+                    updateSpeed();
+                }
+            }
+            
+            function speedUp() {
+                if (currentSpeedMultiplier < maxSpeed) {
+                    currentSpeedMultiplier = Math.min(maxSpeed, currentSpeedMultiplier + speedStep);
+                    updateSpeed();
+                }
+            }
+            
+            function resetSpeed() {
+                currentSpeedMultiplier = 1.0;
+                updateSpeed();
+            }
+            
+            function startOver() {
+                console.log('Starting over - reloading page');
+                // Simply reload the page for a complete fresh start
+                window.location.reload();
+            }
+            
+            // Add event listeners
+            slowDownBtn.addEventListener('click', slowDown);
+            speedUpBtn.addEventListener('click', speedUp);
+            resetBtn.addEventListener('click', resetSpeed);
+            startOverBtn.addEventListener('click', startOver);
+            
+            // Add hover effects
+            [slowDownBtn, speedUpBtn, resetBtn, startOverBtn].forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    if (!btn.disabled) {
+                        btn.style.transform = 'scale(1.05)';
+                    }
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'scale(1)';
+                });
+                btn.style.transition = 'transform 0.2s ease';
+            });
+            
+            // Initialize
+            updateSpeed();
+            
+            // Set up bone monitoring using animation events
+            function setupBoneMonitoring() {
+                const boneElements = document.querySelectorAll('.bone-in-dirt');
+                collectedBones = 0;
+                collectedByTimer = 0;
+                
+                console.log(`Setting up monitoring for ${boneElements.length} bones`);
+                console.log('Bone elements found:', boneElements);
+                
+                // Timer-based bone collection that adapts to speed changes
+                const boneTimings = [5, 8, 12, 15, 18, 22, 25, 28, 32, 35, 40, 45, 50, 60, 75, 90]; // percentage of base time
+                
+                function checkForBoneCollection() {
+                    if (excavationCompleted || collectedByTimer >= 16) return;
+                    
+                    // Calculate current progress based on base elapsed time
+                    const now = Date.now();
+                    const realElapsedSinceLastChange = now - lastSpeedChangeTime;
+                    const speedAdjustedElapsed = realElapsedSinceLastChange * currentSpeed;
+                    const totalBaseElapsed = baseElapsedTime + speedAdjustedElapsed;
+                    const progressPercentage = (totalBaseElapsed / 300000) * 100;
+                    
+                    // Check if we should collect the next bone
+                    if (collectedByTimer < boneTimings.length && progressPercentage >= boneTimings[collectedByTimer]) {
+                        collectedBones++;
+                        collectedByTimer++;
+                        console.log(`Bone ${collectedByTimer} collected at ${progressPercentage.toFixed(1)}%! Total: ${collectedBones}/16`);
+                        updateFossilCounter();
+                        
+                        if (collectedBones >= 16) {
+                            console.log('All bones collected! Triggering excavation completion.');
+                            triggerExcavationComplete();
+                        }
+                    }
+                    
+                    // Continue checking
+                    if (!excavationCompleted) {
+                        boneCheckInterval = setTimeout(checkForBoneCollection, 500); // Check every 500ms
+                    }
+                }
+                
+                // Clear any existing interval before starting new one
+                if (boneCheckInterval) {
+                    clearTimeout(boneCheckInterval);
+                }
+                
+                // Start the bone collection monitoring
+                boneCheckInterval = setTimeout(checkForBoneCollection, 1000); // Start after 1 second
+                
+                boneElements.forEach((bone, index) => {
+                    // Listen for animation end event
+                    bone.addEventListener('animationend', function(e) {
+                        if (e.animationName.startsWith('boneExcavation')) {
+                            collectedBones++;
+                            console.log(`Bone ${index + 1} collected! Total: ${collectedBones}/${totalBones}`);
+                            updateFossilCounter();
+                            
+                            // Trigger completion when last bone is collected
+                            if (collectedBones >= totalBones) {
+                                console.log('All bones collected! Triggering excavation completion.');
+                                setTimeout(() => triggerExcavationComplete(), 100);
+                            }
+                        }
+                    });
+                    
+                    // Also monitor when opacity becomes 0 (backup method)
+                    const observer = new MutationObserver((mutations) => {
+                        mutations.forEach((mutation) => {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                const computedStyle = window.getComputedStyle(bone);
+                                if (parseFloat(computedStyle.opacity) === 0 && !bone.dataset.collected) {
+                                    bone.dataset.collected = 'true';
+                                    collectedBones++;
+                                    console.log(`Bone ${index + 1} collected (opacity method)! Total: ${collectedBones}/${totalBones}`);
+                                    updateFossilCounter();
+                                    
+                                    if (collectedBones >= totalBones) {
+                                        console.log('All bones collected! Triggering excavation completion.');
+                                        setTimeout(() => triggerExcavationComplete(), 100);
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    
+                    observer.observe(bone, {
+                        attributes: true,
+                        attributeFilter: ['style']
+                    });
+                });
+            }
+            
+            // Function to update fossil counter
+            function updateFossilCounter() {
+                const fossilCounter = document.getElementById('fossilCounter');
+                if (fossilCounter) {
+                    fossilCounter.textContent = `🦕 Fossils: ${collectedBones}/16`;
+                }
+            }
+            
+            // Set up bone monitoring
+            setupBoneMonitoring();
+            
+            // Progress bar functionality
+            function updateProgressBar() {
+                const progressBar = document.getElementById('progressBar');
+                const progressPercent = document.getElementById('progressPercent');
+                const timeRemaining = document.getElementById('timeRemaining');
+                
+                if (!progressBar || !progressPercent || !timeRemaining) return;
+                
+                // Calculate current base elapsed time including speed adjustments
+                const now = Date.now();
+                const realElapsedSinceLastChange = now - lastSpeedChangeTime;
+                const speedAdjustedElapsed = realElapsedSinceLastChange * currentSpeed;
+                const totalBaseElapsed = baseElapsedTime + speedAdjustedElapsed;
+                
+                // Calculate progress percentage (0-100%)
+                const baseTimeMs = 300000; // 5 minutes in milliseconds
+                const timePercentage = Math.min((totalBaseElapsed / baseTimeMs) * 100, 100);
+                const roundedPercentage = Math.floor(timePercentage);
+                
+                // Calculate remaining time at current speed
+                const remainingBaseTime = Math.max(baseTimeMs - totalBaseElapsed, 0);
+                const remainingRealTime = remainingBaseTime / currentSpeed;
+                
+                // Format time remaining
+                const minutes = Math.floor(remainingRealTime / 60000);
+                const seconds = Math.floor((remainingRealTime % 60000) / 1000);
+                const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Update progress bar with smooth percentage
+                progressBar.style.width = `${roundedPercentage}%`;
+                progressPercent.textContent = `Progress: ${roundedPercentage}%`;
+                timeRemaining.textContent = `Time Remaining: ${timeString}`;
+                
+                // Stop updating if excavation is complete or time is up
+                if (!excavationCompleted && remainingRealTime > 0 && roundedPercentage < 100) {
+                    requestAnimationFrame(() => setTimeout(updateProgressBar, 1000));
+                }
+            }
+            
+            // Start progress bar updates
+            let excavationStartTime = Date.now();
+            lastSpeedChangeTime = excavationStartTime;
+            baseElapsedTime = 0;
+            updateProgressBar();
+            
+            // Fallback timer in case bone monitoring fails (5 minutes max)
+            const fallbackTimer = setTimeout(() => {
+                if (!excavationCompleted) {
+                    console.log('Fallback timer triggered - completing excavation');
+                    triggerExcavationComplete();
+                }
+            }, 300000); // 5 minutes fixed time
+            activeTimeouts.push(fallbackTimer);
+        }
+        
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeSpeedControls);
+        } else {
+            initializeSpeedControls();
+        }
+    </script>
+</body>
+</html>

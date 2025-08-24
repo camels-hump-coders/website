@@ -45,8 +45,26 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - Alternative: Open `index.html` directly in a web browser
 
 ### GitHub Pages Deployment
+
+#### Automatic Deployment (Recommended)
+This repository includes a GitHub Actions workflow that automatically deploys to GitHub Pages:
+
+1. **One-time setup**: Go to Settings > Pages in the GitHub repository
+2. Set Source to "GitHub Actions" 
+3. Push changes to the main branch - deployment happens automatically!
+4. Check the "Actions" tab to monitor deployment status
+5. Site will be available at: https://[username].github.io/camels-hump-coders/
+
+The workflow (`.github/workflows/deploy.yml`) will:
+- Trigger on every push to main branch
+- Build the site using Jekyll
+- Deploy automatically to GitHub Pages
+- Usually completes in 2-3 minutes
+
+#### Manual Deployment (Alternative)
+If you prefer manual deployment:
 1. Push all changes to the main branch
-2. Go to Settings > Pages in the GitHub repository
+2. Go to Settings > Pages in the GitHub repository  
 3. Set Source to "Deploy from a branch"
 4. Select "main" branch and "/ (root)" folder
 5. Save and wait for deployment (usually takes 2-5 minutes)

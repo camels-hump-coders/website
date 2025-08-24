@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+}
+
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -12,6 +16,11 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
+}
+
+main {
+    overflow-x: hidden;
 }
 
 .container {
@@ -55,6 +64,7 @@ nav {
     padding: 0.5rem 0;
     position: relative;
     overflow: visible;
+    z-index: 99998;
 }
 
 nav > ul {
@@ -84,6 +94,7 @@ nav a.active {
 /* Dropdown Menu */
 .dropdown {
     position: relative;
+    z-index: 99999;
 }
 
 .dropdown-menu {
@@ -98,7 +109,7 @@ nav a.active {
     list-style: none;
     padding: 0.5rem 0;
     margin-top: 0.5rem;
-    z-index: 1000;
+    z-index: 999999;
 }
 
 .dropdown:hover .dropdown-menu,

@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTERPIECE: Museum Detective - Camels Hump Coders</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .hud-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Iceberg', cursive;
+            border: 2px solid #FFD700;
+            pointer-events: auto;
+            max-width: 300px;
+        }
+
+        .investigation-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #FF6B6B;
+            pointer-events: auto;
+            max-width: 250px;
+        }
+
+        .controls-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #4ECDC4;
+            pointer-events: auto;
+        }
+
+        .crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .crosshair::before {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            transform: translateY(-50%);
+        }
+
+        .crosshair::after {
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+
+        .interaction-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 215, 0, 0.9);
+            color: black;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: none;
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 0.6; }
+        }
+
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            z-index: 2000;
+            font-family: 'Iceberg', cursive;
+        }
+
+        .start-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: linear-gradient(135deg, rgb(115, 67, 50), rgb(204, 67, 49));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(204, 67, 49, 0.4);
+        }
+
+        .clue-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #FFD700;
+            max-width: 500px;
+            z-index: 1500;
+            display: none;
+            pointer-events: auto;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1400;
+            display: none;
+        }
+
+        .close-btn {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .clue-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .clue-list li {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #4CAF50;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1 class="site-title">Camels Hump Coders</h1>
+            <p class="tagline">FIRST® LEGO® League Team from Huntington, Vermont</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="about.html">About Us</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="2024-2025.html">2024-2025</a></li>
+                        <li><a href="2023-2024.html">2023-2024</a></li>
+                    </ul>
+                </li>
+                <li><a href="coders.html">Coders</a></li>
+                <li class="dropdown">
+                    <a href="#">Games</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="unearthed.html">Unearthed</a></li>
+                        <li><a href="submerged.html">Submerged</a></li>
+                        <li><a href="masterpiece.html" class="active">Masterpiece</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="start-screen" id="startScreen">
+        <h1>🏛️ MASTERPIECE: Museum Detective 🕵️</h1>
+        <h2>The Case of the Missing Mona Lisa</h2>
+        <p style="max-width: 600px; line-height: 1.6;">
+            You are a detective investigating the theft of the famous Mona Lisa from the museum. 
+            Explore the 3D museum environment in first person, search for clues, and solve the mystery!
+        </p>
+        <p><strong>Controls:</strong></p>
+        <p>WASD - Move around | Mouse - Look around | Click - Interact with objects</p>
+        <button class="start-button" onclick="startGame()">Enter the Museum</button>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div class="ui-overlay">
+            <div class="hud-panel">
+                <h3>🕵️ Detective Case File</h3>
+                <p><strong>Mission:</strong> Find the stolen Mona Lisa</p>
+                <p><strong>Clues Found:</strong> <span id="cluesFound">0</span>/8</p>
+                <p><strong>Status:</strong> <span id="caseStatus">Investigating</span></p>
+                <button onclick="showClues()" style="background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-top: 10px;">View Clues</button>
+            </div>
+
+            <div class="investigation-panel">
+                <h3>🎨 Museum Security Report</h3>
+                <p><strong>Missing:</strong> Mona Lisa by Leonardo da Vinci</p>
+                <p><strong>Last Seen:</strong> Gallery Room 1</p>
+                <p><strong>Time of Theft:</strong> Between 2-4 AM</p>
+                <p id="latestClue" style="color: #FFD700; font-weight: bold;">Search for evidence...</p>
+            </div>
+
+            <div class="controls-panel">
+                <h3>🎮 Controls</h3>
+                <p><strong>WASD</strong> - Move</p>
+                <p><strong>Mouse</strong> - Look around</p>
+                <p><strong>Click</strong> - Interact</p>
+                <p><strong>ESC</strong> - Release cursor</p>
+            </div>
+
+            <div class="crosshair"></div>
+            <div class="interaction-hint" id="interactionHint">Press CLICK to investigate</div>
+        </div>
+    </div>
+
+    <!-- Clue Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="clue-modal" id="clueModal">
+        <h3>🔍 Evidence Collected</h3>
+        <ul class="clue-list" id="clueList">
+        </ul>
+        <button class="close-btn" onclick="closeModal()">Close</button>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let gameStarted = false;
+        let cluesFound = 0;
+        let discoveredClues = [];
+        let interactionTarget = null;
+        let raycaster, mouse;
+
+        // Game state
+        const gameState = {
+            cluesFound: 0,
+            totalClues: 8,
+            caseComplete: false
+        };
+
+        // Clue definitions (positioned throughout the multi-room museum)
+        const clues = {
+            footprint1: {
+                name: "Muddy Footprint",
+                description: "A size 10 boot print with distinctive tread pattern near the Mona Lisa's frame. The mud appears fresh and contains traces of garden soil.",
+                position: { x: -1, y: 0.1, z: -10.5 } // Near Mona Lisa frame
+            },
+            scratches: {
+                name: "Wall Scratches", 
+                description: "Fresh scratches on the wall where the frame was removed. The marks suggest the use of a crowbar or similar tool.",
+                position: { x: -2, y: 2, z: -11.7 } // On wall behind Mona Lisa
+            },
+            droplet: {
+                name: "Paint Droplet",
+                description: "A small droplet of white paint on the floor, likely from touching the frame while it was still wet from recent restoration.",
+                position: { x: 1.5, y: 0.1, z: -9 } // Main gallery floor
+            },
+            fabric: {
+                name: "Torn Fabric",
+                description: "A small piece of dark fabric caught on a security camera mount. Appears to be from a maintenance worker's uniform.",
+                position: { x: 0, y: 3.5, z: 6 } // Entrance hall ceiling mount
+            },
+            keycard: {
+                name: "Access Keycard",
+                description: "A staff keycard found behind a plant. Belongs to 'J. Smith' from the maintenance department. Last used at 2:47 AM.",
+                position: { x: -8.2, y: 0.5, z: 10 } // Behind plant in entrance
+            },
+            glove: {
+                name: "Latex Glove",
+                description: "A single latex glove found in the trash bin. No fingerprints inside, but contains traces of the frame's gold gilding.",
+                position: { x: -19, y: 0.3, z: -3 } // Security office trash bin
+            },
+            note: {
+                name: "Cryptic Note",
+                description: "A hastily written note that reads: 'The smile will see the sunrise from the east wing storage.' Written in pencil on museum stationary.",
+                position: { x: -20.2, y: 1, z: -2 } // On security desk
+            },
+            camera: {
+                name: "Security Camera Footage",
+                description: "Timestamp shows camera was disabled at 2:15 AM. Last frame shows a figure in maintenance clothes approaching the Mona Lisa.",
+                position: { x: 16, y: 4, z: -3 } // East wing security camera
+            }
+        };
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameStarted = true;
+            initGame();
+        }
+
+        function initGame() {
+            // Initialize Three.js scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 0.1, 50);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 1.6, 10); // Human eye height
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.setClearColor(0x1a1a1a);
+            document.getElementById('gameContainer').appendChild(renderer.domElement);
+
+            // Pointer lock controls for first person
+            controls = new THREE.PointerLockControls(camera, renderer.domElement);
+            scene.add(controls.getObject());
+
+            // Click to lock pointer
+            renderer.domElement.addEventListener('click', () => {
+                controls.lock();
+            });
+
+            controls.addEventListener('lock', () => {
+                console.log('Pointer locked');
+            });
+
+            controls.addEventListener('unlock', () => {
+                console.log('Pointer unlocked');
+            });
+
+            // Raycaster for interactions
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Create museum environment
+            createMuseumEnvironment();
+            createLighting();
+            createClues();
+
+            // Movement controls
+            setupMovement();
+
+            // Click interaction
+            renderer.domElement.addEventListener('click', onMouseClick);
+
+            // Animation loop
+            animate();
+        }
+
+        function createMuseumEnvironment() {
+            // Create multiple museum floors for different rooms
+            createMuseumFloors();
+            
+            // Museum walls and room divisions
+            createRealMultiRoomLayout();
+            
+            // Paintings and frames distributed across rooms
+            createArtworkInRooms();
+
+            // Museum furniture and decorations
+            createRealisticFurniture();
+        }
+
+        function createMuseumFloors() {
+            // Main gallery floor (larger)
+            const mainFloorGeometry = new THREE.PlaneGeometry(50, 50);
+            const mainFloorMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0x8B7355,
+                map: createMarbleTexture()
+            });
+            const mainFloor = new THREE.Mesh(mainFloorGeometry, mainFloorMaterial);
+            mainFloor.rotation.x = -Math.PI / 2;
+            mainFloor.receiveShadow = true;
+            scene.add(mainFloor);
+
+            // Carpet areas in specific rooms
+            const carpetGeometry = new THREE.PlaneGeometry(12, 8);
+            const carpetMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0x8B0000,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            // Red carpet in main Mona Lisa room
+            const carpet1 = new THREE.Mesh(carpetGeometry, carpetMaterial);
+            carpet1.rotation.x = -Math.PI / 2;
+            carpet1.position.set(0, 0.01, -8);
+            carpet1.receiveShadow = true;
+            scene.add(carpet1);
+
+            // Blue carpet in east wing
+            const blueCarpetMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0x000080,
+                transparent: true,
+                opacity: 0.8
+            });
+            const carpet2 = new THREE.Mesh(new THREE.PlaneGeometry(10, 6), blueCarpetMaterial);
+            carpet2.rotation.x = -Math.PI / 2;
+            carpet2.position.set(15, 0.01, 0);
+            carpet2.receiveShadow = true;
+            scene.add(carpet2);
+        }
+
+        function createMarbleTexture() {
+            const size = 512;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Create marble-like pattern
+            context.fillStyle = '#F5F5DC';
+            context.fillRect(0, 0, size, size);
+            
+            // Add marble veining
+            context.strokeStyle = '#D3D3D3';
+            context.lineWidth = 2;
+            for (let i = 0; i < 20; i++) {
+                context.beginPath();
+                context.moveTo(Math.random() * size, Math.random() * size);
+                context.lineTo(Math.random() * size, Math.random() * size);
+                context.stroke();
+            }
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.repeat.set(8, 8);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createCheckerboardTexture() {
+            const size = 512;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            const squareSize = 64;
+            for (let i = 0; i < size; i += squareSize) {
+                for (let j = 0; j < size; j += squareSize) {
+                    const isEven = (i / squareSize + j / squareSize) % 2;
+                    context.fillStyle = isEven ? '#A0826D' : '#8B7355';
+                    context.fillRect(i, j, squareSize, squareSize);
+                }
+            }
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.repeat.set(4, 4);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createRealMultiRoomLayout() {
+            const wallMaterial = new THREE.MeshLambertMaterial({ color: 0xF5F5DC });
+            const wallHeight = 8;
+
+            // MAIN ENTRANCE HALL (Central area)
+            // North wall of entrance hall
+            const entranceNorth = new THREE.Mesh(new THREE.PlaneGeometry(20, wallHeight), wallMaterial);
+            entranceNorth.position.set(0, 4, 15);
+            entranceNorth.receiveShadow = true;
+            scene.add(entranceNorth);
+
+            // South wall of entrance hall  
+            const entranceSouth = new THREE.Mesh(new THREE.PlaneGeometry(20, wallHeight), wallMaterial);
+            entranceSouth.position.set(0, 4, -15);
+            entranceSouth.rotation.y = Math.PI;
+            entranceSouth.receiveShadow = true;
+            scene.add(entranceSouth);
+
+            // MAIN GALLERY ROOM (Where Mona Lisa was stolen)
+            // Front wall behind Mona Lisa (with doorway)
+            const frontWallLeft = new THREE.Mesh(new THREE.PlaneGeometry(6, wallHeight), wallMaterial);
+            frontWallLeft.position.set(-7, 4, -12);
+            frontWallLeft.receiveShadow = true;
+            scene.add(frontWallLeft);
+
+            const frontWallRight = new THREE.Mesh(new THREE.PlaneGeometry(6, wallHeight), wallMaterial);
+            frontWallRight.position.set(7, 4, -12);
+            frontWallRight.receiveShadow = true;
+            scene.add(frontWallRight);
+
+            // Left wall of main gallery
+            const mainGalleryLeft = new THREE.Mesh(new THREE.PlaneGeometry(18, wallHeight), wallMaterial);
+            mainGalleryLeft.position.set(-12, 4, -3);
+            mainGalleryLeft.rotation.y = Math.PI / 2;
+            mainGalleryLeft.receiveShadow = true;
+            scene.add(mainGalleryLeft);
+
+            // Right wall of main gallery (with opening to east wing)
+            const mainGalleryRightTop = new THREE.Mesh(new THREE.PlaneGeometry(8, wallHeight), wallMaterial);
+            mainGalleryRightTop.position.set(8, 4, -8);
+            mainGalleryRightTop.rotation.y = -Math.PI / 2;
+            mainGalleryRightTop.receiveShadow = true;
+            scene.add(mainGalleryRightTop);
+
+            const mainGalleryRightBottom = new THREE.Mesh(new THREE.PlaneGeometry(8, wallHeight), wallMaterial);
+            mainGalleryRightBottom.position.set(8, 4, 2);
+            mainGalleryRightBottom.rotation.y = -Math.PI / 2;
+            mainGalleryRightBottom.receiveShadow = true;
+            scene.add(mainGalleryRightBottom);
+
+            // EAST WING (Storage and additional galleries)
+            // East wing walls
+            const eastWingNorth = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
+            eastWingNorth.position.set(16, 4, -12);
+            eastWingNorth.receiveShadow = true;
+            scene.add(eastWingNorth);
+
+            const eastWingSouth = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
+            eastWingSouth.position.set(16, 4, 6);
+            eastWingSouth.rotation.y = Math.PI;
+            eastWingSouth.receiveShadow = true;
+            scene.add(eastWingSouth);
+
+            const eastWingEast = new THREE.Mesh(new THREE.PlaneGeometry(18, wallHeight), wallMaterial);
+            eastWingEast.position.set(24, 4, -3);
+            eastWingEast.rotation.y = -Math.PI / 2;
+            eastWingEast.receiveShadow = true;
+            scene.add(eastWingEast);
+
+            // WEST WING (Security office and staff areas)
+            const westWingNorth = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
+            westWingNorth.position.set(-16, 4, -8);
+            westWingNorth.receiveShadow = true;
+            scene.add(westWingNorth);
+
+            const westWingSouth = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
+            westWingSouth.position.set(-16, 4, 8);
+            westWingSouth.rotation.y = Math.PI;
+            westWingSouth.receiveShadow = true;
+            scene.add(westWingSouth);
+
+            const westWingWest = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
+            westWingWest.position.set(-24, 4, 0);
+            westWingWest.rotation.y = Math.PI / 2;
+            westWingWest.receiveShadow = true;
+            scene.add(westWingWest);
+
+            // CORRIDOR WALLS
+            // Central corridor dividers
+            const corridorDivider1 = new THREE.Mesh(new THREE.PlaneGeometry(6, wallHeight), wallMaterial);
+            corridorDivider1.position.set(-4, 4, 8);
+            corridorDivider1.receiveShadow = true;
+            scene.add(corridorDivider1);
+
+            const corridorDivider2 = new THREE.Mesh(new THREE.PlaneGeometry(6, wallHeight), wallMaterial);
+            corridorDivider2.position.set(4, 4, 8);
+            corridorDivider2.rotation.y = Math.PI;
+            corridorDivider2.receiveShadow = true;
+            scene.add(corridorDivider2);
+
+            // Add ceiling elements for more realism
+            createCeilingElements();
+        }
+
+        function createCeilingElements() {
+            const ceilingMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFFF0 });
+            
+            // Main gallery ceiling
+            const mainCeiling = new THREE.Mesh(new THREE.PlaneGeometry(16, 20), ceilingMaterial);
+            mainCeiling.position.set(0, 7.9, -2);
+            mainCeiling.rotation.x = Math.PI / 2;
+            mainCeiling.receiveShadow = true;
+            scene.add(mainCeiling);
+
+            // East wing ceiling
+            const eastCeiling = new THREE.Mesh(new THREE.PlaneGeometry(16, 18), ceilingMaterial);
+            eastCeiling.position.set(16, 7.9, -3);
+            eastCeiling.rotation.x = Math.PI / 2;
+            eastCeiling.receiveShadow = true;
+            scene.add(eastCeiling);
+
+            // West wing ceiling
+            const westCeiling = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), ceilingMaterial);
+            westCeiling.position.set(-16, 7.9, 0);
+            westCeiling.rotation.x = Math.PI / 2;
+            westCeiling.receiveShadow = true;
+            scene.add(westCeiling);
+        }
+
+        function createArtworkInRooms() {
+            // MAIN GALLERY - Where Mona Lisa was stolen
+            // Empty frame where Mona Lisa was stolen
+            const frameGeometry = new THREE.BoxGeometry(2, 3, 0.2);
+            const frameMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const monaFrame = new THREE.Mesh(frameGeometry, frameMaterial);
+            monaFrame.position.set(0, 2.5, -11.8);
+            monaFrame.castShadow = true;
+            scene.add(monaFrame);
+
+            // Empty space where painting was (dark backdrop)
+            const emptySpaceGeometry = new THREE.PlaneGeometry(1.6, 2.6);
+            const emptySpaceMaterial = new THREE.MeshLambertMaterial({ color: 0x2F2F2F });
+            const emptySpace = new THREE.Mesh(emptySpaceGeometry, emptySpaceMaterial);
+            emptySpace.position.set(0, 2.5, -11.7);
+            scene.add(emptySpace);
+
+            // Crime scene tape around the Mona Lisa area
+            const tapeGeometry = new THREE.PlaneGeometry(4, 0.2);
+            const tapeMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xFFFF00,
+                transparent: true,
+                opacity: 0.8
+            });
+            const crimeTape = new THREE.Mesh(tapeGeometry, tapeMaterial);
+            crimeTape.position.set(0, 1, -10.5);
+            crimeTape.rotation.x = -Math.PI / 2;
+            scene.add(crimeTape);
+
+            // Distribute other famous paintings across different rooms
+            createPaintingsInMainGallery();
+            createPaintingsInEastWing();
+            createPaintingsInWestWing();
+            createEntranceArtwork();
+        }
+
+        function createPaintingsInMainGallery() {
+            const paintings = [
+                { name: "Starry Night", pos: [-10, 2.5, -8], color: 0x4169E1, wall: "left" },
+                { name: "The Scream", pos: [-10, 2.5, 2], color: 0xFF6347, wall: "left" }
+            ];
+
+            paintings.forEach(painting => {
+                createPaintingOnWall(painting.name, painting.pos, painting.color, painting.wall);
+            });
+        }
+
+        function createPaintingsInEastWing() {
+            const paintings = [
+                { name: "Girl with Pearl", pos: [22, 2.5, -8], color: 0x483D8B, wall: "east" },
+                { name: "American Gothic", pos: [16, 2.5, -10.5], color: 0x8B4513, wall: "north" },
+                { name: "The Persistence", pos: [16, 2.5, 4.5], color: 0xDDA0DD, wall: "south" }
+            ];
+
+            paintings.forEach(painting => {
+                createPaintingOnWall(painting.name, painting.pos, painting.color, painting.wall);
+            });
+        }
+
+        function createPaintingsInWestWing() {
+            const paintings = [
+                { name: "Water Lilies", pos: [-22, 2.5, -4], color: 0x98FB98, wall: "west" },
+                { name: "The Thinker", pos: [-16, 2.5, 6.5], color: 0x708090, wall: "south" }
+            ];
+
+            paintings.forEach(painting => {
+                createPaintingOnWall(painting.name, painting.pos, painting.color, painting.wall);
+            });
+        }
+
+        function createEntranceArtwork() {
+            // Welcome banner in entrance
+            const bannerGeometry = new THREE.PlaneGeometry(8, 1);
+            const bannerMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0x8B0000,
+                transparent: true,
+                opacity: 0.9
+            });
+            const banner = new THREE.Mesh(bannerGeometry, bannerMaterial);
+            banner.position.set(0, 6, 14.5);
+            scene.add(banner);
+
+            // Small sculptures in entrance
+            for (let i = 0; i < 4; i++) {
+                const sculptureGeometry = new THREE.CylinderGeometry(0.3, 0.4, 1.2);
+                const sculptureMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
+                const sculpture = new THREE.Mesh(sculptureGeometry, sculptureMaterial);
+                sculpture.position.set(
+                    (i % 2 === 0 ? -8 : 8),
+                    0.6,
+                    10 + (Math.floor(i / 2) * 4)
+                );
+                sculpture.castShadow = true;
+                scene.add(sculpture);
+            }
+        }
+
+        function createPaintingOnWall(name, pos, color, wall) {
+            // Frame
+            const frameGeometry = new THREE.BoxGeometry(1.8, 2.4, 0.15);
+            const frameMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+            const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+            frame.position.set(pos[0], pos[1], pos[2]);
+            frame.castShadow = true;
+            
+            // Painting
+            const paintingGeometry = new THREE.PlaneGeometry(1.4, 2.0);
+            const paintingMaterial = new THREE.MeshLambertMaterial({ color: color });
+            const paintingMesh = new THREE.Mesh(paintingGeometry, paintingMaterial);
+            
+            // Position painting slightly in front of frame based on wall orientation
+            switch(wall) {
+                case 'north':
+                    paintingMesh.position.set(pos[0], pos[1], pos[2] + 0.1);
+                    break;
+                case 'south':
+                    paintingMesh.position.set(pos[0], pos[1], pos[2] - 0.1);
+                    paintingMesh.rotation.y = Math.PI;
+                    break;
+                case 'east':
+                    paintingMesh.position.set(pos[0] - 0.1, pos[1], pos[2]);
+                    paintingMesh.rotation.y = Math.PI / 2;
+                    break;
+                case 'west':
+                    paintingMesh.position.set(pos[0] + 0.1, pos[1], pos[2]);
+                    paintingMesh.rotation.y = -Math.PI / 2;
+                    break;
+                case 'left':
+                    paintingMesh.position.set(pos[0] + 0.1, pos[1], pos[2]);
+                    paintingMesh.rotation.y = -Math.PI / 2;
+                    break;
+            }
+            
+            scene.add(frame);
+            scene.add(paintingMesh);
+        }
+
+
+        function createRealisticFurniture() {
+            // ENTRANCE HALL FURNITURE
+            createEntranceFurniture();
+            
+            // MAIN GALLERY FURNITURE
+            createMainGalleryFurniture();
+            
+            // SECURITY OFFICE (West Wing)
+            createSecurityOfficeFurniture();
+            
+            // EAST WING STORAGE
+            createStorageFurniture();
+            
+            // GENERAL MUSEUM DECORATIONS
+            createMuseumDecorations();
+        }
+
+        function createEntranceFurniture() {
+            // Information desk in entrance
+            const infoDeskGeometry = new THREE.BoxGeometry(3, 0.8, 1.5);
+            const deskMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const infoDesk = new THREE.Mesh(infoDeskGeometry, deskMaterial);
+            infoDesk.position.set(0, 0.4, 12);
+            infoDesk.castShadow = true;
+            scene.add(infoDesk);
+
+            // Entrance benches
+            const benchGeometry = new THREE.BoxGeometry(2, 0.4, 0.8);
+            const benchMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+            
+            for (let i = 0; i < 2; i++) {
+                const bench = new THREE.Mesh(benchGeometry, benchMaterial);
+                bench.position.set(i === 0 ? -6 : 6, 0.2, 8);
+                bench.castShadow = true;
+                scene.add(bench);
+            }
+        }
+
+        function createMainGalleryFurniture() {
+            // Display pedestals
+            const pedestalGeometry = new THREE.CylinderGeometry(0.4, 0.5, 1.2);
+            const pedestalMaterial = new THREE.MeshLambertMaterial({ color: 0xDDDDDD });
+            
+            const pedestalPositions = [
+                [-6, 0.6, -6],
+                [6, 0.6, -6],
+                [-4, 0.6, 0],
+                [4, 0.6, 0]
+            ];
+
+            pedestalPositions.forEach(pos => {
+                const pedestal = new THREE.Mesh(pedestalGeometry, pedestalMaterial);
+                pedestal.position.set(pos[0], pos[1], pos[2]);
+                pedestal.castShadow = true;
+                scene.add(pedestal);
+            });
+
+            // Velvet ropes around Mona Lisa area
+            createVelvetRopes();
+        }
+
+        function createVelvetRopes() {
+            const postGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1);
+            const postMaterial = new THREE.MeshLambertMaterial({ color: 0xFFD700 });
+            const ropeGeometry = new THREE.CylinderGeometry(0.02, 0.02, 3);
+            const ropeMaterial = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
+
+            const ropePositions = [
+                [-2, -10], [2, -10], [-2, -8], [2, -8]
+            ];
+
+            ropePositions.forEach(pos => {
+                const post = new THREE.Mesh(postGeometry, postMaterial);
+                post.position.set(pos[0], 0.5, pos[1]);
+                post.castShadow = true;
+                scene.add(post);
+            });
+        }
+
+        function createSecurityOfficeFurniture() {
+            // Security desk
+            const securityDeskGeometry = new THREE.BoxGeometry(2.5, 0.8, 1.2);
+            const securityDesk = new THREE.Mesh(securityDeskGeometry, new THREE.MeshLambertMaterial({ color: 0x654321 }));
+            securityDesk.position.set(-20, 0.4, -2);
+            securityDesk.castShadow = true;
+            scene.add(securityDesk);
+
+            // Office chair
+            const chairGeometry = new THREE.CylinderGeometry(0.3, 0.4, 0.8);
+            const chair = new THREE.Mesh(chairGeometry, new THREE.MeshLambertMaterial({ color: 0x000000 }));
+            chair.position.set(-19, 0.4, -2);
+            chair.castShadow = true;
+            scene.add(chair);
+
+            // Filing cabinet
+            const filingCabinetGeometry = new THREE.BoxGeometry(0.8, 1.5, 0.6);
+            const filingCabinet = new THREE.Mesh(filingCabinetGeometry, new THREE.MeshLambertMaterial({ color: 0x708090 }));
+            filingCabinet.position.set(-22, 0.75, 2);
+            filingCabinet.castShadow = true;
+            scene.add(filingCabinet);
+        }
+
+        function createStorageFurniture() {
+            // Storage crates in east wing
+            for (let i = 0; i < 6; i++) {
+                const crateGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+                const crateMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+                const crate = new THREE.Mesh(crateGeometry, crateMaterial);
+                crate.position.set(
+                    18 + (i % 3) * 2,
+                    0.6,
+                    -8 + Math.floor(i / 3) * 4
+                );
+                crate.castShadow = true;
+                scene.add(crate);
+            }
+
+            // Storage shelving
+            const shelfGeometry = new THREE.BoxGeometry(4, 2.5, 0.3);
+            const shelfMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+            const shelf = new THREE.Mesh(shelfGeometry, shelfMaterial);
+            shelf.position.set(20, 1.25, 4);
+            shelf.castShadow = true;
+            scene.add(shelf);
+        }
+
+        function createMuseumDecorations() {
+            // Decorative plants throughout museum
+            const plantPositions = [
+                [-8, 0.75, 10],  // Entrance
+                [8, 0.75, 10],   // Entrance
+                [-15, 0.75, 5],  // West wing
+                [15, 0.75, -10], // East wing
+                [-5, 0.75, -3],  // Main gallery
+                [5, 0.75, -3],   // Main gallery
+            ];
+
+            plantPositions.forEach(pos => {
+                const plantGeometry = new THREE.ConeGeometry(0.4, 1.5, 8);
+                const plantMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+                const plant = new THREE.Mesh(plantGeometry, plantMaterial);
+                plant.position.set(pos[0], pos[1], pos[2]);
+                plant.castShadow = true;
+                scene.add(plant);
+
+                // Plant pot
+                const potGeometry = new THREE.CylinderGeometry(0.5, 0.4, 0.6);
+                const potMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+                const pot = new THREE.Mesh(potGeometry, potMaterial);
+                pot.position.set(pos[0], 0.3, pos[2]);
+                pot.castShadow = true;
+                scene.add(pot);
+            });
+
+            // Museum signage
+            createMuseumSigns();
+        }
+
+        function createMuseumSigns() {
+            const signGeometry = new THREE.PlaneGeometry(2, 0.8);
+            const signMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xFFFFFF,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            const signs = [
+                { text: "Main Gallery", pos: [0, 2, 6] },
+                { text: "East Wing Storage", pos: [12, 2, -2] },
+                { text: "Security Office", pos: [-12, 2, 2] }
+            ];
+
+            signs.forEach(sign => {
+                const signMesh = new THREE.Mesh(signGeometry, signMaterial);
+                signMesh.position.set(sign.pos[0], sign.pos[1], sign.pos[2]);
+                scene.add(signMesh);
+            });
+        }
+
+        function createLighting() {
+            // Ambient light
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            // Main museum lighting
+            const mainLight = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+            mainLight.position.set(0, 10, 0);
+            mainLight.castShadow = true;
+            mainLight.shadow.mapSize.width = 2048;
+            mainLight.shadow.mapSize.height = 2048;
+            mainLight.shadow.camera.near = 0.1;
+            mainLight.shadow.camera.far = 50;
+            mainLight.shadow.camera.left = -20;
+            mainLight.shadow.camera.right = 20;
+            mainLight.shadow.camera.top = 20;
+            mainLight.shadow.camera.bottom = -20;
+            scene.add(mainLight);
+
+            // Spotlight on empty Mona Lisa frame
+            const spotlight = new THREE.SpotLight(0xFFFFFF, 1);
+            spotlight.position.set(0, 6, -5);
+            spotlight.target.position.set(0, 2.5, -9.5);
+            spotlight.angle = Math.PI / 6;
+            spotlight.penumbra = 0.2;
+            spotlight.castShadow = true;
+            scene.add(spotlight);
+            scene.add(spotlight.target);
+
+            // Gallery accent lights
+            for (let i = -3; i <= 3; i++) {
+                const accentLight = new THREE.PointLight(0xFFF8DC, 0.3, 10);
+                accentLight.position.set(i * 4, 4, -8);
+                scene.add(accentLight);
+            }
+        }
+
+        function createClues() {
+            Object.keys(clues).forEach(clueKey => {
+                const clue = clues[clueKey];
+                let clueGeometry, clueMaterial;
+
+                // Make all clues larger and more visible with glowing effect
+                switch(clueKey) {
+                    case 'footprint1':
+                        clueGeometry = new THREE.PlaneGeometry(0.6, 1.0);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0x8B4513, 
+                            transparent: true, 
+                            opacity: 0.9 
+                        });
+                        break;
+                    case 'scratches':
+                        clueGeometry = new THREE.PlaneGeometry(0.4, 1.5);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0x666666,
+                            emissive: 0x222222
+                        });
+                        break;
+                    case 'droplet':
+                        clueGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0xFFFFFF,
+                            emissive: 0x444444
+                        });
+                        break;
+                    case 'fabric':
+                        clueGeometry = new THREE.PlaneGeometry(0.3, 0.3);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0x2F2F2F,
+                            emissive: 0x111111
+                        });
+                        break;
+                    case 'keycard':
+                        clueGeometry = new THREE.BoxGeometry(0.3, 0.1, 0.5);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0x4169E1,
+                            emissive: 0x001144
+                        });
+                        break;
+                    case 'glove':
+                        clueGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0xFFFAF0,
+                            emissive: 0x333322
+                        });
+                        break;
+                    case 'note':
+                        clueGeometry = new THREE.PlaneGeometry(0.4, 0.3);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0xFFFAF0,
+                            emissive: 0x332211
+                        });
+                        break;
+                    case 'camera':
+                        clueGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0x2F2F2F,
+                            emissive: 0x222222
+                        });
+                        break;
+                    default:
+                        clueGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0xFFD700,
+                            emissive: 0x444400
+                        });
+                }
+
+                const clueMesh = new THREE.Mesh(clueGeometry, clueMaterial);
+                clueMesh.position.set(clue.position.x, clue.position.y, clue.position.z);
+                clueMesh.userData = { type: 'clue', clueKey: clueKey };
+                clueMesh.castShadow = true;
+
+                // Add pulsing animation to make clues more visible
+                clueMesh.userData.originalEmissive = clueMaterial.emissive.getHex();
+                clueMesh.userData.pulseTime = Math.random() * Math.PI * 2;
+
+                // Special positioning for wall-mounted clues
+                if (clueKey === 'scratches') {
+                    clueMesh.rotation.z = Math.PI / 4;
+                } else if (clueKey === 'camera') {
+                    clueMesh.rotation.y = Math.PI / 4;
+                } else if (clueKey === 'footprint1') {
+                    clueMesh.rotation.x = -Math.PI / 2;
+                }
+
+                scene.add(clueMesh);
+            });
+        }
+
+        function setupMovement() {
+            const moveState = {
+                forward: false,
+                backward: false,
+                left: false,
+                right: false
+            };
+
+            const onKeyDown = (event) => {
+                switch (event.code) {
+                    case 'KeyW': moveState.forward = true; break;
+                    case 'KeyS': moveState.backward = true; break;
+                    case 'KeyA': moveState.left = true; break;
+                    case 'KeyD': moveState.right = true; break;
+                }
+            };
+
+            const onKeyUp = (event) => {
+                switch (event.code) {
+                    case 'KeyW': moveState.forward = false; break;
+                    case 'KeyS': moveState.backward = false; break;
+                    case 'KeyA': moveState.left = false; break;
+                    case 'KeyD': moveState.right = false; break;
+                }
+            };
+
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+
+            // Movement in animation loop
+            this.moveState = moveState;
+        }
+
+        function onMouseClick(event) {
+            // Calculate mouse position in normalized device coordinates
+            mouse.x = 0; // Center of screen
+            mouse.y = 0; // Center of screen
+
+            // Update the picking ray with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            raycaster.far = 10; // Increase detection range
+
+            // Calculate objects intersecting the picking ray
+            const intersects = raycaster.intersectObjects(scene.children, true);
+
+            // Also check for nearby clues within detection radius
+            const playerPosition = camera.position;
+            scene.children.forEach(child => {
+                if (child.userData && child.userData.type === 'clue') {
+                    const distance = playerPosition.distanceTo(child.position);
+                    if (distance < 3) { // Detection radius of 3 units
+                        const clueKey = child.userData.clueKey;
+                        if (!discoveredClues.includes(clueKey)) {
+                            discoverClue(clueKey, child);
+                        }
+                    }
+                }
+            });
+
+            // Original raycast detection
+            if (intersects.length > 0) {
+                const intersectedObject = intersects[0].object;
+                
+                if (intersectedObject.userData && intersectedObject.userData.type === 'clue') {
+                    const clueKey = intersectedObject.userData.clueKey;
+                    if (!discoveredClues.includes(clueKey)) {
+                        discoverClue(clueKey, intersectedObject);
+                    }
+                }
+            }
+        }
+
+        function discoverClue(clueKey, clueMesh) {
+            discoveredClues.push(clueKey);
+            gameState.cluesFound++;
+            
+            // Remove clue from scene and add glow effect
+            clueMesh.material.emissive = new THREE.Color(0x00FF00);
+            setTimeout(() => {
+                scene.remove(clueMesh);
+            }, 1000);
+
+            // Update UI
+            document.getElementById('cluesFound').textContent = gameState.cluesFound;
+            document.getElementById('latestClue').textContent = `Found: ${clues[clueKey].name}`;
+
+            // Check if case is complete
+            if (gameState.cluesFound >= gameState.totalClues) {
+                setTimeout(() => {
+                    solveCase();
+                }, 2000);
+            }
+
+            // Show notification
+            showClueNotification(clues[clueKey].name);
+        }
+
+        function showClueNotification(clueName) {
+            const hint = document.getElementById('interactionHint');
+            hint.textContent = `🔍 Found: ${clueName}!`;
+            hint.style.display = 'block';
+            hint.style.background = 'rgba(76, 175, 80, 0.9)';
+            
+            setTimeout(() => {
+                hint.style.display = 'none';
+                hint.style.background = 'rgba(255, 215, 0, 0.9)';
+                hint.textContent = 'Press CLICK to investigate';
+            }, 3000);
+        }
+
+        function solveCase() {
+            gameState.caseComplete = true;
+            document.getElementById('caseStatus').textContent = '✅ SOLVED!';
+            document.getElementById('latestClue').textContent = 'Case Solved! The Mona Lisa is in the east wing storage!';
+            document.getElementById('latestClue').style.color = '#4CAF50';
+            
+            alert(`🎉 CASE SOLVED! 🎉
+
+Detective, you've successfully gathered all the evidence!
+
+The clues point to maintenance worker J. Smith who accessed the museum at 2:47 AM using their keycard. They disabled the security camera, used tools to remove the Mona Lisa from its frame, and left a trail of evidence.
+
+The cryptic note reveals the painting's location: "The smile will see the sunrise from the east wing storage."
+
+The Mona Lisa has been recovered! Excellent detective work! 🕵️‍♂️✨`);
+        }
+
+        function showClues() {
+            if (discoveredClues.length === 0) {
+                alert("No clues discovered yet. Explore the museum and look for suspicious items!");
+                return;
+            }
+
+            const clueList = document.getElementById('clueList');
+            clueList.innerHTML = '';
+            
+            discoveredClues.forEach(clueKey => {
+                const clue = clues[clueKey];
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${clue.name}:</strong><br>${clue.description}`;
+                clueList.appendChild(li);
+            });
+
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('clueModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('clueModal').style.display = 'none';
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Animate clue pulsing effect
+            const time = Date.now() * 0.003;
+            scene.children.forEach(child => {
+                if (child.userData && child.userData.type === 'clue' && child.material) {
+                    child.userData.pulseTime += 0.05;
+                    const pulseIntensity = (Math.sin(child.userData.pulseTime) + 1) * 0.5;
+                    const baseEmissive = child.userData.originalEmissive;
+                    child.material.emissive.setHex(baseEmissive);
+                    child.material.emissive.multiplyScalar(0.5 + pulseIntensity * 0.8);
+                }
+            });
+
+            if (gameStarted && controls.isLocked) {
+                const speed = 0.1;
+                const direction = new THREE.Vector3();
+                
+                if (this.moveState && this.moveState.forward) {
+                    direction.z -= speed;
+                }
+                if (this.moveState && this.moveState.backward) {
+                    direction.z += speed;
+                }
+                if (this.moveState && this.moveState.left) {
+                    direction.x -= speed;
+                }
+                if (this.moveState && this.moveState.right) {
+                    direction.x += speed;
+                }
+
+                // Apply movement relative to camera direction
+                controls.getDirection(direction);
+                direction.y = 0; // Keep on ground level
+                direction.normalize();
+                direction.multiplyScalar(speed);
+
+                if (this.moveState) {
+                    if (this.moveState.forward) controls.getObject().translateZ(-speed);
+                    if (this.moveState.backward) controls.getObject().translateZ(speed);
+                    if (this.moveState.left) controls.getObject().translateX(-speed);
+                    if (this.moveState.right) controls.getObject().translateX(speed);
+                }
+
+                // Keep camera at eye level and within bounds (expanded museum)
+                camera.position.y = 1.6;
+                camera.position.x = Math.max(-25, Math.min(25, camera.position.x));
+                camera.position.z = Math.max(-25, Math.min(25, camera.position.z));
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
