@@ -130,7 +130,10 @@
             border-radius: 10px;
             border: 2px solid #FF6B6B;
             pointer-events: auto;
-            max-width: 250px;
+            max-width: 500px;
+            width: 500px;
+            overflow-y: auto;
+            max-height: 85vh;
         }
 
         .controls-panel {
@@ -314,14 +317,38 @@
     <div class="start-screen" id="startScreen">
         <h1>🏛️ MASTERPIECE: Museum Detective 🕵️</h1>
         <h2>The Case of the Missing Mona Lisa</h2>
-        <p style="max-width: 600px; line-height: 1.6;">
-            You are a detective investigating the theft of the famous Mona Lisa from the museum. 
-            Explore the 3D museum environment in first person, search for clues, and solve the mystery!
+        
+        <p style="max-width: 600px; line-height: 1.6; font-size: 1.1em; margin: 20px auto; color: #FFD700;">
+            <strong>The Mona Lisa has been stolen!</strong> As a detective, explore the 3D museum, find 8 clues, and solve the mystery.
         </p>
-        <p><strong>Controls:</strong></p>
-        <p>WASD - Move around | Mouse - Look around | Click - Interact with objects</p>
-        <p><strong>⚠️ Important:</strong> After entering, look for the yellow "CLICK HERE TO ACTIVATE MOVEMENT" button in the bottom left and click it to enable mouse controls!</p>
-        <p><small>Alternative: Use WASD to move and Arrow keys to look around if mouse controls don't work</small></p>
+        
+        <div style="background: rgba(255, 215, 0, 0.15); padding: 25px; border-radius: 12px; margin: 25px auto; max-width: 550px; border: 2px solid #FFD700;">
+            <h3 style="color: #FFD700; margin-top: 0; margin-bottom: 15px;">🎮 How to Play</h3>
+            
+            <div style="text-align: left; margin-bottom: 15px;">
+                <strong>Movement:</strong><br>
+                • <strong>WASD</strong> keys to walk around<br>
+                • <strong>Mouse</strong> to look around (after activation)
+            </div>
+            
+            <div style="text-align: left; margin-bottom: 15px;">
+                <strong>Investigation:</strong><br>
+                • <strong>Click</strong> on suspicious objects to examine them<br>
+                • Use <strong>"View Clues"</strong> button to track your progress<br>
+                • Find all 8 clues to solve the case
+            </div>
+            
+            <div style="text-align: left;">
+                <strong>Getting Started:</strong><br>
+                1. Click "Enter the Museum" below<br>
+                2. Wait for the 3-second countdown<br>
+                3. Start investigating immediately!
+            </div>
+        </div>
+        
+        <p style="font-size: 0.9em; color: #AAA; max-width: 500px; margin: 15px auto;">
+            <em>Note: If mouse controls don't work, use Arrow keys to look around instead</em>
+        </p>
         <button class="start-button" onclick="startGame()">Enter the Museum</button>
         <div id="loadingIndicator" style="display: none; margin-top: 20px;">
             <p>Loading museum... Please wait.</p>
@@ -350,11 +377,54 @@
             </div>
 
             <div class="investigation-panel">
-                <h3>🎨 Museum Security Report</h3>
+                <div style="position: relative;">
+                    <h3>🎨 Museum Security Report</h3>
+                    <button id="debugButton" onclick="showPasswordDialog()" style="
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        background: #333;
+                        color: #ccc;
+                        border: 1px solid #555;
+                        padding: 2px 6px;
+                        font-size: 10px;
+                        cursor: pointer;
+                        border-radius: 3px;
+                    ">⚙️</button>
+                </div>
                 <p><strong>Missing:</strong> Mona Lisa by Leonardo da Vinci</p>
                 <p><strong>Last Seen:</strong> Gallery Room 1</p>
                 <p><strong>Time of Theft:</strong> Between 2-4 AM</p>
                 <p id="latestClue" style="color: #FFD700; font-weight: bold;">Search for evidence...</p>
+                
+                <!-- Volume Control -->
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <button id="volumeToggle" onclick="toggleVolume()" style="
+                        background: #444;
+                        color: white;
+                        border: 1px solid #666;
+                        padding: 8px 15px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        width: 100%;
+                        font-size: 14px;
+                    ">🔊 Sound: ON</button>
+                </div>
+                
+                <!-- Museum Map -->
+                <div id="museumMap" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <h4 style="margin-top: 0; margin-bottom: 10px; font-size: 18px;">📍 Museum Map</h4>
+                    <canvas id="mapCanvas" width="800" height="600" style="
+                        background: #1a1a2e;
+                        border: 3px solid #666;
+                        border-radius: 10px;
+                        width: 100%;
+                        max-width: 800px;
+                        box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+                        display: block;
+                        margin: 0 auto;
+                    "></canvas>
+                </div>
             </div>
 
             <div class="controls-panel">
@@ -389,6 +459,7 @@
         let discoveredClues = [];
         let interactionTarget = null;
         let raycaster, mouse;
+        let movementBlocked = false; // Flag to block movement during countdown/mouse lock screens
         
         // Collision detection arrays
         let collisionObjects = [];
@@ -472,11 +543,15 @@
                 // Give a moment for loading animation, then start
                 setTimeout(() => {
                     try {
+                        console.log('🎮 Hiding start screen and initializing game...');
                         document.getElementById('startScreen').style.display = 'none';
+                        document.getElementById('loadingIndicator').style.display = 'none';
                         gameStarted = true;
                         initGame();
+                        console.log('✅ Game initialization complete');
                     } catch (error) {
                         console.error('❌ Error during game initialization from startGame():', error);
+                        console.error('Error details:', error.message, error.stack);
                         document.getElementById('loadingIndicator').style.display = 'none';
                         
                         // Don't show alert or reset - show error message instead
@@ -510,16 +585,17 @@
                 scene = new THREE.Scene();
                 console.log('✅ Scene created');
 
-                console.log('Setting up fog...');
-                scene.fog = new THREE.Fog(0x000000, 0.1, 50);
-                console.log('✅ Fog added');
+                console.log('Setting up atmospheric fog...');
+                // Realistic museum atmosphere with subtle fog
+                scene.fog = new THREE.Fog(0xF8F8F8, 35, 80);
+                console.log('✅ Atmospheric fog added');
 
                 console.log('Creating camera...');
                 if (typeof THREE.PerspectiveCamera !== 'function') {
                     throw new Error('THREE.PerspectiveCamera constructor not available');
                 }
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.set(0, 1.6, 10);
+                camera.position.set(0, 1.6, 8); // Moved back from z=10 to avoid furniture collision
                 console.log('✅ Camera created at position:', camera.position);
 
                 console.log('Creating WebGL renderer...');
@@ -539,11 +615,16 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 console.log('✅ Renderer size set');
                 
-                console.log('Configuring renderer settings...');
+                console.log('Configuring advanced renderer settings...');
+                // Enable advanced rendering features
                 renderer.shadowMap.enabled = true;
                 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-                renderer.setClearColor(0x1a1a1a);
-                console.log('✅ Renderer configured with shadows');
+                renderer.physicallyCorrectLights = true;
+                renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.toneMappingExposure = 0.8;
+                renderer.outputEncoding = THREE.sRGBEncoding;
+                renderer.setClearColor(0xF8F8F8); // Museum white background
+                console.log('✅ Advanced renderer configured with realistic lighting');
                 
                 console.log('Finding game container...');
                 const gameContainer = document.getElementById('gameContainer');
@@ -553,11 +634,36 @@
                 console.log('✅ Game container found');
                 
                 console.log('Appending renderer to container...');
+                gameContainer.style.display = 'block';
+                gameContainer.style.visibility = 'visible';
                 gameContainer.appendChild(renderer.domElement);
-                console.log('✅ Renderer canvas added to page');
+                renderer.domElement.style.display = 'block';
+                console.log('✅ Renderer canvas added to page and made visible');
+                
+                console.log('Creating environment map for reflections...');
+                // Create environment map for realistic reflections
+                const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                scene.environment = pmremGenerator.fromScene(new THREE.Scene()).texture;
+                console.log('✅ Environment map created');
+                
+                console.log('Setting up realistic audio system...');
+                createRealisticAudio();
+                console.log('✅ Audio system initialized');
 
                 // Skip the complex button system - just start first-person mode immediately
                 console.log('🎮 Starting first-person mode immediately...');
+                
+                // Setup movement controls IMMEDIATELY
+                setupMovement();
+                console.log('✅ Movement controls activated immediately');
+                
+                // Auto-start the game after 1 second
+                setTimeout(() => {
+                    if (!gameStarted) {
+                        console.log('🎮 Auto-starting game...');
+                        startGame();
+                    }
+                }, 1000);
                 
                 // Simple overlay that disappears after 3 seconds
                 const instructionOverlay = document.createElement('div');
@@ -569,11 +675,16 @@
                         <p><strong>WASD</strong> - Move around the museum</p>
                         <p><strong>Mouse</strong> - Look around</p>
                         <p><strong>Click</strong> - Collect clues</p>
+                        <button onclick="testMovement()" style="padding: 10px; margin: 10px; background: #FFD700; color: black; border: none; border-radius: 5px;">Test Movement</button>
                         <p style="color: #FFD700; margin-top: 30px;">Starting in <span id="countdown">3</span> seconds...</p>
                         <p style="font-size: 14px; color: #ccc;">You can explore the multi-room museum freely</p>
                     </div>
                 `;
                 document.body.appendChild(instructionOverlay);
+                
+                // Block movement during countdown and mouse lock
+                movementBlocked = true;
+                console.log('🚫 Movement blocked during countdown');
                 
                 // Countdown and auto-start with pointer lock
                 let countdown = 3;
@@ -612,7 +723,9 @@
                             // Hide overlay after attempting activation
                             setTimeout(() => {
                                 instructionOverlay.style.display = 'none';
+                                movementBlocked = false; // Unblock movement when overlay is hidden
                                 console.log('🎮 Game ready - mouse should be captured');
+                                console.log('✅ Movement unblocked - game ready');
                             }, 1500);
                             
                         }, 500);
@@ -631,6 +744,8 @@
                     // Hide the overlay after clicking
                     setTimeout(() => {
                         instructionOverlay.style.display = 'none';
+                        movementBlocked = false; // Unblock movement when manually activated
+                        console.log('✅ Movement unblocked - manual activation');
                     }, 500);
                 };
 
@@ -766,13 +881,14 @@
                     }
                 });
                 
-                // ESC to release mouse control
-                document.addEventListener('keydown', (event) => {
-                    if (event.code === 'Escape') {
-                        console.log('🔓 ESC pressed - releasing mouse control...');
-                        mouseLookActive = false;
-                        document.exitPointerLock && document.exitPointerLock();
-                    }
+                // Focus the game canvas for keyboard input
+                renderer.domElement.focus();
+                renderer.domElement.setAttribute('tabindex', '0');
+                
+                // Ensure canvas gets focus when clicked
+                renderer.domElement.addEventListener('click', () => {
+                    renderer.domElement.focus();
+                    console.log('🎯 Canvas focused for keyboard input');
                 });
                 
                 console.log('✅ Simple first-person controls ready');
@@ -793,17 +909,22 @@
                     createMinimalMuseum();
                 }
 
-                // Movement controls
-                setupMovement();
+                // Movement controls already set up earlier
+                console.log('✅ Movement controls already active');
 
                 // Click interaction
                 renderer.domElement.addEventListener('click', onMouseClick);
 
                 console.log('Game initialized successfully');
                 
+                // Initialize museum map
+                initMuseumMap();
+                
                 // Hide loading indicator and start animation loop
                 document.getElementById('loadingIndicator').style.display = 'none';
+                console.log('🎬 Starting animation loop...');
                 animate();
+                console.log('✅ Animation loop started');
                 
             } catch (error) {
                 console.error('❌ Game initialization failed:', error);
@@ -869,6 +990,9 @@
         function createFastMuseum() {
             console.log('🏛️ Creating full realistic multi-room museum...');
             
+            // Clear all existing collision data first
+            clearAllCollisions();
+            
             try {
                 console.log('Step 1: Creating textured floors...');
                 createMuseumFloors();
@@ -894,7 +1018,24 @@
                 createClues();
                 console.log('✅ Detective clues positioned');
 
+                console.log('Step 7: Adding atmospheric effects...');
+                createAtmosphericEffects();
+                console.log('✅ Atmospheric effects added');
+
                 console.log('🎉 Full realistic multi-room museum created successfully!');
+                
+                // Manual collision system restored
+                console.log('Step 8: Collision system using original manual approach');
+                
+                // Test render immediately to ensure everything is working
+                console.log('🧪 Testing initial render...');
+                renderer.render(scene, camera);
+                console.log('✅ Initial render test completed');
+                
+                // Final step: Fix all walls and ensure collision consistency
+                console.log('Step 8: Making all walls visible and removing orphan collisions...');
+                fixAllWallsAndCollisions();
+                console.log('✅ All walls made visible, orphan collisions removed');
                 
             } catch (error) {
                 console.error('❌ Error in realistic museum creation:', error);
@@ -947,9 +1088,14 @@
         function createMuseumFloors() {
             // Main gallery floor (larger)
             const mainFloorGeometry = new THREE.PlaneGeometry(50, 50);
-            const mainFloorMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0x8B7355,
-                map: createMarbleTexture()
+            const mainFloorMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xF5F5F5,
+                map: createMarbleTexture(),
+                normalMap: createMarbleNormalMap(),
+                roughnessMap: createMarbleRoughnessMap(),
+                roughness: 0.1,
+                metalness: 0.0,
+                envMapIntensity: 0.5
             });
             const mainFloor = new THREE.Mesh(mainFloorGeometry, mainFloorMaterial);
             mainFloor.rotation.x = -Math.PI / 2;
@@ -985,74 +1131,382 @@
         }
 
         function createMarbleTexture() {
-            const size = 512;
+            const size = 1024;
             const canvas = document.createElement('canvas');
             canvas.width = canvas.height = size;
             const context = canvas.getContext('2d');
             
-            // Create marble-like pattern with more realistic coloring
-            const gradient = context.createLinearGradient(0, 0, size, size);
-            gradient.addColorStop(0, '#F5F5DC');
-            gradient.addColorStop(0.3, '#E6E6E6');
-            gradient.addColorStop(0.7, '#F0F0F0');
-            gradient.addColorStop(1, '#F5F5DC');
+            // Create high-quality marble base with Carrara marble colors
+            const gradient = context.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            gradient.addColorStop(0, '#FEFEFE');
+            gradient.addColorStop(0.2, '#F8F8F8');
+            gradient.addColorStop(0.4, '#F2F2F2');
+            gradient.addColorStop(0.6, '#EEEEEE');
+            gradient.addColorStop(0.8, '#EAEAEA');
+            gradient.addColorStop(1, '#E6E6E6');
             context.fillStyle = gradient;
             context.fillRect(0, 0, size, size);
             
-            // Add realistic marble veining
+            // Add subtle color variations
+            context.globalAlpha = 0.1;
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const radius = 20 + Math.random() * 80;
+                const grad = context.createRadialGradient(x, y, 0, x, y, radius);
+                grad.addColorStop(0, '#F5F5F5');
+                grad.addColorStop(1, 'transparent');
+                context.fillStyle = grad;
+                context.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+            }
+            
+            // Create realistic marble veining with multiple layers
+            context.globalAlpha = 1;
             context.globalCompositeOperation = 'multiply';
-            for (let i = 0; i < 30; i++) {
-                context.strokeStyle = `rgba(200, 200, 200, ${0.3 + Math.random() * 0.4})`;
-                context.lineWidth = 1 + Math.random() * 3;
+            
+            // Primary veins (darker, thicker)
+            for (let i = 0; i < 12; i++) {
+                context.strokeStyle = `rgba(180, 180, 180, ${0.4 + Math.random() * 0.3})`;
+                context.lineWidth = 2 + Math.random() * 4;
                 context.beginPath();
+                
                 const startX = Math.random() * size;
                 const startY = Math.random() * size;
                 context.moveTo(startX, startY);
                 
-                // Create curvy veins
-                for (let j = 0; j < 5; j++) {
-                    const x = startX + (Math.random() - 0.5) * size * 0.6;
-                    const y = startY + (Math.random() - 0.5) * size * 0.6;
-                    context.quadraticCurveTo(
-                        startX + (Math.random() - 0.5) * 100,
-                        startY + (Math.random() - 0.5) * 100,
-                        x, y
-                    );
+                // Create organic flowing veins
+                let currentX = startX;
+                let currentY = startY;
+                for (let j = 0; j < 8; j++) {
+                    const controlX = currentX + (Math.random() - 0.5) * 150;
+                    const controlY = currentY + (Math.random() - 0.5) * 150;
+                    currentX += (Math.random() - 0.5) * 200;
+                    currentY += (Math.random() - 0.5) * 200;
+                    context.quadraticCurveTo(controlX, controlY, currentX, currentY);
                 }
                 context.stroke();
             }
             
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.repeat.set(4, 4);
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            return texture;
-        }
-
-        function createWallTexture() {
-            const size = 512;
-            const canvas = document.createElement('canvas');
-            canvas.width = canvas.height = size;
-            const context = canvas.getContext('2d');
+            // Secondary veins (lighter, thinner)
+            for (let i = 0; i < 25; i++) {
+                context.strokeStyle = `rgba(200, 200, 200, ${0.2 + Math.random() * 0.2})`;
+                context.lineWidth = 0.5 + Math.random() * 2;
+                context.beginPath();
+                
+                const startX = Math.random() * size;
+                const startY = Math.random() * size;
+                context.moveTo(startX, startY);
+                
+                let currentX = startX;
+                let currentY = startY;
+                for (let j = 0; j < 6; j++) {
+                    const controlX = currentX + (Math.random() - 0.5) * 100;
+                    const controlY = currentY + (Math.random() - 0.5) * 100;
+                    currentX += (Math.random() - 0.5) * 120;
+                    currentY += (Math.random() - 0.5) * 120;
+                    context.quadraticCurveTo(controlX, controlY, currentX, currentY);
+                }
+                context.stroke();
+            }
             
-            // Create subtle wall texture
-            context.fillStyle = '#F8F8F8';
-            context.fillRect(0, 0, size, size);
-            
-            // Add subtle texture pattern
-            for (let i = 0; i < 100; i++) {
-                context.fillStyle = `rgba(240, 240, 240, ${Math.random() * 0.3})`;
-                context.fillRect(
-                    Math.random() * size,
-                    Math.random() * size,
-                    2 + Math.random() * 4,
-                    2 + Math.random() * 4
-                );
+            // Add fine grain texture
+            context.globalCompositeOperation = 'overlay';
+            context.globalAlpha = 0.3;
+            for (let i = 0; i < 3000; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const brightness = Math.random();
+                context.fillStyle = `rgba(${brightness * 255}, ${brightness * 255}, ${brightness * 255}, 0.1)`;
+                context.fillRect(x, y, 1, 1);
             }
             
             const texture = new THREE.CanvasTexture(canvas);
             texture.repeat.set(2, 2);
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             return texture;
+        }
+
+        function createWallTexture() {
+            const size = 1024;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Create realistic painted plaster wall base
+            const gradient = context.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#FAFAFA');
+            gradient.addColorStop(0.3, '#F7F7F7');
+            gradient.addColorStop(0.7, '#F4F4F4');
+            gradient.addColorStop(1, '#F1F1F1');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, size, size);
+            
+            // Add plaster texture with irregular patterns
+            context.globalAlpha = 0.15;
+            for (let i = 0; i < 200; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const radius = 5 + Math.random() * 20;
+                
+                // Create irregular circular patches
+                context.beginPath();
+                for (let angle = 0; angle < Math.PI * 2; angle += 0.5) {
+                    const r = radius * (0.8 + Math.random() * 0.4);
+                    const px = x + Math.cos(angle) * r;
+                    const py = y + Math.sin(angle) * r;
+                    if (angle === 0) context.moveTo(px, py);
+                    else context.lineTo(px, py);
+                }
+                context.closePath();
+                
+                context.fillStyle = Math.random() > 0.5 ? 
+                    `rgba(245, 245, 245, ${Math.random() * 0.4})` : 
+                    `rgba(235, 235, 235, ${Math.random() * 0.3})`;
+                context.fill();
+            }
+            
+            // Add subtle brush stroke texture
+            context.globalAlpha = 0.1;
+            for (let i = 0; i < 100; i++) {
+                context.strokeStyle = `rgba(240, 240, 240, ${Math.random() * 0.5})`;
+                context.lineWidth = 1 + Math.random() * 3;
+                context.beginPath();
+                
+                const startX = Math.random() * size;
+                const startY = Math.random() * size;
+                const length = 20 + Math.random() * 80;
+                const angle = Math.random() * Math.PI * 2;
+                
+                context.moveTo(startX, startY);
+                context.lineTo(
+                    startX + Math.cos(angle) * length,
+                    startY + Math.sin(angle) * length
+                );
+                context.stroke();
+            }
+            
+            // Add fine surface noise for realism
+            context.globalAlpha = 0.08;
+            for (let i = 0; i < 5000; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const brightness = 245 + Math.random() * 10;
+                context.fillStyle = `rgba(${brightness}, ${brightness}, ${brightness}, 0.3)`;
+                context.fillRect(x, y, 1 + Math.random(), 1 + Math.random());
+            }
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.repeat.set(3, 3);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createWoodTexture() {
+            const size = 1024;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Create realistic oak wood base
+            const gradient = context.createLinearGradient(0, 0, size, 0);
+            gradient.addColorStop(0, '#D2B48C');
+            gradient.addColorStop(0.2, '#CD853F');
+            gradient.addColorStop(0.4, '#DEB887');
+            gradient.addColorStop(0.6, '#D2B48C');
+            gradient.addColorStop(0.8, '#BC9A6A');
+            gradient.addColorStop(1, '#A0826D');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, size, size);
+            
+            // Add wood grain patterns
+            context.globalCompositeOperation = 'multiply';
+            for (let i = 0; i < 20; i++) {
+                const y = (i / 20) * size;
+                const amplitude = 10 + Math.random() * 20;
+                const frequency = 0.01 + Math.random() * 0.02;
+                
+                context.strokeStyle = `rgba(160, 130, 109, ${0.3 + Math.random() * 0.4})`;
+                context.lineWidth = 1 + Math.random() * 3;
+                context.beginPath();
+                
+                for (let x = 0; x < size; x += 2) {
+                    const waveY = y + Math.sin(x * frequency) * amplitude;
+                    const noise = (Math.random() - 0.5) * 5;
+                    if (x === 0) context.moveTo(x, waveY + noise);
+                    else context.lineTo(x, waveY + noise);
+                }
+                context.stroke();
+            }
+            
+            // Add wood knots
+            for (let i = 0; i < 8; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const radius = 15 + Math.random() * 25;
+                
+                const knotGradient = context.createRadialGradient(x, y, 0, x, y, radius);
+                knotGradient.addColorStop(0, 'rgba(101, 67, 33, 0.8)');
+                knotGradient.addColorStop(0.5, 'rgba(139, 69, 19, 0.6)');
+                knotGradient.addColorStop(1, 'rgba(160, 130, 109, 0.2)');
+                
+                context.fillStyle = knotGradient;
+                context.beginPath();
+                context.arc(x, y, radius, 0, Math.PI * 2);
+                context.fill();
+            }
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.repeat.set(1, 4);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createMetalTexture() {
+            const size = 512;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Create brushed metal base
+            const gradient = context.createLinearGradient(0, 0, size, 0);
+            gradient.addColorStop(0, '#C0C0C0');
+            gradient.addColorStop(0.3, '#DCDCDC');
+            gradient.addColorStop(0.5, '#F5F5F5');
+            gradient.addColorStop(0.7, '#DCDCDC');
+            gradient.addColorStop(1, '#C0C0C0');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, size, size);
+            
+            // Add brushed metal streaks
+            context.globalAlpha = 0.3;
+            for (let i = 0; i < 100; i++) {
+                context.strokeStyle = Math.random() > 0.5 ? '#E8E8E8' : '#B8B8B8';
+                context.lineWidth = 0.5 + Math.random() * 1.5;
+                context.beginPath();
+                
+                const x = Math.random() * size;
+                const length = 50 + Math.random() * 200;
+                context.moveTo(x, 0);
+                context.lineTo(x, length);
+                context.stroke();
+            }
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.repeat.set(2, 2);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createMarbleNormalMap() {
+            const size = 1024;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Create normal map base
+            context.fillStyle = '#8080FF'; // Neutral normal (RGB: 128,128,255)
+            context.fillRect(0, 0, size, size);
+            
+            // Add surface variations for marble veining normals
+            context.globalCompositeOperation = 'overlay';
+            for (let i = 0; i < 8; i++) {
+                const gradient = context.createLinearGradient(
+                    Math.random() * size, Math.random() * size,
+                    Math.random() * size, Math.random() * size
+                );
+                gradient.addColorStop(0, '#7070FF');
+                gradient.addColorStop(0.5, '#9090FF');
+                gradient.addColorStop(1, '#7070FF');
+                
+                context.strokeStyle = gradient;
+                context.lineWidth = Math.random() * 20 + 10;
+                context.beginPath();
+                context.moveTo(Math.random() * size, Math.random() * size);
+                context.lineTo(Math.random() * size, Math.random() * size);
+                context.stroke();
+            }
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createMarbleRoughnessMap() {
+            const size = 1024;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Base roughness for polished marble
+            context.fillStyle = '#101010'; // Dark = smooth (low roughness)
+            context.fillRect(0, 0, size, size);
+            
+            // Add slightly rougher areas for variation
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const radius = Math.random() * 30 + 10;
+                
+                const gradient = context.createRadialGradient(x, y, 0, x, y, radius);
+                gradient.addColorStop(0, '#404040'); // Slightly rougher
+                gradient.addColorStop(1, '#101010');
+                
+                context.fillStyle = gradient;
+                context.beginPath();
+                context.arc(x, y, radius, 0, Math.PI * 2);
+                context.fill();
+            }
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createWallNormalMap() {
+            const size = 1024;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Base neutral normal
+            context.fillStyle = '#8080FF';
+            context.fillRect(0, 0, size, size);
+            
+            // Add plaster texture variation
+            for (let i = 0; i < 300; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const radius = Math.random() * 3 + 1;
+                
+                context.fillStyle = `rgba(${100 + Math.random() * 100}, ${100 + Math.random() * 100}, 255, 0.3)`;
+                context.beginPath();
+                context.arc(x, y, radius, 0, Math.PI * 2);
+                context.fill();
+            }
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createWallRoughnessMap() {
+            const size = 1024;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Base roughness for painted walls
+            context.fillStyle = '#C0C0C0'; // Medium roughness
+            context.fillRect(0, 0, size, size);
+            
+            // Add variation for realistic paint texture
+            for (let i = 0; i < 200; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const radius = Math.random() * 10 + 5;
+                
+                const intensity = Math.random() * 100 + 100;
+                context.fillStyle = `rgb(${intensity}, ${intensity}, ${intensity})`;
+                context.beginPath();
+                context.arc(x, y, radius, 0, Math.PI * 2);
+                context.fill();
+            }
+            
+            return new THREE.CanvasTexture(canvas);
         }
 
         function createBumpTexture() {
@@ -1103,16 +1557,533 @@
             return texture;
         }
 
+        function clearAllCollisions() {
+            collisionObjects.length = 0;
+            walls.length = 0;
+            console.log('🧹 Cleared all existing collision data');
+        }
+        
+        function fixAllWallsAndCollisions() {
+            console.log('🔧 FIXING ALL WALLS - Making every collision visible...');
+            
+            // Clear ALL existing collision data
+            clearAllCollisions();
+            
+            // Find all mesh objects in the scene
+            const allWalls = [];
+            const allObjects = [];
+            
+            scene.traverse((child) => {
+                if (child.isMesh && child.visible) {
+                    // Check if it's a wall-like object (PlaneGeometry or tall BoxGeometry)
+                    if (child.geometry) {
+                        const pos = child.position;
+                        
+                        // If it's a plane at wall height, it's likely a wall
+                        if (child.geometry.type === 'PlaneGeometry' && pos.y > 2 && pos.y < 10) {
+                            allWalls.push(child);
+                            console.log('📋 Found wall:', child.geometry.type, 'at', `(${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)})`);
+                        }
+                        // If it's a box that's tall and thin, it's likely a wall
+                        else if (child.geometry.type === 'BoxGeometry' && pos.y > 2 && pos.y < 10) {
+                            const params = child.geometry.parameters;
+                            // Check if it's wall-shaped (one dimension much smaller than others)
+                            if (params && (params.width < 1 || params.depth < 1)) {
+                                allWalls.push(child);
+                                console.log('📋 Found thick wall:', 'at', `(${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)})`);
+                            }
+                        }
+                        // Collect furniture and objects for collision
+                        else if (child.geometry.type === 'BoxGeometry' || 
+                                 child.geometry.type === 'CylinderGeometry' ||
+                                 child.geometry.type === 'SphereGeometry') {
+                            if (pos.y > 0.3 && pos.y < 6) {
+                                allObjects.push(child);
+                            }
+                        }
+                    }
+                }
+            });
+            
+            console.log(`📊 Found ${allWalls.length} walls and ${allObjects.length} objects`);
+            
+            // Add collision only for visible walls
+            allWalls.forEach(wall => {
+                // Make absolutely sure the wall is visible
+                wall.visible = true;
+                
+                // For PlaneGeometry walls, ensure they're double-sided
+                if (wall.material) {
+                    wall.material.side = THREE.DoubleSide;
+                }
+                
+                // Add to collision system
+                const boundingBox = new THREE.Box3().setFromObject(wall);
+                const size = boundingBox.getSize(new THREE.Vector3());
+                
+                wall.userData.boundingBox = boundingBox;
+                wall.userData.type = 'verified-wall';
+                walls.push(wall);
+                
+                console.log('✅ Added visible wall collision at', `(${wall.position.x.toFixed(1)}, ${wall.position.z.toFixed(1)})`, 'size:', `${size.x.toFixed(1)}x${size.y.toFixed(1)}x${size.z.toFixed(1)}`);
+            });
+            
+            // Add collision for furniture/objects
+            allObjects.forEach(obj => {
+                const boundingBox = new THREE.Box3().setFromObject(obj);
+                const size = boundingBox.getSize(new THREE.Vector3());
+                const radius = Math.max(size.x, size.z) * 0.4; // 40% of max dimension
+                
+                if (radius > 0.2) { // Only add collision for meaningful objects
+                    obj.userData.collisionRadius = radius;
+                    obj.userData.type = 'verified-object';
+                    collisionObjects.push(obj);
+                    console.log('✅ Added object collision:', obj.userData.type, 'at', `(${obj.position.x.toFixed(1)}, ${obj.position.z.toFixed(1)})`, 'radius:', radius.toFixed(2));
+                }
+            });
+            
+            console.log('🎯 WALL FIX COMPLETE:');
+            console.log(`   - ${walls.length} walls with collision (all visible)`);
+            console.log(`   - ${collisionObjects.length} objects with collision`);
+            console.log('   - All collision zones now have visible objects');
+            console.log('   - All invisible collision zones removed');
+            
+            return { walls: walls.length, objects: collisionObjects.length };
+        }
+
+        function auditAndRebuildCollisions() {
+            console.log('🕵️ STARTING COLLISION AUDIT - Scanning scene for ACTUALLY VISIBLE objects...');
+            
+            // Clear everything first
+            clearAllCollisions();
+            
+            let scannedObjects = 0;
+            let addedCollisions = 0;
+            let skippedInvisible = 0;
+            
+            // Scan the entire scene for objects that are actually visible and physical
+            scene.traverse((child) => {
+                scannedObjects++;
+                
+                // Skip if not a mesh (lights, cameras, groups, etc.)
+                if (!child.isMesh) {
+                    return;
+                }
+                
+                // Skip if invisible
+                if (!child.visible) {
+                    skippedInvisible++;
+                    return;
+                }
+                
+                // Skip floor-level objects (y <= 1.0) - More generous floor exclusion
+                if (child.position.y <= 1.0) {
+                    console.log('⬇️ Skipping floor/low object at y =', child.position.y.toFixed(3), 'type:', child.geometry?.type);
+                    return;
+                }
+                
+                // Skip ceiling-level objects (y > 8)  
+                if (child.position.y > 8) {
+                    return;
+                }
+                
+                // Only add collision for specific object types that should block movement
+                const pos = child.position;
+                
+                // Check if this looks like a wall (tall and positioned like a wall)
+                if (child.geometry && child.geometry.type === 'PlaneGeometry' && pos.y > 2) {
+                    // Create bounding box for wall collision
+                    const boundingBox = new THREE.Box3().setFromObject(child);
+                    const size = boundingBox.getSize(new THREE.Vector3());
+                    
+                    // Only add walls that are reasonably sized and positioned
+                    if (size.x > 1 || size.z > 1) { // At least 1 unit wide
+                        child.userData.boundingBox = boundingBox;
+                        child.userData.type = 'scene-scanned-wall';
+                        walls.push(child);
+                        console.log('✅ Added wall collision:', child.userData.type, 'at', `(${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)})`, 'size:', `${size.x.toFixed(1)}x${size.y.toFixed(1)}x${size.z.toFixed(1)}`);
+                    }
+                    return;
+                }
+                
+                // Check if this is a physical furniture/obstacle object
+                if (child.geometry && (
+                    child.geometry.type === 'BoxGeometry' ||
+                    child.geometry.type === 'CylinderGeometry' ||
+                    child.geometry.type === 'SphereGeometry'
+                )) {
+                    // Estimate appropriate collision radius based on object size
+                    const boundingBox = new THREE.Box3().setFromObject(child);
+                    const size = boundingBox.getSize(new THREE.Vector3());
+                    const radius = Math.max(size.x, size.z) * 0.3; // 30% of max dimension (much smaller)
+                    
+                    if (radius > 0.3) { // Only add collision for objects with substantial size
+                        child.userData.collisionRadius = radius;
+                        child.userData.type = 'scene-scanned-object';
+                        collisionObjects.push(child);
+                        addedCollisions++;
+                        console.log('✅ Added collision for visible object:', child.userData.type || 'unknown', 'at', `(${pos.x.toFixed(1)}, ${pos.z.toFixed(1)})`, 'radius:', radius.toFixed(2));
+                    }
+                }
+            });
+            
+            console.log(`🔍 SCENE SCAN COMPLETE: ${scannedObjects} objects scanned, ${addedCollisions} collisions added, ${skippedInvisible} invisible objects skipped`);
+            console.log(`📊 Current collision state: ${collisionObjects.length} objects, ${walls.length} walls`);
+            
+            // Debug: Check if any collision objects are near the starting position (0, 1.6, 0)
+            if (camera) {
+                const startPos = camera.position;
+                console.log(`🎯 Player starting position: (${startPos.x.toFixed(1)}, ${startPos.y.toFixed(1)}, ${startPos.z.toFixed(1)})`);
+                
+                const nearbyObjects = collisionObjects.filter(obj => {
+                    const distance = startPos.distanceTo(obj.position);
+                    return distance < 3; // Within 3 units
+                });
+                
+                if (nearbyObjects.length > 0) {
+                    console.log('⚠️ OBJECTS NEAR STARTING POSITION:');
+                    nearbyObjects.forEach(obj => {
+                        const distance = startPos.distanceTo(obj.position);
+                        console.log(`   - ${obj.userData.type} at (${obj.position.x.toFixed(1)}, ${obj.position.y.toFixed(1)}, ${obj.position.z.toFixed(1)}) distance: ${distance.toFixed(2)} radius: ${obj.userData.collisionRadius}`);
+                    });
+                } else {
+                    console.log('✅ No collision objects near starting position');
+                }
+            }
+            
+            return { scannedObjects, addedCollisions, skippedInvisible };
+        }
+
+        function addVisibleObjectCollision(objectMesh, radius, type) {
+            // ONLY add collision for visible, physical objects
+            if (!objectMesh || !objectMesh.visible) {
+                console.log('⚠️ Skipping collision for invisible object:', type);
+                return;
+            }
+            
+            // Make sure the object is at a reasonable height (not floor, not ceiling)
+            if (objectMesh.position.y < 0.3 || objectMesh.position.y > 6) {
+                console.log('⚠️ Skipping collision for object outside play height:', type, 'at height:', objectMesh.position.y);
+                return;
+            }
+            
+            objectMesh.userData.collisionRadius = radius;
+            objectMesh.userData.type = type || 'visible-object';
+            collisionObjects.push(objectMesh);
+            console.log('✅ Added VISIBLE collision:', type, 'at:', `(${objectMesh.position.x.toFixed(1)}, ${objectMesh.position.z.toFixed(1)})`, 'radius:', radius);
+        }
+
+        function debugAllCollisions() {
+            console.log('🔍 COLLISION DEBUG - Total collision objects:', collisionObjects.length);
+            console.log('🔍 COLLISION DEBUG - Total walls:', walls.length);
+            
+            collisionObjects.forEach((obj, index) => {
+                console.log(`${index + 1}. ${obj.userData.type || 'unknown'} at (${obj.position.x.toFixed(1)}, ${obj.position.y.toFixed(1)}, ${obj.position.z.toFixed(1)}) radius: ${obj.userData.collisionRadius}`);
+            });
+            
+            walls.forEach((wall, index) => {
+                const box = wall.userData.boundingBox;
+                if (box) {
+                    console.log(`Wall ${index + 1}: ${box.min.x.toFixed(1)},${box.min.z.toFixed(1)} to ${box.max.x.toFixed(1)},${box.max.z.toFixed(1)}`);
+                }
+            });
+        }
+
+        function toggleHitboxVisualization() {
+            if (window.showHitboxes) {
+                createHitboxVisualizations();
+            } else {
+                removeHitboxVisualizations();
+            }
+        }
+
+        function createHitboxVisualizations() {
+            console.log('🎨 Creating hitbox visualizations...');
+            
+            // Clear existing visualizations
+            removeHitboxVisualizations();
+            
+            // Create sphere wireframes for object collisions (red)
+            collisionObjects.forEach(obj => {
+                if (obj.userData.collisionRadius) {
+                    const sphereGeometry = new THREE.SphereGeometry(obj.userData.collisionRadius, 16, 16);
+                    const sphereWireframe = new THREE.WireframeGeometry(sphereGeometry);
+                    const sphereMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.7 });
+                    const sphere = new THREE.LineSegments(sphereWireframe, sphereMaterial);
+                    
+                    sphere.position.copy(obj.position);
+                    sphere.name = 'hitbox-sphere';
+                    scene.add(sphere);
+                    window.hitboxHelpers.push(sphere);
+                    
+                    // Add label
+                    createHitboxLabel(obj.position, obj.userData.type || 'object', 0xff0000);
+                }
+            });
+            
+            // Create box wireframes for wall collisions (blue)
+            walls.forEach(wall => {
+                const box = wall.userData.boundingBox;
+                if (box) {
+                    const size = new THREE.Vector3();
+                    box.getSize(size);
+                    const center = new THREE.Vector3();
+                    box.getCenter(center);
+                    
+                    const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+                    const boxWireframe = new THREE.WireframeGeometry(boxGeometry);
+                    const boxMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7 });
+                    const boxHelper = new THREE.LineSegments(boxWireframe, boxMaterial);
+                    
+                    boxHelper.position.copy(center);
+                    boxHelper.name = 'hitbox-wall';
+                    scene.add(boxHelper);
+                    window.hitboxHelpers.push(boxHelper);
+                    
+                    // Add label
+                    createHitboxLabel(center, 'wall', 0x0000ff);
+                }
+            });
+            
+            // Create player collision sphere (green)
+            const playerRadius = 0.1;
+            const playerSphereGeometry = new THREE.SphereGeometry(playerRadius, 16, 16);
+            const playerWireframe = new THREE.WireframeGeometry(playerSphereGeometry);
+            const playerMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.9 });
+            const playerSphere = new THREE.LineSegments(playerWireframe, playerMaterial);
+            
+            playerSphere.name = 'hitbox-player';
+            window.hitboxHelpers.push(playerSphere);
+            scene.add(playerSphere);
+            
+            console.log(`✅ Created ${window.hitboxHelpers.length} hitbox visualizations`);
+        }
+
+        function createHitboxLabel(position, text, color) {
+            // Create a simple text sprite for labeling (simplified approach)
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 64;
+            
+            context.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = 'white';
+            context.font = '20px Arial';
+            context.textAlign = 'center';
+            context.fillText(text, canvas.width / 2, canvas.height / 2 + 7);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.8 });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            
+            sprite.position.set(position.x, position.y + 2, position.z);
+            sprite.scale.set(2, 0.5, 1);
+            sprite.name = 'hitbox-label';
+            scene.add(sprite);
+            window.hitboxHelpers.push(sprite);
+        }
+
+        function removeHitboxVisualizations() {
+            window.hitboxHelpers.forEach(helper => {
+                scene.remove(helper);
+                if (helper.geometry) helper.geometry.dispose();
+                if (helper.material) {
+                    if (helper.material.map) helper.material.map.dispose();
+                    helper.material.dispose();
+                }
+            });
+            window.hitboxHelpers = [];
+            console.log('🧹 Removed all hitbox visualizations');
+        }
+
+        function updatePlayerHitbox() {
+            if (window.showHitboxes && camera) {
+                const playerHitbox = window.hitboxHelpers.find(helper => helper.name === 'hitbox-player');
+                if (playerHitbox) {
+                    playerHitbox.position.copy(camera.position);
+                    playerHitbox.position.y = 1; // Show at ground level
+                }
+            }
+        }
+
+        function debugAllSceneObjects() {
+            console.log('🔍 SCENE DEBUG - Scanning all objects for clue userData...');
+            let totalObjects = 0;
+            let clueObjects = 0;
+            let invalidClues = 0;
+            
+            scene.traverse((child) => {
+                totalObjects++;
+                if (child.userData && child.userData.type === 'clue') {
+                    clueObjects++;
+                    if (!child.userData.clueKey || !clues[child.userData.clueKey]) {
+                        invalidClues++;
+                        console.log('❌ INVALID CLUE OBJECT:', {
+                            type: child.userData.type,
+                            clueKey: child.userData.clueKey,
+                            position: child.position,
+                            name: child.name || 'unnamed',
+                            material: child.material?.type || 'no material'
+                        });
+                    } else {
+                        console.log('✅ Valid clue:', child.userData.clueKey, 'at', child.position);
+                    }
+                }
+            });
+            
+            console.log(`📊 Scene scan complete: ${totalObjects} total objects, ${clueObjects} clue objects (${invalidClues} invalid)`);
+            return { totalObjects, clueObjects, invalidClues };
+        }
+
+        function debugAreaCollisions() {
+            if (!camera) return;
+            
+            const playerPos = camera.position;
+            console.log(`🔍 AREA COLLISION DEBUG - Player at (${playerPos.x.toFixed(1)}, ${playerPos.z.toFixed(1)})`);
+            
+            // Check for collision objects near player
+            const nearbyObjects = [];
+            collisionObjects.forEach(obj => {
+                const distance = playerPos.distanceTo(obj.position);
+                if (distance < 10) {
+                    nearbyObjects.push({
+                        type: obj.userData.type,
+                        position: obj.position,
+                        distance: distance.toFixed(2),
+                        radius: obj.userData.collisionRadius
+                    });
+                }
+            });
+            
+            console.log(`Found ${nearbyObjects.length} collision objects within 10 units:`);
+            nearbyObjects.forEach((obj, index) => {
+                console.log(`${index + 1}. ${obj.type} at (${obj.position.x.toFixed(1)}, ${obj.position.z.toFixed(1)}) - Distance: ${obj.distance}, Radius: ${obj.radius}`);
+            });
+            
+            // Check for nearby walls
+            const nearbyWalls = [];
+            walls.forEach((wall, index) => {
+                const box = wall.userData.boundingBox;
+                if (box) {
+                    const center = new THREE.Vector3();
+                    box.getCenter(center);
+                    const distance = playerPos.distanceTo(center);
+                    if (distance < 15) {
+                        nearbyWalls.push({
+                            index: index + 1,
+                            center: center,
+                            distance: distance.toFixed(2),
+                            bounds: `${box.min.x.toFixed(1)},${box.min.z.toFixed(1)} to ${box.max.x.toFixed(1)},${box.max.z.toFixed(1)}`
+                        });
+                    }
+                }
+            });
+            
+            console.log(`Found ${nearbyWalls.length} walls within 15 units:`);
+            nearbyWalls.forEach(wall => {
+                console.log(`Wall ${wall.index}: Center (${wall.center.x.toFixed(1)}, ${wall.center.z.toFixed(1)}) - Distance: ${wall.distance}, Bounds: ${wall.bounds}`);
+            });
+        }
+
+        let wallCollisionsEnabled = true;
+        function toggleWallCollisions() {
+            wallCollisionsEnabled = !wallCollisionsEnabled;
+            console.log('🧱 Wall collisions:', wallCollisionsEnabled ? 'ENABLED' : 'DISABLED');
+            
+            if (!wallCollisionsEnabled) {
+                console.log('⚠️ You can now walk through walls for testing');
+            }
+        }
+
+        function addWallCollision(wallMesh, width, height) {
+            // ONLY add collision for VISIBLE walls that are at reasonable height
+            if (!wallMesh || !wallMesh.visible) {
+                console.log('⚠️ Skipping collision for invisible wall');
+                return;
+            }
+            
+            // Make sure wall is at reasonable height (not floor, not too high)
+            if (wallMesh.position.y < 0.5 || wallMesh.position.y > 15) {
+                console.log('⚠️ Skipping collision for wall outside reasonable height:', wallMesh.position.y);
+                return;
+            }
+            
+            // Calculate bounding box based on wall position and rotation
+            const pos = wallMesh.position;
+            const rot = wallMesh.rotation;
+            const halfWidth = width / 2;
+            const thickness = 0.1; // Thin walls to prevent invisible barriers
+            
+            let minX, maxX, minZ, maxZ;
+            
+            if (Math.abs(rot.y) < 0.1) {
+                // Wall facing North/South (no rotation or 180°)
+                minX = pos.x - halfWidth;
+                maxX = pos.x + halfWidth;
+                minZ = pos.z - thickness;
+                maxZ = pos.z + thickness;
+            } else {
+                // Wall facing East/West (90° rotation)
+                minX = pos.x - thickness;
+                maxX = pos.x + thickness;
+                minZ = pos.z - halfWidth;
+                maxZ = pos.z + halfWidth;
+            }
+            
+            wallMesh.userData.boundingBox = new THREE.Box3(
+                new THREE.Vector3(minX, 0, minZ),
+                new THREE.Vector3(maxX, height, maxZ)
+            );
+            
+            walls.push(wallMesh);
+            console.log('✅ Added wall collision:', pos, 'size:', width, 'x', height);
+        }
+
+        function createThickWall(width, height, thickness, position, rotation = { y: 0 }) {
+            const wallGeometry = new THREE.BoxGeometry(
+                rotation.y % Math.PI === 0 ? width : thickness,
+                height,
+                rotation.y % Math.PI === 0 ? thickness : width
+            );
+            
+            const wallMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xFAFAFA,
+                map: createWallTexture(),
+                normalMap: createWallNormalMap(),
+                roughnessMap: createWallRoughnessMap(),
+                roughness: 0.8,
+                metalness: 0.0,
+                envMapIntensity: 0.2,
+                side: THREE.DoubleSide // Make walls visible from both sides
+            });
+            
+            const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+            wall.position.set(position.x, position.y || height/2, position.z);
+            if (rotation.y) wall.rotation.y = rotation.y;
+            wall.castShadow = true;
+            wall.receiveShadow = true;
+            
+            // Add collision
+            addWallCollision(wall, width, height);
+            scene.add(wall);
+            return wall;
+        }
+
         function createRealMultiRoomLayout() {
             const wallHeight = 8;
+            const wallThickness = 0.4; // Realistic wall thickness
             
             // Create realistic wall material with texture
-            const wallMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xF5F5DC,
+            const wallMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xFAFAFA,
                 map: createWallTexture(),
-                bumpMap: createBumpTexture(),
-                bumpScale: 0.1,
-                shininess: 10
+                normalMap: createWallNormalMap(),
+                roughnessMap: createWallRoughnessMap(),
+                roughness: 0.8,
+                metalness: 0.0,
+                envMapIntensity: 0.2,
+                side: THREE.DoubleSide // Make walls visible from both sides
             });
 
             // MAIN ENTRANCE HALL (Central area)
@@ -1120,11 +2091,7 @@
             const entranceNorth = new THREE.Mesh(new THREE.PlaneGeometry(20, wallHeight), wallMaterial);
             entranceNorth.position.set(0, 4, 15);
             entranceNorth.receiveShadow = true;
-            entranceNorth.userData.boundingBox = new THREE.Box3(
-                new THREE.Vector3(-10, 0, 14.5),
-                new THREE.Vector3(10, wallHeight, 15.5)
-            );
-            walls.push(entranceNorth);
+            addWallCollision(entranceNorth, 20, wallHeight);
             scene.add(entranceNorth);
 
             // South wall of entrance hall  
@@ -1132,6 +2099,7 @@
             entranceSouth.position.set(0, 4, -15);
             entranceSouth.rotation.y = Math.PI;
             entranceSouth.receiveShadow = true;
+            addWallCollision(entranceSouth, 20, wallHeight);
             scene.add(entranceSouth);
 
             // MAIN GALLERY ROOM (Where Mona Lisa was stolen)
@@ -1139,68 +2107,114 @@
             const frontWallLeft = new THREE.Mesh(new THREE.PlaneGeometry(6, wallHeight), wallMaterial);
             frontWallLeft.position.set(-7, 4, -12);
             frontWallLeft.receiveShadow = true;
+            addWallCollision(frontWallLeft, 6, wallHeight);
             scene.add(frontWallLeft);
 
             const frontWallRight = new THREE.Mesh(new THREE.PlaneGeometry(6, wallHeight), wallMaterial);
             frontWallRight.position.set(7, 4, -12);
             frontWallRight.receiveShadow = true;
+            addWallCollision(frontWallRight, 6, wallHeight);
             scene.add(frontWallRight);
 
-            // Left wall of main gallery
-            const mainGalleryLeft = new THREE.Mesh(new THREE.PlaneGeometry(18, wallHeight), wallMaterial);
-            mainGalleryLeft.position.set(-12, 4, -3);
-            mainGalleryLeft.rotation.y = Math.PI / 2;
-            mainGalleryLeft.receiveShadow = true;
-            scene.add(mainGalleryLeft);
+            // Left wall of main gallery (split to allow corridor access)
+            // North section (from z=-12 to z=-4)
+            const mainGalleryLeftNorth = new THREE.Mesh(new THREE.PlaneGeometry(8, wallHeight), wallMaterial);
+            mainGalleryLeftNorth.position.set(-12, 4, -8);
+            mainGalleryLeftNorth.rotation.y = Math.PI / 2;
+            mainGalleryLeftNorth.receiveShadow = true;
+            addWallCollision(mainGalleryLeftNorth, 8, wallHeight);
+            scene.add(mainGalleryLeftNorth);
+            
+            // South section (from z=2 to z=6) - leaves opening for corridor
+            const mainGalleryLeftSouth = new THREE.Mesh(new THREE.PlaneGeometry(4, wallHeight), wallMaterial);
+            mainGalleryLeftSouth.position.set(-12, 4, 4);
+            mainGalleryLeftSouth.rotation.y = Math.PI / 2;
+            mainGalleryLeftSouth.receiveShadow = true;
+            addWallCollision(mainGalleryLeftSouth, 4, wallHeight);
+            scene.add(mainGalleryLeftSouth);
 
-            // Right wall of main gallery (with opening to east wing)
-            const mainGalleryRightTop = new THREE.Mesh(new THREE.PlaneGeometry(8, wallHeight), wallMaterial);
-            mainGalleryRightTop.position.set(8, 4, -8);
-            mainGalleryRightTop.rotation.y = -Math.PI / 2;
-            mainGalleryRightTop.receiveShadow = true;
-            scene.add(mainGalleryRightTop);
+            // Right wall of main gallery (with opening to east wing) - using thick walls
+            // Top section (north of doorway)
+            createThickWall(4, wallHeight, wallThickness, {x: 8, y: wallHeight/2, z: -10}, {y: -Math.PI / 2});
+            // Bottom section (south of doorway) 
+            createThickWall(4, wallHeight, wallThickness, {x: 8, y: wallHeight/2, z: 4}, {y: -Math.PI / 2});
+            // Doorway opening is now between z=-6 and z=0 (6 units wide)
+            
+            // Add doorway frame for visual clarity
+            const doorFrameGeometry = new THREE.BoxGeometry(0.2, wallHeight, 0.3);
+            const doorFrameMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+            
+            // Left doorframe
+            const leftFrame = new THREE.Mesh(doorFrameGeometry, doorFrameMaterial);
+            leftFrame.position.set(7.9, wallHeight/2, -6);
+            leftFrame.castShadow = true;
+            scene.add(leftFrame);
+            
+            // Right doorframe  
+            const rightFrame = new THREE.Mesh(doorFrameGeometry, doorFrameMaterial);
+            rightFrame.position.set(7.9, wallHeight/2, 0);
+            rightFrame.castShadow = true;
+            scene.add(rightFrame);
+            
+            // Top doorframe
+            const topFrameGeometry = new THREE.BoxGeometry(0.2, 0.3, 6);
+            const topFrame = new THREE.Mesh(topFrameGeometry, doorFrameMaterial);
+            topFrame.position.set(7.9, wallHeight - 0.15, -3);
+            topFrame.castShadow = true;
+            scene.add(topFrame);
 
-            const mainGalleryRightBottom = new THREE.Mesh(new THREE.PlaneGeometry(8, wallHeight), wallMaterial);
-            mainGalleryRightBottom.position.set(8, 4, 2);
-            mainGalleryRightBottom.rotation.y = -Math.PI / 2;
-            mainGalleryRightBottom.receiveShadow = true;
-            scene.add(mainGalleryRightBottom);
+            // EAST WING - Clean rebuild with proper layout
+            
+            // Main separation wall between Main Gallery and East Wing (with doorway opening)
+            // Top part of separation wall (north of doorway)
+            createThickWall(6, wallHeight, wallThickness, {x: 12, y: wallHeight/2, z: -9}, {y: -Math.PI / 2});
+            // Bottom part of separation wall (south of doorway) 
+            createThickWall(6, wallHeight, wallThickness, {x: 12, y: wallHeight/2, z: 3}, {y: -Math.PI / 2});
+            // Doorway opening between z=-6 and z=0 (6 units wide)
+            
+            // East Wing Perimeter Walls (to prevent void viewing)
+            // North perimeter wall
+            createThickWall(24, wallHeight, wallThickness, {x: 24, y: wallHeight/2, z: -12}, {y: 0});
+            // South perimeter wall  
+            createThickWall(24, wallHeight, wallThickness, {x: 24, y: wallHeight/2, z: 6}, {y: 0});
+            // East perimeter wall (exterior)
+            createThickWall(18, wallHeight, wallThickness, {x: 36, y: wallHeight/2, z: -3}, {y: -Math.PI / 2});
 
-            // EAST WING (Storage and additional galleries)
-            // East wing walls
-            const eastWingNorth = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
-            eastWingNorth.position.set(16, 4, -12);
-            eastWingNorth.receiveShadow = true;
-            scene.add(eastWingNorth);
+            // WEST WING (Security office and staff areas) - Now with visible walls and doorway
+            // North wall with doorway opening
+            const westWingNorth1 = new THREE.Mesh(new THREE.PlaneGeometry(4, wallHeight), wallMaterial);
+            westWingNorth1.position.set(-14, 4, -8);
+            westWingNorth1.receiveShadow = true;
+            addWallCollision(westWingNorth1, 4, wallHeight);
+            scene.add(westWingNorth1);
+            
+            const westWingNorth2 = new THREE.Mesh(new THREE.PlaneGeometry(4, wallHeight), wallMaterial);
+            westWingNorth2.position.set(-22, 4, -8);
+            westWingNorth2.receiveShadow = true;
+            addWallCollision(westWingNorth2, 4, wallHeight);
+            scene.add(westWingNorth2);
+            
+            // South wall with doorway opening
+            const westWingSouth1 = new THREE.Mesh(new THREE.PlaneGeometry(4, wallHeight), wallMaterial);
+            westWingSouth1.position.set(-14, 4, 8);
+            westWingSouth1.rotation.y = Math.PI;
+            westWingSouth1.receiveShadow = true;
+            addWallCollision(westWingSouth1, 4, wallHeight);
+            scene.add(westWingSouth1);
+            
+            const westWingSouth2 = new THREE.Mesh(new THREE.PlaneGeometry(4, wallHeight), wallMaterial);
+            westWingSouth2.position.set(-22, 4, 8);
+            westWingSouth2.rotation.y = Math.PI;
+            westWingSouth2.receiveShadow = true;
+            addWallCollision(westWingSouth2, 4, wallHeight);
+            scene.add(westWingSouth2);
 
-            const eastWingSouth = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
-            eastWingSouth.position.set(16, 4, 6);
-            eastWingSouth.rotation.y = Math.PI;
-            eastWingSouth.receiveShadow = true;
-            scene.add(eastWingSouth);
-
-            const eastWingEast = new THREE.Mesh(new THREE.PlaneGeometry(18, wallHeight), wallMaterial);
-            eastWingEast.position.set(24, 4, -3);
-            eastWingEast.rotation.y = -Math.PI / 2;
-            eastWingEast.receiveShadow = true;
-            scene.add(eastWingEast);
-
-            // WEST WING (Security office and staff areas)
-            const westWingNorth = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
-            westWingNorth.position.set(-16, 4, -8);
-            westWingNorth.receiveShadow = true;
-            scene.add(westWingNorth);
-
-            const westWingSouth = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
-            westWingSouth.position.set(-16, 4, 8);
-            westWingSouth.rotation.y = Math.PI;
-            westWingSouth.receiveShadow = true;
-            scene.add(westWingSouth);
-
+            // Back wall (west wall)
             const westWingWest = new THREE.Mesh(new THREE.PlaneGeometry(16, wallHeight), wallMaterial);
             westWingWest.position.set(-24, 4, 0);
             westWingWest.rotation.y = Math.PI / 2;
             westWingWest.receiveShadow = true;
+            addWallCollision(westWingWest, 12, wallHeight); // Reduced collision width
             scene.add(westWingWest);
 
             // CORRIDOR WALLS
@@ -1208,16 +2222,75 @@
             const corridorDivider1 = new THREE.Mesh(new THREE.PlaneGeometry(6, wallHeight), wallMaterial);
             corridorDivider1.position.set(-4, 4, 8);
             corridorDivider1.receiveShadow = true;
+            addWallCollision(corridorDivider1, 4, wallHeight); // Reduced collision
             scene.add(corridorDivider1);
 
             const corridorDivider2 = new THREE.Mesh(new THREE.PlaneGeometry(6, wallHeight), wallMaterial);
             corridorDivider2.position.set(4, 4, 8);
             corridorDivider2.rotation.y = Math.PI;
             corridorDivider2.receiveShadow = true;
+            addWallCollision(corridorDivider2, 4, wallHeight); // Reduced collision
             scene.add(corridorDivider2);
 
             // Add ceiling elements for more realism
             createCeilingElements();
+            
+            // Add border walls to prevent looking into void
+            createBorderWalls();
+        }
+
+        function createBorderWalls() {
+            const borderHeight = 12; // Taller than regular walls
+            const borderThickness = 1;
+            const borderDistance = 30; // Distance from center
+            
+            const borderMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8B7D6B,
+                roughness: 0.9,
+                metalness: 0.0
+            });
+            
+            // North border wall
+            const northBorder = new THREE.Mesh(
+                new THREE.BoxGeometry(70, borderHeight, borderThickness),
+                borderMaterial
+            );
+            northBorder.position.set(0, borderHeight/2, borderDistance);
+            northBorder.castShadow = true;
+            addWallCollision(northBorder, 70, borderHeight);
+            scene.add(northBorder);
+            
+            // South border wall
+            const southBorder = new THREE.Mesh(
+                new THREE.BoxGeometry(70, borderHeight, borderThickness),
+                borderMaterial
+            );
+            southBorder.position.set(0, borderHeight/2, -borderDistance);
+            southBorder.castShadow = true;
+            addWallCollision(southBorder, 70, borderHeight);
+            scene.add(southBorder);
+            
+            // East border wall
+            const eastBorder = new THREE.Mesh(
+                new THREE.BoxGeometry(borderThickness, borderHeight, 60),
+                borderMaterial
+            );
+            eastBorder.position.set(borderDistance + 5, borderHeight/2, 0);
+            eastBorder.castShadow = true;
+            addWallCollision(eastBorder, 60, borderHeight);
+            scene.add(eastBorder);
+            
+            // West border wall
+            const westBorder = new THREE.Mesh(
+                new THREE.BoxGeometry(borderThickness, borderHeight, 60),
+                borderMaterial
+            );
+            westBorder.position.set(-borderDistance - 5, borderHeight/2, 0);
+            westBorder.castShadow = true;
+            addWallCollision(westBorder, 60, borderHeight);
+            scene.add(westBorder);
+            
+            console.log('✅ Added border walls to prevent void viewing');
         }
 
         function createCeilingElements() {
@@ -1247,13 +2320,40 @@
 
         function createArtworkInRooms() {
             // MAIN GALLERY - Where Mona Lisa was stolen
-            // Empty frame where Mona Lisa was stolen
+            // Empty frame where Mona Lisa was stolen - ornate gilded frame
             const frameGeometry = new THREE.BoxGeometry(2, 3, 0.2);
-            const frameMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            
+            // Create realistic gilded frame material
+            const frameMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xDAA520,
+                map: createMetalTexture(),
+                shininess: 80,
+                specular: 0xFFFFFF,
+                reflectivity: 0.3,
+                normalMap: createBumpTexture(),
+                normalScale: new THREE.Vector2(0.5, 0.5)
+            });
+            
             const monaFrame = new THREE.Mesh(frameGeometry, frameMaterial);
             monaFrame.position.set(0, 2.5, -11.8);
             monaFrame.castShadow = true;
+            
+            // Add collision detection for the famous empty frame
+            addVisibleObjectCollision(monaFrame, 0.6, 'mona-lisa-frame');
+            
             scene.add(monaFrame);
+            
+            // Add ornate frame details
+            const ornateDetailGeometry = new THREE.BoxGeometry(2.2, 3.2, 0.1);
+            const ornateDetailMaterial = new THREE.MeshPhongMaterial({
+                color: 0xB8860B,
+                shininess: 90,
+                specular: 0xFFFFFF
+            });
+            const ornateDetail = new THREE.Mesh(ornateDetailGeometry, ornateDetailMaterial);
+            ornateDetail.position.set(0, 2.5, -11.85);
+            ornateDetail.castShadow = true;
+            scene.add(ornateDetail);
 
             // Empty space where painting was (dark backdrop)
             const emptySpaceGeometry = new THREE.PlaneGeometry(1.6, 2.6);
@@ -1327,19 +2427,110 @@
             banner.position.set(0, 6, 14.5);
             scene.add(banner);
 
-            // Small sculptures in entrance
-            for (let i = 0; i < 4; i++) {
-                const sculptureGeometry = new THREE.CylinderGeometry(0.3, 0.4, 1.2);
-                const sculptureMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
-                const sculpture = new THREE.Mesh(sculptureGeometry, sculptureMaterial);
-                sculpture.position.set(
-                    (i % 2 === 0 ? -8 : 8),
-                    0.6,
-                    10 + (Math.floor(i / 2) * 4)
-                );
-                sculpture.castShadow = true;
-                scene.add(sculpture);
-            }
+            // Realistic museum artifacts and displays
+            createRealisticMuseumArtifacts();
+        }
+
+        function createRealisticMuseumArtifacts() {
+            // Classical marble busts
+            const sculpturePositions = [
+                {x: -8, y: 1.2, z: 10, type: 'bust'},
+                {x: 8, y: 1.2, z: 10, type: 'bust'},
+                {x: -8, y: 1.0, z: 13, type: 'vase'},
+                {x: 8, y: 1.0, z: 13, type: 'vase'}
+            ];
+
+            sculpturePositions.forEach(pos => {
+                const sculptureGroup = new THREE.Group();
+                
+                if (pos.type === 'bust') {
+                    // Create realistic marble bust
+                    const headGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+                    const neckGeometry = new THREE.CylinderGeometry(0.25, 0.3, 0.5, 16);
+                    const baseGeometry = new THREE.CylinderGeometry(0.5, 0.6, 0.3, 16);
+                    
+                    const marbleMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0xFAF0E6,
+                        map: createMarbleTexture(),
+                        normalMap: createMarbleNormalMap(),
+                        roughness: 0.1,
+                        metalness: 0.0,
+                        envMapIntensity: 0.8
+                    });
+                    
+                    const head = new THREE.Mesh(headGeometry, marbleMaterial);
+                    const neck = new THREE.Mesh(neckGeometry, marbleMaterial);
+                    const base = new THREE.Mesh(baseGeometry, marbleMaterial);
+                    
+                    head.position.y = 0.5;
+                    neck.position.y = 0.1;
+                    base.position.y = -0.4;
+                    
+                    sculptureGroup.add(head, neck, base);
+                    
+                } else if (pos.type === 'vase') {
+                    // Create ceramic vase
+                    const vaseGeometry = new THREE.CylinderGeometry(0.3, 0.4, 1.2, 16);
+                    const vaseMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x8B4513,
+                        roughness: 0.3,
+                        metalness: 0.1,
+                        envMapIntensity: 0.6
+                    });
+                    
+                    const vase = new THREE.Mesh(vaseGeometry, vaseMaterial);
+                    sculptureGroup.add(vase);
+                }
+                
+                sculptureGroup.position.set(pos.x, pos.y, pos.z);
+                sculptureGroup.castShadow = true;
+                sculptureGroup.receiveShadow = true;
+                
+                // Add collision detection for sculptures
+                addVisibleObjectCollision(sculptureGroup, 0.7, pos.type);
+                
+                scene.add(sculptureGroup);
+            });
+
+            // Digital information kiosks
+            const displayPositions = [
+                {x: -6, y: 1.5, z: 12},
+                {x: 6, y: 1.5, z: 12}
+            ];
+
+            displayPositions.forEach(pos => {
+                const kioskGroup = new THREE.Group();
+                
+                // Stand
+                const standGeometry = new THREE.CylinderGeometry(0.3, 0.4, 1.2, 16);
+                const standMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x2F2F2F,
+                    roughness: 0.2,
+                    metalness: 0.8
+                });
+                const stand = new THREE.Mesh(standGeometry, standMaterial);
+                
+                // Screen
+                const screenGeometry = new THREE.PlaneGeometry(1.0, 0.6);
+                const screenMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x000040,
+                    emissive: 0x001133,
+                    roughness: 0.1,
+                    metalness: 0.0
+                });
+                const screen = new THREE.Mesh(screenGeometry, screenMaterial);
+                screen.position.y = 0.8;
+                screen.position.z = 0.3;
+                
+                kioskGroup.add(stand, screen);
+                kioskGroup.position.set(pos.x, pos.y, pos.z);
+                kioskGroup.castShadow = true;
+                
+                // Add collision detection for kiosks
+                addVisibleObjectCollision(kioskGroup, 0.8, 'kiosk');
+                
+                scene.add(kioskGroup);
+            });
         }
 
         function createPaintingOnWall(name, pos, color, wall) {
@@ -1378,6 +2569,9 @@
                     break;
             }
             
+            // Add collision detection for artwork frames (small collision so you can get close to look)
+            addVisibleObjectCollision(frame, 0.4, 'artwork');
+            
             scene.add(frame);
             scene.add(paintingMesh);
         }
@@ -1401,11 +2595,14 @@
         }
 
         function createEntranceFurniture() {
-            // Information desk in entrance - rounded modern design
+            // Information desk in entrance - realistic wood with texture
             const deskMaterial = new THREE.MeshPhongMaterial({ 
+                map: createWoodTexture(),
                 color: 0x8B4513,
-                shininess: 30,
-                specular: 0x111111
+                shininess: 60,
+                specular: 0x222222,
+                normalMap: createBumpTexture(),
+                normalScale: new THREE.Vector2(0.3, 0.3)
             });
             
             // Desk top (rounded corners)
@@ -1421,17 +2618,20 @@
             deskBase.position.set(0, 0.35, 12);
             deskBase.castShadow = true;
             
-            // Add collision detection for desk
-            deskTop.userData.collisionRadius = 2.0;
-            collisionObjects.push(deskTop);
-            
             scene.add(deskTop);
             scene.add(deskBase);
+            
+            // Add collision detection for VISIBLE desk
+            addVisibleObjectCollision(deskTop, 1.2, 'desk');
 
-            // Entrance benches - modern curved design
+            // Entrance benches - realistic wood with grain texture
             const benchMaterial = new THREE.MeshPhongMaterial({ 
+                map: createWoodTexture(),
                 color: 0x654321,
-                shininess: 20
+                shininess: 40,
+                specular: 0x333333,
+                normalMap: createBumpTexture(),
+                normalScale: new THREE.Vector2(0.2, 0.2)
             });
             
             for (let i = 0; i < 2; i++) {
@@ -1455,11 +2655,10 @@
                     scene.add(leg);
                 }
                 
-                // Add collision for bench
-                benchSeat.userData.collisionRadius = 1.2;
-                collisionObjects.push(benchSeat);
-                
                 scene.add(benchSeat);
+                
+                // Add collision detection for VISIBLE bench
+                addVisibleObjectCollision(benchSeat, 0.8, 'bench');
             }
         }
 
@@ -1498,13 +2697,12 @@
                 pedestalTop.position.set(pos[0], 1.25, pos[2]);
                 pedestalTop.castShadow = true;
                 
-                // Add collision detection
-                pedestalColumn.userData.collisionRadius = 0.8;
-                collisionObjects.push(pedestalColumn);
-                
                 scene.add(pedestalBase);
                 scene.add(pedestalColumn);
                 scene.add(pedestalTop);
+                
+                // Add collision detection for VISIBLE pedestal
+                addVisibleObjectCollision(pedestalColumn, 0.6, 'pedestal');
             });
 
             // Velvet ropes around Mona Lisa area
@@ -1525,35 +2723,219 @@
                 const post = new THREE.Mesh(postGeometry, postMaterial);
                 post.position.set(pos[0], 0.5, pos[1]);
                 post.castShadow = true;
+                
+                // Add collision detection for rope posts
+                addVisibleObjectCollision(post, 0.3, 'rope-post');
+                
                 scene.add(post);
             });
         }
 
         function createSecurityOfficeFurniture() {
-            // Security desk
-            const securityDeskGeometry = new THREE.BoxGeometry(2.5, 0.8, 1.2);
-            const securityDesk = new THREE.Mesh(securityDeskGeometry, new THREE.MeshLambertMaterial({ color: 0x654321 }));
-            securityDesk.position.set(-20, 0.4, -2);
-            securityDesk.castShadow = true;
-            scene.add(securityDesk);
+            // Realistic security desk with multiple components
+            const deskGroup = new THREE.Group();
+            
+            // Desk surface (wood texture)
+            const deskSurfaceGeometry = new THREE.BoxGeometry(2.5, 0.05, 1.2);
+            const woodMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x8B4513,
+                map: createWoodTexture(),
+                shininess: 30,
+                specular: 0x222222
+            });
+            const deskSurface = new THREE.Mesh(deskSurfaceGeometry, woodMaterial);
+            deskSurface.position.set(0, 0.75, 0);
+            deskSurface.castShadow = true;
+            deskSurface.receiveShadow = true;
+            deskGroup.add(deskSurface);
+            
+            // Left pedestal (drawers)
+            const leftPedestalGeometry = new THREE.BoxGeometry(0.5, 0.7, 1.0);
+            const leftPedestal = new THREE.Mesh(leftPedestalGeometry, woodMaterial);
+            leftPedestal.position.set(-0.8, 0.35, 0);
+            leftPedestal.castShadow = true;
+            deskGroup.add(leftPedestal);
+            
+            // Right pedestal
+            const rightPedestalGeometry = new THREE.BoxGeometry(0.5, 0.7, 1.0);
+            const rightPedestal = new THREE.Mesh(rightPedestalGeometry, woodMaterial);
+            rightPedestal.position.set(0.8, 0.35, 0);
+            rightPedestal.castShadow = true;
+            deskGroup.add(rightPedestal);
+            
+            // Drawer handles (left pedestal)
+            const handleMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xC0C0C0, 
+                shininess: 100, 
+                metalness: 0.8 
+            });
+            for (let i = 0; i < 3; i++) {
+                const handleGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.08);
+                const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+                handle.position.set(-0.6, 0.55 - i * 0.2, 0.45);
+                handle.rotation.z = Math.PI / 2;
+                handle.castShadow = true;
+                deskGroup.add(handle);
+            }
+            
+            // Drawer handles (right pedestal)
+            for (let i = 0; i < 3; i++) {
+                const handleGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.08);
+                const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+                handle.position.set(0.6, 0.55 - i * 0.2, 0.45);
+                handle.rotation.z = Math.PI / 2;
+                handle.castShadow = true;
+                deskGroup.add(handle);
+            }
+            
+            // Computer monitor
+            const monitorGeometry = new THREE.BoxGeometry(0.4, 0.3, 0.05);
+            const monitorMaterial = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+            const monitor = new THREE.Mesh(monitorGeometry, monitorMaterial);
+            monitor.position.set(0.3, 1.0, -0.2);
+            monitor.castShadow = true;
+            deskGroup.add(monitor);
+            
+            // Monitor screen (glowing)
+            const screenGeometry = new THREE.BoxGeometry(0.35, 0.25, 0.01);
+            const screenMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x0066CC, 
+                emissive: 0x002244,
+                opacity: 0.8,
+                transparent: true
+            });
+            const screen = new THREE.Mesh(screenGeometry, screenMaterial);
+            screen.position.set(0.3, 1.0, -0.17);
+            deskGroup.add(screen);
+            
+            // Monitor stand
+            const standGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.1);
+            const standMaterial = new THREE.MeshPhongMaterial({ color: 0x2C2C2C });
+            const stand = new THREE.Mesh(standGeometry, standMaterial);
+            stand.position.set(0.3, 0.8, -0.2);
+            stand.castShadow = true;
+            deskGroup.add(stand);
+            
+            // Keyboard
+            const keyboardGeometry = new THREE.BoxGeometry(0.3, 0.02, 0.15);
+            const keyboardMaterial = new THREE.MeshLambertMaterial({ color: 0x2C2C2C });
+            const keyboard = new THREE.Mesh(keyboardGeometry, keyboardMaterial);
+            keyboard.position.set(0.3, 0.78, 0.2);
+            keyboard.castShadow = true;
+            deskGroup.add(keyboard);
+            
+            // Mouse
+            const mouseGeometry = new THREE.BoxGeometry(0.04, 0.015, 0.06);
+            const mouse = new THREE.Mesh(mouseGeometry, new THREE.MeshLambertMaterial({ color: 0x2C2C2C }));
+            mouse.position.set(0.5, 0.78, 0.3);
+            mouse.castShadow = true;
+            deskGroup.add(mouse);
+            
+            // Desk lamp
+            const lampBaseGeometry = new THREE.CylinderGeometry(0.05, 0.06, 0.02);
+            const lampBase = new THREE.Mesh(lampBaseGeometry, new THREE.MeshPhongMaterial({ color: 0x2C2C2C }));
+            lampBase.position.set(-0.4, 0.78, -0.3);
+            deskGroup.add(lampBase);
+            
+            const lampArmGeometry = new THREE.CylinderGeometry(0.008, 0.008, 0.3);
+            const lampArm = new THREE.Mesh(lampArmGeometry, new THREE.MeshPhongMaterial({ color: 0x2C2C2C }));
+            lampArm.position.set(-0.4, 0.9, -0.3);
+            lampArm.rotation.z = Math.PI / 6;
+            deskGroup.add(lampArm);
+            
+            const lampHeadGeometry = new THREE.ConeGeometry(0.08, 0.12);
+            const lampHead = new THREE.Mesh(lampHeadGeometry, new THREE.MeshPhongMaterial({ color: 0x2C2C2C }));
+            lampHead.position.set(-0.3, 1.05, -0.3);
+            lampHead.rotation.z = -Math.PI / 3;
+            deskGroup.add(lampHead);
+            
+            deskGroup.position.set(-20, 0, -2);
+            addVisibleObjectCollision(deskGroup, 0.8, 'security-desk');
+            scene.add(deskGroup);
 
-            // Office chair
-            const chairGeometry = new THREE.CylinderGeometry(0.3, 0.4, 0.8);
-            const chair = new THREE.Mesh(chairGeometry, new THREE.MeshLambertMaterial({ color: 0x000000 }));
-            chair.position.set(-19, 0.4, -2);
-            chair.castShadow = true;
-            scene.add(chair);
+            // Realistic office chair with multiple components
+            const chairGroup = new THREE.Group();
+            
+            // Chair base (5-star wheelbase)
+            const baseGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
+            const baseMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x2C2C2C, 
+                shininess: 100, 
+                specular: 0x333333 
+            });
+            const baseColumn = new THREE.Mesh(baseGeometry, baseMaterial);
+            baseColumn.position.set(0, 0.25, 0);
+            baseColumn.castShadow = true;
+            chairGroup.add(baseColumn);
+            
+            // Seat cushion
+            const seatGeometry = new THREE.BoxGeometry(0.5, 0.1, 0.5);
+            const fabricMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0x1A1A1A,
+                roughness: 0.8 
+            });
+            const seat = new THREE.Mesh(seatGeometry, fabricMaterial);
+            seat.position.set(0, 0.55, 0);
+            seat.castShadow = true;
+            chairGroup.add(seat);
+            
+            // Backrest
+            const backGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.1);
+            const backrest = new THREE.Mesh(backGeometry, fabricMaterial);
+            backrest.position.set(0, 0.95, -0.2);
+            backrest.castShadow = true;
+            chairGroup.add(backrest);
+            
+            // Armrests (both sides)
+            const armGeometry = new THREE.BoxGeometry(0.1, 0.05, 0.3);
+            const armMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x2C2C2C, 
+                shininess: 80 
+            });
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.3, 0.75, 0);
+            leftArm.castShadow = true;
+            chairGroup.add(leftArm);
+            
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(0.3, 0.75, 0);
+            rightArm.castShadow = true;
+            chairGroup.add(rightArm);
+            
+            // Chair wheels (5 wheels)
+            const wheelGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.06);
+            const wheelMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x444444,
+                shininess: 60 
+            });
+            for (let i = 0; i < 5; i++) {
+                const angle = (i / 5) * Math.PI * 2;
+                const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel.position.set(
+                    Math.cos(angle) * 0.35,
+                    0.03,
+                    Math.sin(angle) * 0.35
+                );
+                wheel.rotation.x = Math.PI / 2;
+                wheel.castShadow = true;
+                chairGroup.add(wheel);
+            }
+            
+            chairGroup.position.set(-18.5, 0, -1.2); // Pulled back from desk and slightly angled
+            addVisibleObjectCollision(chairGroup, 0.3, 'office-chair');
+            scene.add(chairGroup);
 
-            // Filing cabinet
+            // Filing cabinet with collision
             const filingCabinetGeometry = new THREE.BoxGeometry(0.8, 1.5, 0.6);
             const filingCabinet = new THREE.Mesh(filingCabinetGeometry, new THREE.MeshLambertMaterial({ color: 0x708090 }));
             filingCabinet.position.set(-22, 0.75, 2);
             filingCabinet.castShadow = true;
+            addVisibleObjectCollision(filingCabinet, 0.4, 'filing-cabinet');
             scene.add(filingCabinet);
         }
 
         function createStorageFurniture() {
-            // Storage crates in east wing
+            // Storage crates in east wing with collision
             for (let i = 0; i < 6; i++) {
                 const crateGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
                 const crateMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
@@ -1564,15 +2946,23 @@
                     -8 + Math.floor(i / 3) * 4
                 );
                 crate.castShadow = true;
+                
+                // Add collision detection for crate
+                addVisibleObjectCollision(crate, 0.8, 'storage-crate');
+                
                 scene.add(crate);
             }
 
-            // Storage shelving
+            // Storage shelving with collision
             const shelfGeometry = new THREE.BoxGeometry(4, 2.5, 0.3);
             const shelfMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
             const shelf = new THREE.Mesh(shelfGeometry, shelfMaterial);
             shelf.position.set(20, 1.25, 4);
             shelf.castShadow = true;
+            
+            // Add collision detection for shelf
+            addVisibleObjectCollision(shelf, 2.0, 'storage-shelf');
+            
             scene.add(shelf);
         }
 
@@ -1604,68 +2994,91 @@
                 scene.add(pot);
             });
 
-            // Museum signage
-            createMuseumSigns();
+            // Museum signage removed to eliminate collision barriers
         }
 
-        function createMuseumSigns() {
-            const signGeometry = new THREE.PlaneGeometry(2, 0.8);
-            const signMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0xFFFFFF,
-                transparent: true,
-                opacity: 0.9
-            });
-
-            const signs = [
-                { text: "Main Gallery", pos: [0, 2, 6] },
-                { text: "East Wing Storage", pos: [12, 2, -2] },
-                { text: "Security Office", pos: [-12, 2, 2] }
-            ];
-
-            signs.forEach(sign => {
-                const signMesh = new THREE.Mesh(signGeometry, signMaterial);
-                signMesh.position.set(sign.pos[0], sign.pos[1], sign.pos[2]);
-                scene.add(signMesh);
-            });
-        }
+        // Museum signs function removed to eliminate collision barriers
 
         function createLighting() {
-            // Soft ambient light for realistic museum atmosphere
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            // Realistic museum ambient lighting (softer for photorealism)
+            const ambientLight = new THREE.AmbientLight(0xF0F8FF, 0.2);
             scene.add(ambientLight);
 
-            // Main directional light (simulating natural skylight)
-            const mainLight = new THREE.DirectionalLight(0xFFFFEE, 0.6);
-            mainLight.position.set(10, 15, 5);
+            // Main directional light (realistic museum skylight)
+            const mainLight = new THREE.DirectionalLight(0xFFFFF8, 3.0); // Increased intensity for physically correct lighting
+            mainLight.position.set(10, 20, 8);
             mainLight.castShadow = true;
-            mainLight.shadow.mapSize.width = 4096;
-            mainLight.shadow.mapSize.height = 4096;
+            mainLight.shadow.mapSize.width = 8192; // Ultra-high resolution shadows
+            mainLight.shadow.mapSize.height = 8192;
             mainLight.shadow.camera.near = 0.1;
-            mainLight.shadow.camera.far = 100;
-            mainLight.shadow.camera.left = -30;
-            mainLight.shadow.camera.right = 30;
-            mainLight.shadow.camera.top = 30;
-            mainLight.shadow.camera.bottom = -30;
-            mainLight.shadow.bias = -0.0001;
+            mainLight.shadow.camera.far = 150;
+            mainLight.shadow.camera.left = -40;
+            mainLight.shadow.camera.right = 40;
+            mainLight.shadow.camera.top = 40;
+            mainLight.shadow.camera.bottom = -40;
+            mainLight.shadow.bias = -0.00005;
+            mainLight.shadow.normalBias = 0.05;
             scene.add(mainLight);
 
-            // Dramatic spotlight on empty Mona Lisa frame
-            const monaSpotlight = new THREE.SpotLight(0xFFFFFF, 1.2);
-            monaSpotlight.position.set(0, 7, -5);
+            // Add realistic area lighting (simulating museum LED panels)
+            createRealisticAreaLights();
+
+            // Dramatic spotlight on empty Mona Lisa frame with realistic properties
+            const monaSpotlight = new THREE.SpotLight(0xFFFFFF, 8.0);
+            monaSpotlight.position.set(0, 8, -4);
             monaSpotlight.target.position.set(0, 2.5, -11.8);
-            monaSpotlight.angle = Math.PI / 8;
-            monaSpotlight.penumbra = 0.3;
-            monaSpotlight.distance = 15;
-            monaSpotlight.decay = 1;
+            monaSpotlight.angle = Math.PI / 12;
+            monaSpotlight.penumbra = 0.4;
+            monaSpotlight.distance = 20;
+            monaSpotlight.decay = 2; // Physically accurate falloff
             monaSpotlight.castShadow = true;
+            monaSpotlight.shadow.mapSize.width = 4096;
+            monaSpotlight.shadow.mapSize.height = 4096;
             scene.add(monaSpotlight);
             scene.add(monaSpotlight.target);
 
-            // Museum ceiling track lighting
+            // Museum ceiling track lighting (more realistic)
             createTrackLighting();
             
             // Accent lighting for different wings
             createWingLighting();
+            
+            // Add subtle rim lighting for depth
+            createRimLighting();
+        }
+
+        function createRealisticAreaLights() {
+            // Simulate LED light panels commonly used in modern museums
+            const panelPositions = [
+                {x: 0, y: 7, z: -6, color: 0xF8F8FF, intensity: 2.5},
+                {x: -8, y: 7, z: -3, color: 0xFFFFF8, intensity: 2.2},
+                {x: 8, y: 7, z: -3, color: 0xFFFFF8, intensity: 2.2},
+                {x: 0, y: 7, z: 3, color: 0xF0F8FF, intensity: 2.0},
+                {x: -12, y: 6, z: 0, color: 0xFFF8F0, intensity: 1.8},
+                {x: 12, y: 6, z: 0, color: 0xFFF8F0, intensity: 1.8}
+            ];
+
+            panelPositions.forEach(panel => {
+                const areaLight = new THREE.RectAreaLight(panel.color, panel.intensity, 4, 2);
+                areaLight.position.set(panel.x, panel.y, panel.z);
+                areaLight.lookAt(panel.x, 0, panel.z);
+                scene.add(areaLight);
+            });
+        }
+
+        function createRimLighting() {
+            // Add subtle rim lights to enhance object definition
+            const rimLights = [
+                {x: -15, y: 5, z: -10, color: 0xFFE4E1, intensity: 1.5},
+                {x: 15, y: 5, z: -10, color: 0xE1E4FF, intensity: 1.5},
+                {x: 0, y: 5, z: 12, color: 0xE4FFE1, intensity: 1.2}
+            ];
+
+            rimLights.forEach(rim => {
+                const rimLight = new THREE.PointLight(rim.color, rim.intensity, 25);
+                rimLight.position.set(rim.x, rim.y, rim.z);
+                scene.add(rimLight);
+            });
         }
 
         function createTrackLighting() {
@@ -1708,102 +3121,557 @@
             }
         }
 
+        function createRealisticAudio() {
+            // Create Web Audio API context for realistic 3D audio
+            if (!window.audioContext) {
+                try {
+                    window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('✅ Web Audio API context created');
+                    
+                    // Museum ambience (subtle air conditioning, distant sounds)
+                    createAmbientSounds();
+                    
+                    // Footstep sounds for movement
+                    createFootstepSystem();
+                    
+                    // Clue discovery sounds
+                    createClueAudio();
+                    
+                } catch (error) {
+                    console.log('🔇 Audio not available:', error.message);
+                }
+            }
+        }
+
+        function createAmbientSounds() {
+            // Generate subtle museum ambience using Web Audio API
+            const ambientGain = window.audioContext.createGain();
+            ambientGain.gain.setValueAtTime(0.05, window.audioContext.currentTime);
+            ambientGain.connect(window.audioContext.destination);
+            
+            // Create white noise for air conditioning sound
+            const bufferSize = window.audioContext.sampleRate * 2;
+            const noiseBuffer = window.audioContext.createBuffer(1, bufferSize, window.audioContext.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            
+            // Filter the noise for a more realistic HVAC sound
+            const filterNode = window.audioContext.createBiquadFilter();
+            filterNode.type = 'lowpass';
+            filterNode.frequency.setValueAtTime(200, window.audioContext.currentTime);
+            filterNode.Q.setValueAtTime(1, window.audioContext.currentTime);
+            
+            // Play ambient sound
+            const ambientSource = window.audioContext.createBufferSource();
+            ambientSource.buffer = noiseBuffer;
+            ambientSource.loop = true;
+            ambientSource.connect(filterNode);
+            filterNode.connect(ambientGain);
+            
+            // Start ambient sound after user interaction
+            document.addEventListener('click', () => {
+                if (window.audioContext.state === 'suspended') {
+                    window.audioContext.resume();
+                }
+                if (!window.ambientStarted) {
+                    ambientSource.start();
+                    window.ambientStarted = true;
+                }
+            }, { once: true });
+        }
+
+        function createFootstepSystem() {
+            window.footstepAudio = {
+                lastStepTime: 0,
+                stepInterval: 500, // milliseconds between steps
+                isMoving: false
+            };
+        }
+
+        function playFootstepSound() {
+            if (!window.audioContext || window.audioContext.state !== 'running') return;
+            
+            const now = Date.now();
+            if (now - window.footstepAudio.lastStepTime < window.footstepAudio.stepInterval) return;
+            
+            // Generate footstep sound using Web Audio API
+            const oscillator = window.audioContext.createOscillator();
+            const gainNode = window.audioContext.createGain();
+            const filterNode = window.audioContext.createBiquadFilter();
+            
+            // Configure for realistic footstep sound
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(80, window.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(40, window.audioContext.currentTime + 0.1);
+            
+            filterNode.type = 'lowpass';
+            filterNode.frequency.setValueAtTime(300, window.audioContext.currentTime);
+            
+            gainNode.gain.setValueAtTime(0, window.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.1, window.audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, window.audioContext.currentTime + 0.15);
+            
+            oscillator.connect(filterNode);
+            filterNode.connect(gainNode);
+            gainNode.connect(window.audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(window.audioContext.currentTime + 0.15);
+            
+            window.footstepAudio.lastStepTime = now;
+        }
+
+        function createClueAudio() {
+            window.clueDiscoverySound = () => {
+                if (!window.audioContext || window.audioContext.state !== 'running') return;
+                
+                // Create discovery chime sound
+                const oscillator1 = window.audioContext.createOscillator();
+                const oscillator2 = window.audioContext.createOscillator();
+                const gainNode = window.audioContext.createGain();
+                
+                oscillator1.type = 'sine';
+                oscillator1.frequency.setValueAtTime(800, window.audioContext.currentTime);
+                oscillator2.type = 'sine';
+                oscillator2.frequency.setValueAtTime(1200, window.audioContext.currentTime);
+                
+                gainNode.gain.setValueAtTime(0, window.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.2, window.audioContext.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, window.audioContext.currentTime + 0.8);
+                
+                oscillator1.connect(gainNode);
+                oscillator2.connect(gainNode);
+                gainNode.connect(window.audioContext.destination);
+                
+                oscillator1.start();
+                oscillator2.start();
+                oscillator1.stop(window.audioContext.currentTime + 0.8);
+                oscillator2.stop(window.audioContext.currentTime + 0.8);
+            };
+        }
+
+        function createRealisticFootprintTexture() {
+            const size = 512;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Create footprint background
+            context.fillStyle = 'rgba(101, 67, 33, 0.8)'; // Muddy brown
+            context.fillRect(0, 0, size, size);
+            
+            // Add shoe tread pattern
+            context.strokeStyle = 'rgba(139, 69, 19, 0.9)';
+            context.lineWidth = 8;
+            
+            // Heel area
+            context.beginPath();
+            context.arc(size * 0.5, size * 0.8, size * 0.15, 0, Math.PI * 2);
+            context.stroke();
+            
+            // Toe area with individual toe marks
+            for (let i = 0; i < 5; i++) {
+                const x = size * (0.3 + i * 0.08);
+                const y = size * 0.2;
+                const radius = size * (0.04 - i * 0.005);
+                context.beginPath();
+                context.arc(x, y, radius, 0, Math.PI * 2);
+                context.fill();
+            }
+            
+            // Tread lines across the sole
+            for (let i = 0; i < 8; i++) {
+                const y = size * (0.3 + i * 0.06);
+                context.beginPath();
+                context.moveTo(size * 0.2, y);
+                context.lineTo(size * 0.8, y);
+                context.stroke();
+            }
+            
+            // Add irregular edges for realism
+            context.strokeStyle = 'rgba(160, 82, 45, 0.6)';
+            context.lineWidth = 3;
+            for (let i = 0; i < 20; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                context.beginPath();
+                context.arc(x, y, 2, 0, Math.PI * 2);
+                context.stroke();
+            }
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createFingerprintTexture() {
+            const size = 256;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Transparent background
+            context.clearRect(0, 0, size, size);
+            
+            // Create fingerprint ridges
+            context.strokeStyle = 'rgba(50, 50, 50, 0.8)';
+            context.lineWidth = 2;
+            
+            const centerX = size / 2;
+            const centerY = size / 2;
+            
+            // Draw concentric fingerprint lines
+            for (let i = 1; i < 12; i++) {
+                const radius = i * 10 + Math.sin(i) * 3;
+                context.beginPath();
+                context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                context.stroke();
+                
+                // Add breaks in the lines for realism
+                if (i % 3 === 0) {
+                    context.strokeStyle = 'rgba(50, 50, 50, 0.4)';
+                } else {
+                    context.strokeStyle = 'rgba(50, 50, 50, 0.8)';
+                }
+            }
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createPaperTexture() {
+            const size = 512;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const context = canvas.getContext('2d');
+            
+            // Off-white paper background
+            context.fillStyle = '#F5F5DC';
+            context.fillRect(0, 0, size, size);
+            
+            // Add paper texture
+            for (let i = 0; i < 200; i++) {
+                const x = Math.random() * size;
+                const y = Math.random() * size;
+                const alpha = Math.random() * 0.1;
+                context.fillStyle = `rgba(200, 200, 200, ${alpha})`;
+                context.fillRect(x, y, 2, 2);
+            }
+            
+            // Add text lines
+            context.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+            context.lineWidth = 1;
+            for (let i = 0; i < 15; i++) {
+                const y = 40 + i * 25;
+                context.beginPath();
+                context.moveTo(30, y);
+                context.lineTo(size - 30, y);
+                context.stroke();
+            }
+            
+            // Add some handwritten text effect
+            context.fillStyle = 'rgba(0, 0, 100, 0.8)';
+            context.font = '12px Arial';
+            context.fillText('Evidence Log #247', 50, 60);
+            context.fillText('Time: 11:45 PM', 50, 85);
+            context.fillText('Location: Gallery 3', 50, 110);
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
         function createClues() {
+            console.log('🔍 Creating official clues:', Object.keys(clues));
             Object.keys(clues).forEach(clueKey => {
                 const clue = clues[clueKey];
-                let clueGeometry, clueMaterial;
+                let clueMesh;
 
-                // Make all clues larger and more visible with glowing effect
                 switch(clueKey) {
                     case 'footprint1':
-                        clueGeometry = new THREE.PlaneGeometry(0.6, 1.0);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
-                            color: 0x8B4513, 
-                            transparent: true, 
-                            opacity: 0.9 
+                        // Realistic muddy footprint
+                        const footprintGeometry = new THREE.PlaneGeometry(0.8, 1.2);
+                        const footprintMaterial = new THREE.MeshLambertMaterial({ 
+                            map: createRealisticFootprintTexture(),
+                            transparent: true,
+                            alphaTest: 0.1
                         });
+                        clueMesh = new THREE.Mesh(footprintGeometry, footprintMaterial);
+                        clueMesh.rotation.x = -Math.PI / 2; // Lay flat on floor
                         break;
+
                     case 'scratches':
-                        clueGeometry = new THREE.PlaneGeometry(0.4, 1.5);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
-                            color: 0x666666,
-                            emissive: 0x222222
+                        // Fingerprints on glass surface
+                        const fingerprintGeometry = new THREE.PlaneGeometry(0.3, 0.3);
+                        const fingerprintMaterial = new THREE.MeshLambertMaterial({ 
+                            map: createFingerprintTexture(),
+                            transparent: true,
+                            opacity: 0.6,
+                            alphaTest: 0.1
                         });
+                        clueMesh = new THREE.Mesh(fingerprintGeometry, fingerprintMaterial);
                         break;
+
                     case 'droplet':
-                        clueGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
-                            color: 0xFFFFFF,
-                            emissive: 0x444444
+                        // Coffee stain
+                        const stainGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.01, 16);
+                        const stainMaterial = new THREE.MeshLambertMaterial({ 
+                            color: 0x3E2723,
+                            transparent: true,
+                            opacity: 0.8
                         });
+                        clueMesh = new THREE.Mesh(stainGeometry, stainMaterial);
                         break;
+
                     case 'fabric':
-                        clueGeometry = new THREE.PlaneGeometry(0.3, 0.3);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
-                            color: 0x2F2F2F,
-                            emissive: 0x111111
+                        // Create ultra-realistic torn fabric with irregular edges
+                        const fabricShape = new THREE.Shape();
+                        
+                        // Create irregular torn edge shape with more detail
+                        const points = [];
+                        const numPoints = 20;
+                        for (let i = 0; i <= numPoints; i++) {
+                            const angle = (i / numPoints) * Math.PI * 2;
+                            const radius = 0.2 + Math.random() * 0.15;
+                            const x = Math.cos(angle) * radius;
+                            const y = Math.sin(angle) * radius * 1.5; // Elongated shape
+                            
+                            // Add jaggedness to simulate torn edges
+                            const jitter = 0.02;
+                            points.push(new THREE.Vector2(
+                                x + (Math.random() - 0.5) * jitter,
+                                y + (Math.random() - 0.5) * jitter
+                            ));
+                        }
+                        
+                        fabricShape.setFromPoints(points);
+                        const fabricGeometry = new THREE.ShapeGeometry(fabricShape);
+                        
+                        // Create ultra-realistic fabric texture
+                        const fabricCanvas = document.createElement('canvas');
+                        fabricCanvas.width = 512;
+                        fabricCanvas.height = 512;
+                        const fabricCtx = fabricCanvas.getContext('2d');
+                        
+                        // Dark maintenance uniform fabric base
+                        fabricCtx.fillStyle = '#1A1A2E';
+                        fabricCtx.fillRect(0, 0, 512, 512);
+                        
+                        // Add fabric weave pattern
+                        fabricCtx.globalAlpha = 0.3;
+                        for (let y = 0; y < 512; y += 2) {
+                            fabricCtx.strokeStyle = y % 4 === 0 ? '#2A2A3E' : '#0A0A1E';
+                            fabricCtx.beginPath();
+                            fabricCtx.moveTo(0, y);
+                            fabricCtx.lineTo(512, y);
+                            fabricCtx.stroke();
+                        }
+                        for (let x = 0; x < 512; x += 2) {
+                            fabricCtx.strokeStyle = x % 4 === 0 ? '#2A2A3E' : '#0A0A1E';
+                            fabricCtx.beginPath();
+                            fabricCtx.moveTo(x, 0);
+                            fabricCtx.lineTo(x, 512);
+                            fabricCtx.stroke();
+                        }
+                        
+                        // Add wear and tear
+                        fabricCtx.globalAlpha = 0.2;
+                        for (let i = 0; i < 50; i++) {
+                            const x = Math.random() * 512;
+                            const y = Math.random() * 512;
+                            const radius = Math.random() * 5;
+                            fabricCtx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.2)';
+                            fabricCtx.beginPath();
+                            fabricCtx.arc(x, y, radius, 0, Math.PI * 2);
+                            fabricCtx.fill();
+                        }
+                        
+                        // Add frayed edges
+                        fabricCtx.globalAlpha = 0.4;
+                        fabricCtx.strokeStyle = 'rgba(200,200,200,0.3)';
+                        fabricCtx.lineWidth = 1;
+                        for (let i = 0; i < 100; i++) {
+                            const startX = Math.random() * 512;
+                            const startY = Math.random() * 512;
+                            fabricCtx.beginPath();
+                            fabricCtx.moveTo(startX, startY);
+                            fabricCtx.lineTo(startX + Math.random() * 10 - 5, startY + Math.random() * 10 - 5);
+                            fabricCtx.stroke();
+                        }
+                        
+                        const fabricTexture = new THREE.CanvasTexture(fabricCanvas);
+                        const fabricMaterial = new THREE.MeshStandardMaterial({ 
+                            map: fabricTexture,
+                            transparent: true,
+                            opacity: 0.95,
+                            roughness: 0.95,
+                            metalness: 0.0,
+                            side: THREE.DoubleSide,
+                            alphaTest: 0.1
                         });
+                        
+                        clueMesh = new THREE.Mesh(fabricGeometry, fabricMaterial);
+                        clueMesh.rotation.x = -Math.PI / 3; // Slight angle
+                        clueMesh.rotation.z = Math.random() * Math.PI * 0.3;
                         break;
+
                     case 'keycard':
-                        clueGeometry = new THREE.BoxGeometry(0.3, 0.1, 0.5);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                        // ID Badge or keycard
+                        const cardGroup = new THREE.Group();
+                        const cardGeometry = new THREE.BoxGeometry(0.5, 0.02, 0.3);
+                        const cardMaterial = new THREE.MeshPhongMaterial({ 
                             color: 0x4169E1,
-                            emissive: 0x001144
+                            shininess: 100
                         });
+                        const cardMesh = new THREE.Mesh(cardGeometry, cardMaterial);
+                        
+                        // Add lanyard
+                        const lanyardGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.5, 8);
+                        const lanyardMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+                        const lanyardMesh = new THREE.Mesh(lanyardGeometry, lanyardMaterial);
+                        lanyardMesh.position.y = 0.3;
+                        
+                        cardGroup.add(cardMesh);
+                        cardGroup.add(lanyardMesh);
+                        clueMesh = cardGroup;
                         break;
+
                     case 'glove':
-                        clueGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                        // Latex glove
+                        const gloveGeometry = new THREE.SphereGeometry(0.15, 12, 8);
+                        gloveGeometry.scale(1.5, 0.8, 1);
+                        const gloveMaterial = new THREE.MeshLambertMaterial({ 
                             color: 0xFFFAF0,
-                            emissive: 0x333322
+                            transparent: true,
+                            opacity: 0.7
                         });
+                        clueMesh = new THREE.Mesh(gloveGeometry, gloveMaterial);
                         break;
+
                     case 'note':
-                        clueGeometry = new THREE.PlaneGeometry(0.4, 0.3);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
-                            color: 0xFFFAF0,
-                            emissive: 0x332211
+                        // Evidence document
+                        const noteGeometry = new THREE.PlaneGeometry(0.6, 0.4);
+                        const noteMaterial = new THREE.MeshLambertMaterial({ 
+                            map: createPaperTexture()
                         });
+                        clueMesh = new THREE.Mesh(noteGeometry, noteMaterial);
+                        clueMesh.rotation.x = -Math.PI / 3; // Slight angle
                         break;
+
                     case 'camera':
-                        clueGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                        // Security camera (fallen)
+                        const cameraGroup = new THREE.Group();
+                        
+                        // Camera body
+                        const bodyGeometry = new THREE.BoxGeometry(0.3, 0.2, 0.4);
+                        const bodyMaterial = new THREE.MeshPhongMaterial({ 
                             color: 0x2F2F2F,
-                            emissive: 0x222222
+                            shininess: 50
                         });
+                        const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                        
+                        // Camera lens
+                        const lensGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.1, 16);
+                        const lensMaterial = new THREE.MeshPhongMaterial({ 
+                            color: 0x000000,
+                            shininess: 100
+                        });
+                        const lensMesh = new THREE.Mesh(lensGeometry, lensMaterial);
+                        lensMesh.rotation.x = Math.PI / 2;
+                        lensMesh.position.z = 0.25;
+                        
+                        cameraGroup.add(bodyMesh);
+                        cameraGroup.add(lensMesh);
+                        clueMesh = cameraGroup;
                         break;
+
                     default:
-                        clueGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-                        clueMaterial = new THREE.MeshLambertMaterial({ 
+                        // Default evidence marker
+                        const markerGeometry = new THREE.ConeGeometry(0.1, 0.3, 8);
+                        const markerMaterial = new THREE.MeshLambertMaterial({ 
                             color: 0xFFD700,
                             emissive: 0x444400
                         });
+                        clueMesh = new THREE.Mesh(markerGeometry, markerMaterial);
+                        break;
                 }
 
-                const clueMesh = new THREE.Mesh(clueGeometry, clueMaterial);
                 clueMesh.position.set(clue.position.x, clue.position.y, clue.position.z);
                 clueMesh.userData = { type: 'clue', clueKey: clueKey };
+                console.log('✅ Created official clue:', clueKey, 'at position:', clue.position);
                 clueMesh.castShadow = true;
+                clueMesh.receiveShadow = true;
 
-                // Add pulsing animation to make clues more visible
-                clueMesh.userData.originalEmissive = clueMaterial.emissive.getHex();
+                // Add subtle glow effect for interactivity
+                const glowGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xFFD700,
+                    transparent: true,
+                    opacity: 0.1,
+                    blending: THREE.AdditiveBlending
+                });
+                const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+                glowMesh.position.copy(clueMesh.position);
+                
+                // Store references for pulsing animation
+                clueMesh.userData.glowMesh = glowMesh;
                 clueMesh.userData.pulseTime = Math.random() * Math.PI * 2;
 
-                // Special positioning for wall-mounted clues
-                if (clueKey === 'scratches') {
-                    clueMesh.rotation.z = Math.PI / 4;
-                } else if (clueKey === 'camera') {
-                    clueMesh.rotation.y = Math.PI / 4;
-                } else if (clueKey === 'footprint1') {
-                    clueMesh.rotation.x = -Math.PI / 2;
-                }
-
                 scene.add(clueMesh);
+                scene.add(glowMesh);
             });
         }
 
+        function createAtmosphericEffects() {
+            // Create floating dust particles for realistic museum atmosphere
+            const dustParticles = new THREE.BufferGeometry();
+            const dustCount = 300;
+            const dustPositions = new Float32Array(dustCount * 3);
+            const dustVelocities = new Float32Array(dustCount * 3);
+            
+            for (let i = 0; i < dustCount; i++) {
+                const i3 = i * 3;
+                
+                // Random positions throughout the museum
+                dustPositions[i3] = (Math.random() - 0.5) * 40;     // x
+                dustPositions[i3 + 1] = Math.random() * 7;          // y (0-7 height)
+                dustPositions[i3 + 2] = (Math.random() - 0.5) * 25; // z
+                
+                // Subtle floating velocities
+                dustVelocities[i3] = (Math.random() - 0.5) * 0.001;     // x velocity
+                dustVelocities[i3 + 1] = Math.random() * 0.0005 + 0.0005; // y velocity (always up)
+                dustVelocities[i3 + 2] = (Math.random() - 0.5) * 0.001; // z velocity
+            }
+            
+            dustParticles.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+            dustParticles.setAttribute('velocity', new THREE.BufferAttribute(dustVelocities, 3));
+            
+            // Dust particle material with subtle glow
+            const dustMaterial = new THREE.PointsMaterial({
+                color: 0xFFFFFF,
+                size: 0.01,
+                transparent: true,
+                opacity: 0.4,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            });
+            
+            const dustSystem = new THREE.Points(dustParticles, dustMaterial);
+            scene.add(dustSystem);
+            
+            // Store for animation in the render loop
+            window.dustSystem = dustSystem;
+            window.dustParticles = dustParticles;
+            
+            console.log('✨ Added', dustCount, 'floating dust particles');
+        }
 
         function setupMovement() {
+            console.log('🚀 Setting up movement system...');
+            
             // Make moveState globally accessible
             window.moveState = {
                 forward: false,
@@ -1811,70 +3679,208 @@
                 left: false,
                 right: false
             };
+            window.debugMode = false; // Press 'C' to toggle collision off for debugging
+            window.showHitboxes = false; // Press 'V' to show collision hitboxes
+            window.hitboxHelpers = []; // Store hitbox visualization objects
+
+            // Clear any existing listeners
+            if (window.keyDownListener) {
+                document.removeEventListener('keydown', window.keyDownListener);
+            }
+            if (window.keyUpListener) {
+                document.removeEventListener('keyup', window.keyUpListener);
+            }
 
             const onKeyDown = (event) => {
+                console.log('🎹 Key pressed:', event.code, 'Target:', event.target.tagName);
+                
+                // Prevent default to stop browser shortcuts
+                if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'Escape'].includes(event.code)) {
+                    event.preventDefault();
+                }
+                
+                // Block movement during countdown and mouse lock screens
+                if (movementBlocked && ['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
+                    console.log('🚫 Movement blocked during countdown/mouse lock screen');
+                    return;
+                }
+                
                 switch (event.code) {
                     case 'KeyW': 
                         window.moveState.forward = true; 
-                        console.log('W pressed - moving forward');
+                        console.log('✅ W pressed - moving forward');
                         break;
                     case 'KeyS': 
                         window.moveState.backward = true;
-                        console.log('S pressed - moving backward');
+                        console.log('✅ S pressed - moving backward');
                         break;
                     case 'KeyA': 
                         window.moveState.left = true;
-                        console.log('A pressed - moving left');
+                        console.log('✅ A pressed - moving left');
                         break;
                     case 'KeyD': 
                         window.moveState.right = true;
-                        console.log('D pressed - moving right');
+                        console.log('✅ D pressed - moving right');
+                        break;
+                    case 'KeyC':
+                        if (debugAuthorized) {
+                            window.debugMode = !window.debugMode;
+                            console.log('🔧 Debug collision mode:', window.debugMode ? 'ON (walk through walls)' : 'OFF (normal collision)');
+                        } else {
+                            console.log('⚠️ Debug tools not authorized. Use the ⚙️ button in security panel.');
+                        }
+                        break;
+                    case 'KeyR':
+                        if (debugAuthorized) {
+                            console.log('🔄 R pressed - Fixing all walls and collisions...');
+                            fixAllWallsAndCollisions();
+                            console.log('✅ All walls made visible, orphan collisions removed');
+                        } else {
+                            console.log('⚠️ Debug tools not authorized. Use the ⚙️ button in security panel.');
+                        }
+                        break;
+                    case 'KeyV':
+                        if (debugAuthorized) {
+                            window.showHitboxes = !window.showHitboxes;
+                            toggleHitboxVisualization();
+                            console.log('👁️ Hitbox visualization:', window.showHitboxes ? 'ON' : 'OFF');
+                        } else {
+                            console.log('⚠️ Debug tools not authorized. Use the ⚙️ button in security panel.');
+                        }
+                        break;
+                    case 'KeyB':
+                        debugAllSceneObjects();
+                        break;
+                    case 'KeyN':
+                        debugAreaCollisions();
+                        break;
+                    case 'KeyM':
+                        toggleWallCollisions();
+                        break;
+                    case 'Escape':
+                        console.log('🔓 ESC pressed - releasing mouse control...');
+                        document.exitPointerLock && document.exitPointerLock();
                         break;
                 }
             };
 
             const onKeyUp = (event) => {
+                if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
+                    event.preventDefault();
+                }
+                
                 switch (event.code) {
-                    case 'KeyW': window.moveState.forward = false; break;
-                    case 'KeyS': window.moveState.backward = false; break;
-                    case 'KeyA': window.moveState.left = false; break;
-                    case 'KeyD': window.moveState.right = false; break;
+                    case 'KeyW': 
+                        window.moveState.forward = false; 
+                        console.log('⬆️ W released');
+                        break;
+                    case 'KeyS': 
+                        window.moveState.backward = false; 
+                        console.log('⬇️ S released');
+                        break;
+                    case 'KeyA': 
+                        window.moveState.left = false; 
+                        console.log('⬅️ A released');
+                        break;
+                    case 'KeyD': 
+                        window.moveState.right = false; 
+                        console.log('➡️ D released');
+                        break;
                 }
             };
 
-            document.addEventListener('keydown', onKeyDown);
-            document.addEventListener('keyup', onKeyUp);
+            // Store listeners globally so we can remove them if needed
+            window.keyDownListener = onKeyDown;
+            window.keyUpListener = onKeyUp;
 
-            console.log('Movement controls set up - WASD keys ready');
+            document.addEventListener('keydown', onKeyDown, true); // Use capture phase
+            document.addEventListener('keyup', onKeyUp, true);
+
+            console.log('✅ Movement controls set up - WASD keys ready');
+            console.log('🔍 Current moveState:', window.moveState);
+        }
+
+        function testMovement() {
+            console.log('🧪 Testing movement manually...');
+            console.log('Current camera position:', camera.position);
+            console.log('Current moveState:', window.moveState);
+            console.log('gameStarted:', gameStarted);
+            
+            // Force movement forward for 2 seconds
+            window.moveState.forward = true;
+            console.log('✅ Forced forward movement ON');
+            
+            setTimeout(() => {
+                window.moveState.forward = false;
+                console.log('⏹️ Forced forward movement OFF');
+            }, 2000);
         }
 
         function checkCollision(newPosition) {
-            const playerRadius = 0.5; // Player collision radius
+            // If debug mode is on, disable all collision detection
+            if (window.debugMode) {
+                return false;
+            }
             
+            
+            const playerRadius = 0.15; // Small radius for easier movement
+            const playerHeight = 1.6; // Player eye height
+            
+            // ONLY check objects that are physically visible and at player level
             for (let obj of collisionObjects) {
-                const distance = newPosition.distanceTo(obj.position);
-                if (distance < (obj.userData.collisionRadius || 1.0) + playerRadius) {
-                    return true; // Collision detected
+                // Skip floor-level objects (y < 0.3) - floor itself has no collision
+                if (obj.position.y < 0.3) continue; 
+                // Skip ceiling objects (y > 6)
+                if (obj.position.y > 6) continue; 
+                // Skip objects that are marked as non-solid
+                if (obj.userData.noCollision) continue;
+                
+                // Calculate 2D distance (ignore Y axis for furniture collision)
+                const dx = newPosition.x - obj.position.x;
+                const dz = newPosition.z - obj.position.z;
+                const distance2D = Math.sqrt(dx * dx + dz * dz);
+                
+                const objRadius = obj.userData.collisionRadius || 0.5;
+                
+                if (distance2D < objRadius + playerRadius) {
+                    console.log('🚫 VISIBLE OBJECT COLLISION:', obj.userData.type || 'unknown', 'at:', `(${obj.position.x.toFixed(1)}, ${obj.position.z.toFixed(1)})`);
+                    return true;
                 }
             }
             
-            // Check wall boundaries
-            for (let wall of walls) {
-                const box = wall.userData.boundingBox;
-                if (box && isPointInBox(newPosition, box, playerRadius)) {
-                    return true;
+            // Check VISIBLE wall boundaries only
+            if (wallCollisionsEnabled) {
+                for (let wall of walls) {
+                    const box = wall.userData.boundingBox;
+                    if (box && isPointInVerticalBox(newPosition, box, playerRadius, playerHeight)) {
+                        console.log('🚫 VISIBLE WALL collision');
+                        return true;
+                    }
                 }
             }
             
             return false; // No collision
         }
 
-        function isPointInBox(point, box, radius) {
+        function isPointInVerticalBox(point, box, radius, height) {
+            // Only check if the wall intersects at the player's walking height
+            // Ignore horizontal surfaces (floor/ceiling)
+            const wallHeight = box.max.y - box.min.y;
+            const wallCenter = (box.max.y + box.min.y) / 2;
+            
+            // Skip if wall is too low (likely floor) or too high (likely ceiling)
+            if (wallCenter < 2 || wallHeight < 3) {
+                return false; // Don't collide with floor or low objects
+            }
+            
+            // Check horizontal collision (X and Z only)
             return (point.x + radius > box.min.x && point.x - radius < box.max.x &&
                     point.z + radius > box.min.z && point.z - radius < box.max.z);
         }
 
         function onMouseClick(event) {
+            console.log('🖱️ Mouse click detected');
+            
             // Calculate mouse position in normalized device coordinates
             mouse.x = 0; // Center of screen
             mouse.y = 0; // Center of screen
@@ -1889,26 +3895,41 @@
             // Also check for nearby clues within detection radius
             const playerPosition = camera.position;
             scene.children.forEach(child => {
-                if (child.userData && child.userData.type === 'clue') {
+                // STRICT clue validation - must have both type='clue' AND valid clueKey
+                if (child.userData && 
+                    child.userData.type === 'clue' && 
+                    child.userData.clueKey &&
+                    clues[child.userData.clueKey]) { // Ensure clueKey exists in our clues object
+                    
                     const distance = playerPosition.distanceTo(child.position);
                     if (distance < 3) { // Detection radius of 3 units
                         const clueKey = child.userData.clueKey;
                         if (!discoveredClues.includes(clueKey)) {
+                            console.log('✅ Found valid clue nearby:', clueKey);
                             discoverClue(clueKey, child);
                         }
                     }
                 }
             });
 
-            // Original raycast detection
+            // Original raycast detection with strict validation
             if (intersects.length > 0) {
                 const intersectedObject = intersects[0].object;
+                console.log('🎯 Clicked object:', intersectedObject.userData);
                 
-                if (intersectedObject.userData && intersectedObject.userData.type === 'clue') {
+                // STRICT clue validation - must have both type='clue' AND valid clueKey
+                if (intersectedObject.userData && 
+                    intersectedObject.userData.type === 'clue' &&
+                    intersectedObject.userData.clueKey &&
+                    clues[intersectedObject.userData.clueKey]) {
+                    
                     const clueKey = intersectedObject.userData.clueKey;
                     if (!discoveredClues.includes(clueKey)) {
+                        console.log('✅ Found valid clue by click:', clueKey);
                         discoverClue(clueKey, intersectedObject);
                     }
+                } else if (intersectedObject.userData) {
+                    console.log('⚠️ Clicked non-clue object:', intersectedObject.userData.type || 'unknown type');
                 }
             }
         }
@@ -1917,14 +3938,31 @@
             discoveredClues.push(clueKey);
             gameState.cluesFound++;
             
-            // Remove clue from scene and add glow effect
-            clueMesh.material.emissive = new THREE.Color(0x00FF00);
+            // Play discovery sound
+            if (window.clueDiscoverySound) {
+                window.clueDiscoverySound();
+            }
+            
+            // Remove the glowing outline immediately
+            if (clueMesh.userData.glowMesh) {
+                scene.remove(clueMesh.userData.glowMesh);
+                clueMesh.userData.glowMesh = null;
+            }
+            
+            // Flash green briefly then remove
+            if (clueMesh.material) {
+                clueMesh.material.emissive = new THREE.Color(0x00FF00);
+            }
+            
             setTimeout(() => {
                 scene.remove(clueMesh);
-            }, 1000);
+            }, 500);
 
             // Update UI
             document.getElementById('cluesFound').textContent = gameState.cluesFound;
+            
+            // Show clue details immediately
+            showClueDetails(clueKey);
             document.getElementById('latestClue').textContent = `Found: ${clues[clueKey].name}`;
 
             // Check if case is complete
@@ -1954,18 +3992,216 @@
         function solveCase() {
             gameState.caseComplete = true;
             document.getElementById('caseStatus').textContent = '✅ SOLVED!';
-            document.getElementById('latestClue').textContent = 'Case Solved! The Mona Lisa is in the east wing storage!';
+            document.getElementById('latestClue').textContent = 'Case Solved! The Mona Lisa has been found!';
             document.getElementById('latestClue').style.color = '#4CAF50';
             
-            alert(`🎉 CASE SOLVED! 🎉
-
-Detective, you've successfully gathered all the evidence!
-
-The clues point to maintenance worker J. Smith who accessed the museum at 2:47 AM using their keycard. They disabled the security camera, used tools to remove the Mona Lisa from its frame, and left a trail of evidence.
-
-The cryptic note reveals the painting's location: "The smile will see the sunrise from the east wing storage."
-
-The Mona Lisa has been recovered! Excellent detective work! 🕵️‍♂️✨`);
+            // Restore the Mona Lisa to its frame
+            restoreMonaLisaToFrame();
+            
+            // Add conclusion button to the clues panel
+            const cluePanelButton = document.querySelector('.hud-panel button');
+            if (cluePanelButton) {
+                const conclusionButton = document.createElement('button');
+                conclusionButton.textContent = 'View Conclusion';
+                conclusionButton.style.cssText = 'background: #FF6B35; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-top: 5px; margin-left: 10px;';
+                conclusionButton.onclick = showConclusionDialog;
+                cluePanelButton.parentNode.appendChild(conclusionButton);
+            }
+            
+            // Show immediate victory message
+            showConclusionDialog();
+        }
+        
+        function restoreMonaLisaToFrame() {
+            console.log('🎨 Restoring Mona Lisa to its frame...');
+            
+            // Remove crime scene elements that are blocking the view
+            scene.children = scene.children.filter(child => {
+                // Remove empty space backdrop and crime tape
+                if (child.position && 
+                    ((Math.abs(child.position.x) < 0.1 && Math.abs(child.position.z + 11.7) < 0.1) || // emptySpace
+                     (Math.abs(child.position.x) < 0.1 && Math.abs(child.position.z + 10.5) < 0.1))) { // crimeTape
+                    console.log('🧹 Removing crime scene element at:', child.position);
+                    return false; // Remove from scene
+                }
+                return true; // Keep in scene
+            });
+            
+            // Create the Mona Lisa painting
+            const textureLoader = new THREE.TextureLoader();
+            
+            // Load the Mona Lisa image with error handling
+            textureLoader.load(
+                'https://upload.wikimedia.org/wikipedia/commons/6/6a/Mona_Lisa.jpg',
+                (texture) => {
+                    console.log('✅ Mona Lisa texture loaded successfully');
+                    
+                    // Create canvas-based painting with frame effect
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 512;
+                    canvas.height = 768; // Taller for portrait aspect ratio
+                    
+                    // Create image from texture
+                    const img = texture.image;
+                    
+                    // Draw the Mona Lisa image
+                    ctx.fillStyle = '#8B4513'; // Dark brown background
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Calculate aspect ratio and fit image
+                    const imgAspect = img.width / img.height;
+                    const canvasAspect = canvas.width / canvas.height;
+                    
+                    let drawWidth, drawHeight, drawX, drawY;
+                    
+                    if (imgAspect > canvasAspect) {
+                        drawWidth = canvas.width * 0.9;
+                        drawHeight = drawWidth / imgAspect;
+                        drawX = canvas.width * 0.05;
+                        drawY = (canvas.height - drawHeight) / 2;
+                    } else {
+                        drawHeight = canvas.height * 0.9;
+                        drawWidth = drawHeight * imgAspect;
+                        drawX = (canvas.width - drawWidth) / 2;
+                        drawY = canvas.height * 0.05;
+                    }
+                    
+                    // Draw the Mona Lisa with slight vignette effect
+                    ctx.save();
+                    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                    ctx.shadowBlur = 10;
+                    ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+                    ctx.restore();
+                    
+                    // Create painting material
+                    const canvasTexture = new THREE.CanvasTexture(canvas);
+                    const paintingMaterial = new THREE.MeshLambertMaterial({
+                        map: canvasTexture,
+                        transparent: true,
+                        opacity: 1.0
+                    });
+                    
+                    // Create the painting geometry (slightly smaller than frame)
+                    const paintingGeometry = new THREE.PlaneGeometry(1.8, 2.7);
+                    const monaLisaPainting = new THREE.Mesh(paintingGeometry, paintingMaterial);
+                    
+                    // Position it well in front of frame to prevent z-fighting/flickering
+                    monaLisaPainting.position.set(0, 2.5, -11.6);
+                    monaLisaPainting.castShadow = false; // Avoid self-shadowing issues
+                    monaLisaPainting.receiveShadow = true;
+                    
+                    // Add to scene
+                    scene.add(monaLisaPainting);
+                    
+                    // Store reference for potential future use
+                    window.restoredMonaLisa = monaLisaPainting;
+                    
+                    // Add subtle glow effect around the restored painting
+                    const glowGeometry = new THREE.PlaneGeometry(2.2, 3.1);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xFFD700,
+                        transparent: true,
+                        opacity: 0.1
+                    });
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    glow.position.set(0, 2.5, -11.61); // Behind the painting but in front of frame
+                    scene.add(glow);
+                    
+                    console.log('🎨 Mona Lisa successfully restored to frame!');
+                },
+                (progress) => {
+                    console.log('📥 Loading Mona Lisa texture...', Math.round((progress.loaded / progress.total) * 100) + '%');
+                },
+                (error) => {
+                    console.error('❌ Failed to load Mona Lisa texture:', error);
+                    
+                    // Fallback: Create a simple colored painting
+                    const fallbackMaterial = new THREE.MeshLambertMaterial({
+                        color: 0x8B4513,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                    
+                    const paintingGeometry = new THREE.PlaneGeometry(1.8, 2.7);
+                    const fallbackPainting = new THREE.Mesh(paintingGeometry, fallbackMaterial);
+                    fallbackPainting.position.set(0, 2.5, -11.6); // Same position as main painting
+                    scene.add(fallbackPainting);
+                    
+                    console.log('🎨 Fallback painting created due to loading error');
+                }
+            );
+        }
+        
+        function showConclusionDialog() {
+            // Create conclusion dialog overlay
+            const conclusionOverlay = document.createElement('div');
+            conclusionOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                font-family: 'Iceberg', Arial, sans-serif;
+            `;
+            
+            const conclusionContent = document.createElement('div');
+            conclusionContent.style.cssText = `
+                background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                padding: 40px;
+                border-radius: 20px;
+                max-width: 700px;
+                color: white;
+                text-align: center;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+                border: 2px solid #FFD700;
+                max-height: 90vh;
+                overflow-y: auto;
+            `;
+            
+            conclusionContent.innerHTML = `
+                <h1 style="color: #FFD700; font-size: 2.5em; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                    🎉 CASE SOLVED! 🎉
+                </h1>
+                
+                <div style="font-size: 1.4em; line-height: 1.6; text-align: left; margin-bottom: 30px;">
+                    <p style="margin-bottom: 20px;"><strong style="color: #FFD700;">Congratulations, Detective!</strong></p>
+                    
+                    <p>Through your meticulous investigation, you have successfully solved the mystery of the stolen Mona Lisa! Your careful examination of the evidence has revealed the truth behind this daring art heist.</p>
+                    
+                    <h3 style="color: #FFD700; margin-top: 30px; margin-bottom: 15px;">🔍 What You Discovered:</h3>
+                    
+                    <p><strong>The Perpetrator:</strong> Maintenance worker J. Smith, who had legitimate access to the museum and knew the security systems intimately.</p>
+                    
+                    <p><strong>The Method:</strong> Using their keycard access at 2:47 AM, Smith disabled the security camera in the main gallery, carefully removed the Mona Lisa from its ornate frame using maintenance tools, and executed a well-planned escape.</p>
+                    
+                    <p><strong>The Evidence Trail:</strong> Your investigation uncovered muddy footprints with distinctive tread patterns, fabric from Smith's work uniform, coffee stains indicating a late-night operation, digital fingerprint evidence, tool marks on the frame, keycard access logs, and the damaged security camera that attempted to record the theft.</p>
+                    
+                    <p><strong>The Cryptic Note:</strong> The mysterious message "The smile will see the sunrise from the east wing storage" led you to the painting's hidden location.</p>
+                    
+                    <h3 style="color: #FFD700; margin-top: 30px; margin-bottom: 15px;">🏛️ The Resolution:</h3>
+                    
+                    <p>Thanks to your detective work, <strong style="color: #4CAF50;">the Mona Lisa has been safely recovered</strong> from the east wing storage room where it was hidden. The painting has been restored to its rightful place in the main gallery, and museum security has been enhanced to prevent future incidents.</p>
+                    
+                    <p style="margin-top: 25px; padding: 20px; background: rgba(255, 215, 0, 0.2); border-radius: 10px; border-left: 4px solid #FFD700;">
+                        <strong>🎭 Art Crime Solved:</strong> Another priceless masterpiece saved by thorough investigation and attention to detail. The art world is safer thanks to detectives like you!
+                    </p>
+                </div>
+                
+                <button onclick="document.body.removeChild(document.querySelector('[data-conclusion-overlay]'))" 
+                        style="background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 1.2em; border-radius: 10px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    Continue Investigation ✨
+                </button>
+            `;
+            
+            conclusionOverlay.appendChild(conclusionContent);
+            conclusionOverlay.setAttribute('data-conclusion-overlay', 'true');
+            document.body.appendChild(conclusionOverlay);
         }
 
         function showClues() {
@@ -1992,25 +4228,515 @@ The Mona Lisa has been recovered! Excellent detective work! 🕵️‍♂️✨`
             document.getElementById('modalOverlay').style.display = 'none';
             document.getElementById('clueModal').style.display = 'none';
         }
+        
+        function showClueDetails(clueKey) {
+            const clue = clues[clueKey];
+            if (!clue) return;
+            
+            // Create clue detail popup
+            const detailPopup = document.createElement('div');
+            detailPopup.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, rgba(20,20,40,0.95) 0%, rgba(40,40,80,0.95) 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 0 50px rgba(255,215,0,0.5);
+                z-index: 10000;
+                max-width: 500px;
+                animation: fadeInScale 0.5s ease-out;
+                border: 2px solid #FFD700;
+            `;
+            
+            detailPopup.innerHTML = `
+                <h2 style="color: #FFD700; margin-top: 0; font-size: 28px;">🔍 Evidence Found!</h2>
+                <h3 style="color: #FFF; margin: 15px 0; font-size: 22px;">${clue.name}</h3>
+                <p style="font-size: 16px; line-height: 1.6; color: #E0E0E0;">${clue.description}</p>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,215,0,0.3);">
+                    <p style="color: #FFD700; font-size: 14px;">📍 Location: ${getLocationName(clue.position)}</p>
+                    <p style="color: #9E9E9E; font-size: 12px; margin-top: 10px;">Press any key to continue...</p>
+                </div>
+            `;
+            
+            document.body.appendChild(detailPopup);
+            
+            // Add animation style
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInScale {
+                    from {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0.8);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Remove popup on any key press or after 5 seconds
+            const removePopup = () => {
+                detailPopup.style.animation = 'fadeInScale 0.3s ease-out reverse';
+                setTimeout(() => {
+                    if (detailPopup.parentNode) {
+                        detailPopup.parentNode.removeChild(detailPopup);
+                    }
+                    if (style.parentNode) {
+                        style.parentNode.removeChild(style);
+                    }
+                }, 300);
+            };
+            
+            const keyHandler = (e) => {
+                removePopup();
+                document.removeEventListener('keydown', keyHandler);
+            };
+            
+            document.addEventListener('keydown', keyHandler);
+            setTimeout(removePopup, 5000);
+        }
+        
+        function getLocationName(position) {
+            if (position.z < -10) return "Main Gallery";
+            if (position.z > 8) return "Entrance Hall";
+            if (position.x > 15) return "East Wing Storage";
+            if (position.x < -15) return "Security Office";
+            return "Central Corridor";
+        }
+        
+        // Volume control
+        let soundEnabled = true;
+        function toggleVolume() {
+            soundEnabled = !soundEnabled;
+            const button = document.getElementById('volumeToggle');
+            button.textContent = soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+            
+            if (window.audioContext) {
+                if (soundEnabled) {
+                    window.audioContext.resume();
+                } else {
+                    window.audioContext.suspend();
+                }
+            }
+        }
+
+        // Debug controls with password protection
+        let debugAuthorized = false; // Flag to track if debug is authorized
+        
+        function showPasswordDialog() {
+            const password = prompt('Enter debug access code:');
+            if (password === '1108') {
+                showDebugAuthorizationDialog();
+            } else if (password !== null) {
+                alert('Access denied. Invalid code.');
+            }
+        }
+
+        function showDebugAuthorizationDialog() {
+            // Create a custom dialog with authorization button
+            const debugDialog = document.createElement('div');
+            debugDialog.id = 'debugAuthDialog';
+            debugDialog.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(20, 20, 30, 0.98);
+                border: 2px solid #FFD700;
+                padding: 20px;
+                border-radius: 10px;
+                color: white;
+                font-family: Arial, sans-serif;
+                z-index: 10000;
+                max-width: 400px;
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            `;
+            
+            debugDialog.innerHTML = `
+                <h3 style="color: #FFD700; margin-bottom: 15px;">🔧 DEBUG CONTROLS ACCESS</h3>
+                <div style="margin-bottom: 15px;">
+                    <p><strong>Current Status:</strong></p>
+                    <p>• Debug Mode: ${window.debugMode ? 'ON' : 'OFF'}</p>
+                    <p>• Hitbox Visualization: ${window.showHitboxes ? 'ON' : 'OFF'}</p>
+                    <p>• Collision Objects: ${collisionObjects.length}</p>
+                    <p>• Wall Objects: ${walls.length}</p>
+                </div>
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                    <p><strong>Available Controls (when authorized):</strong></p>
+                    <p>• Press C = Toggle debug mode (walk through walls)</p>
+                    <p>• Press V = Show/hide collision hitboxes</p>
+                    <p>• Press R = Rebuild collision system</p>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="authorizeDebugBtn" style="
+                        background: #4CAF50;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        margin-right: 10px;
+                    ">Allow Debug Tools</button>
+                    <button id="closeDebugBtn" style="
+                        background: #f44336;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 16px;
+                    ">Close</button>
+                </div>
+            `;
+            
+            document.body.appendChild(debugDialog);
+            
+            // Add event listeners
+            document.getElementById('authorizeDebugBtn').onclick = function() {
+                debugAuthorized = true;
+                alert('✅ Debug tools authorized! You can now use C, V, and R keys.');
+                console.log('🔧 Debug controls AUTHORIZED - keys C, V, R now active');
+                document.body.removeChild(debugDialog);
+            };
+            
+            document.getElementById('closeDebugBtn').onclick = function() {
+                document.body.removeChild(debugDialog);
+            };
+        }
+        
+        // Museum map
+        function initMuseumMap() {
+            const canvas = document.getElementById('mapCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const scale = 8; // Optimized scale to fill the canvas better
+            
+            // Draw map every frame
+            window.updateMuseumMap = function() {
+                // Clear canvas with gradient background
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, '#1a1a2e');
+                gradient.addColorStop(1, '#0f0f1e');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Add grid lines for better orientation
+                ctx.strokeStyle = 'rgba(68, 68, 68, 0.15)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < canvas.width; x += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < canvas.height; y += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+                
+                // Transform to center and scale
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.scale(scale, scale);
+                
+                // Draw room shadows first
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 10 / scale;
+                ctx.shadowOffsetX = 2 / scale;
+                ctx.shadowOffsetY = 2 / scale;
+                
+                // Draw rooms with better colors and thicker lines
+                ctx.strokeStyle = '#888';
+                ctx.lineWidth = 3 / scale;
+                
+                // Scale up room sizes by 1.5x for better visibility
+                const roomScale = 1.5;
+                
+                // Main Gallery (where Mona Lisa was)
+                ctx.fillStyle = '#2a2a3e';
+                ctx.fillRect(-12 * roomScale, -12 * roomScale, 20 * roomScale, 8 * roomScale);
+                ctx.strokeRect(-12 * roomScale, -12 * roomScale, 20 * roomScale, 8 * roomScale);
+                
+                // East Wing Storage (right side)
+                ctx.fillStyle = '#3a3a4a';
+                ctx.fillRect(12 * roomScale, -12 * roomScale, 24 * roomScale, 18 * roomScale);
+                ctx.strokeRect(12 * roomScale, -12 * roomScale, 24 * roomScale, 18 * roomScale);
+                
+                // West Wing Security Office (left side)
+                ctx.fillStyle = '#3a3a4a';
+                ctx.fillRect(-24 * roomScale, -8 * roomScale, 12 * roomScale, 16 * roomScale);
+                ctx.strokeRect(-24 * roomScale, -8 * roomScale, 12 * roomScale, 16 * roomScale);
+                
+                // Entrance Hall (front area)
+                ctx.fillStyle = '#454555';
+                ctx.fillRect(-10 * roomScale, 4 * roomScale, 20 * roomScale, 11 * roomScale);
+                ctx.strokeRect(-10 * roomScale, 4 * roomScale, 20 * roomScale, 11 * roomScale);
+                
+                // Central Corridor (connecting area)
+                ctx.fillStyle = '#505060';
+                ctx.fillRect(-10 * roomScale, -4 * roomScale, 20 * roomScale, 8 * roomScale);
+                ctx.strokeRect(-10 * roomScale, -4 * roomScale, 20 * roomScale, 8 * roomScale);
+                
+                // Add doorways/connections (showing openings)
+                ctx.fillStyle = '#666';
+                ctx.fillRect(-2 * roomScale, -4 * roomScale, 4 * roomScale, 2); // Main Gallery to Corridor
+                ctx.fillRect(8 * roomScale, -3 * roomScale, 4, 6 * roomScale); // Corridor to East Wing
+                ctx.fillRect(-12 * roomScale - 2, 0, 4, 4 * roomScale); // Corridor to Security Office
+                ctx.fillRect(-18 * roomScale, -8 * roomScale, 2, 16 * roomScale); // Security Office doorway
+                
+                // Disable shadows for clues and player
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+                
+                // Draw clues as flashing red dots with larger size
+                const flashIntensity = (Math.sin(Date.now() * 0.005) + 1) * 0.5;
+                
+                // Only show undiscovered clues
+                Object.keys(clues).forEach(clueKey => {
+                    if (!discoveredClues.includes(clueKey)) {
+                        const clue = clues[clueKey];
+                        const clueX = clue.position.x * roomScale;
+                        const clueZ = clue.position.z * roomScale;
+                        
+                        // Outer glow
+                        ctx.fillStyle = `rgba(255, 0, 0, ${0.2 + flashIntensity * 0.3})`;
+                        ctx.beginPath();
+                        ctx.arc(clueX, clueZ, 4 / scale, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Inner dot
+                        ctx.fillStyle = `rgba(255, 0, 0, ${0.7 + flashIntensity * 0.3})`;
+                        ctx.beginPath();
+                        ctx.arc(clueX, clueZ, 2.5 / scale, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Add "!" marker for undiscovered clues
+                        ctx.fillStyle = '#FFFF00';
+                        ctx.font = `bold ${8 / scale}px Arial`;
+                        ctx.textAlign = 'center';
+                        ctx.fillText('!', clueX, clueZ - 5 / scale);
+                    }
+                });
+                
+                // Draw discovered clues as green checkmarks
+                discoveredClues.forEach(clueKey => {
+                    const clue = clues[clueKey];
+                    if (clue) {
+                        const clueX = clue.position.x * roomScale;
+                        const clueZ = clue.position.z * roomScale;
+                        
+                        // Green circle
+                        ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+                        ctx.beginPath();
+                        ctx.arc(clueX, clueZ, 3 / scale, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Checkmark
+                        ctx.strokeStyle = '#00FF00';
+                        ctx.lineWidth = 3 / scale;
+                        ctx.beginPath();
+                        ctx.moveTo(clueX - 2 / scale, clueZ);
+                        ctx.lineTo(clueX - 0.5 / scale, clueZ + 1.5 / scale);
+                        ctx.lineTo(clueX + 2 / scale, clueZ - 1.5 / scale);
+                        ctx.stroke();
+                    }
+                });
+                
+                // Draw player position with better visibility
+                if (camera) {
+                    const playerX = camera.position.x * roomScale;
+                    const playerZ = camera.position.z * roomScale;
+                    
+                    // Player glow
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+                    ctx.beginPath();
+                    ctx.arc(playerX, playerZ, 5 / scale, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Player dot
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(playerX, playerZ, 3 / scale, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw player direction indicator as arrow
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.fillStyle = '#FFD700';
+                    ctx.lineWidth = 3 / scale;
+                    
+                    // Calculate direction
+                    const angle = Math.atan2(
+                        camera.getWorldDirection(new THREE.Vector3()).x,
+                        -camera.getWorldDirection(new THREE.Vector3()).z
+                    );
+                    
+                    // Draw arrow
+                    ctx.save();
+                    ctx.translate(playerX, playerZ);
+                    ctx.rotate(angle);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, -5 / scale);
+                    ctx.lineTo(-2 / scale, 0);
+                    ctx.lineTo(2 / scale, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.restore();
+                }
+                
+                // Draw room labels with much bigger font
+                ctx.fillStyle = '#FFF';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 4 / scale;
+                ctx.font = `bold ${10 / scale}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('MAIN GALLERY', -2 * roomScale, -8 * roomScale);
+                ctx.fillText('EAST WING', 24 * roomScale, -3 * roomScale);
+                ctx.fillText('STORAGE', 24 * roomScale, 2 * roomScale);
+                ctx.fillText('SECURITY', -18 * roomScale, 0);
+                ctx.fillText('OFFICE', -18 * roomScale, 2 * roomScale);
+                ctx.fillText('ENTRANCE HALL', 0, 9.5 * roomScale);
+                ctx.fillText('CORRIDOR', 0, 0);
+                
+                // Disable shadow for other elements
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                
+                // Add legend in corner with bigger text
+                ctx.restore();
+                
+                // Legend background
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fillRect(20, 20, 250, 180);
+                ctx.strokeStyle = '#888';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(20, 20, 250, 180);
+                
+                // Legend title
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('MAP LEGEND', 145, 55);
+                
+                // Legend items with much larger text
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(40, 75, 30, 30);
+                ctx.fillStyle = '#FFF';
+                ctx.font = 'bold 22px Arial';
+                ctx.fillText('You', 80, 95);
+                
+                ctx.fillStyle = '#FF0000';
+                ctx.fillRect(40, 115, 30, 30);
+                ctx.fillStyle = '#FFF';
+                ctx.font = 'bold 22px Arial';
+                ctx.fillText('Clue (unfound)', 80, 135);
+                
+                ctx.fillStyle = '#00FF00';
+                ctx.fillRect(40, 155, 30, 30);
+                ctx.fillStyle = '#FFF';
+                ctx.font = 'bold 22px Arial';
+                ctx.fillText('Clue (found)', 80, 175);
+                
+                ctx.restore();
+            };
+        }
 
         function animate() {
             requestAnimationFrame(animate);
+            
+            // Debug: Log every 100 frames to confirm animation is running
+            if (!window.frameCount) window.frameCount = 0;
+            window.frameCount++;
+            if (window.frameCount % 100 === 1) {
+                console.log('🎬 Animation running - frame', window.frameCount);
+            }
 
-            // Animate clue pulsing effect
+            // Update player hitbox visualization if enabled
+            updatePlayerHitbox();
+            
+            // Update museum map
+            if (window.updateMuseumMap) {
+                window.updateMuseumMap();
+            }
+
+            // Animate realistic clue glow effects
             const time = Date.now() * 0.003;
             scene.children.forEach(child => {
-                if (child.userData && child.userData.type === 'clue' && child.material) {
+                if (child.userData && child.userData.type === 'clue') {
                     child.userData.pulseTime += 0.05;
                     const pulseIntensity = (Math.sin(child.userData.pulseTime) + 1) * 0.5;
-                    const baseEmissive = child.userData.originalEmissive;
-                    child.material.emissive.setHex(baseEmissive);
-                    child.material.emissive.multiplyScalar(0.5 + pulseIntensity * 0.8);
+                    
+                    // Animate the glow mesh if it exists
+                    if (child.userData.glowMesh) {
+                        child.userData.glowMesh.material.opacity = 0.05 + pulseIntensity * 0.15;
+                        child.userData.glowMesh.scale.setScalar(0.8 + pulseIntensity * 0.4);
+                    }
+                    
+                    // Also animate any emissive materials on the clue itself
+                    if (child.material && child.material.emissive) {
+                        const baseEmissive = child.userData.originalEmissive || 0x444400;
+                        child.material.emissive.setHex(baseEmissive);
+                        child.material.emissive.multiplyScalar(0.5 + pulseIntensity * 0.8);
+                    }
                 }
             });
 
-            // First-person movement with camera direction
-            if (gameStarted && window.moveState) {
+            // Animate dust particles for atmospheric effect
+            if (window.dustParticles) {
+                const positions = window.dustParticles.attributes.position.array;
+                const time = Date.now() * 0.0005;
+                
+                for (let i = 0; i < positions.length; i += 3) {
+                    // Gentle floating motion
+                    positions[i + 1] += Math.sin(time + positions[i]) * 0.002; // Y movement
+                    positions[i] += Math.cos(time + positions[i + 2]) * 0.001; // X drift
+                    positions[i + 2] += Math.sin(time + positions[i + 1]) * 0.001; // Z drift
+                    
+                    // Reset particles that drift too far
+                    if (positions[i + 1] > 5) positions[i + 1] = -2;
+                    if (positions[i] > 25 || positions[i] < -25) positions[i] = (Math.random() - 0.5) * 40;
+                    if (positions[i + 2] > 25 || positions[i + 2] < -25) positions[i + 2] = (Math.random() - 0.5) * 40;
+                }
+                
+                window.dustParticles.attributes.position.needsUpdate = true;
+            }
+
+            // First-person movement with camera direction and realistic audio
+            // Debug the conditions every 60 frames
+            if (window.frameCount % 60 === 1) {
+                console.log('🚶 Movement Debug - gameStarted:', gameStarted, 'moveState:', window.moveState);
+                console.log('🚶 Camera position:', camera ? camera.position : 'no camera');
+            }
+            
+            if (window.moveState && camera) {
                 const speed = 0.1;
+                let isMoving = false;
+                
+                // Check if any movement keys are pressed
+                const anyKeyPressed = window.moveState.forward || window.moveState.backward || window.moveState.left || window.moveState.right;
+                
+                // Debug movement keys every 60 frames when pressed
+                if (anyKeyPressed && window.frameCount % 60 === 1) {
+                    console.log('🎮 Keys pressed:', {
+                        W: window.moveState.forward,
+                        A: window.moveState.left, 
+                        S: window.moveState.backward,
+                        D: window.moveState.right
+                    });
+                }
                 
                 // Get forward and right vectors based on camera rotation
                 const forward = new THREE.Vector3();
@@ -2024,18 +4750,42 @@ The Mona Lisa has been recovered! Excellent detective work! 🕵️‍♂️✨`
                 right.crossVectors(forward, up);
                 right.normalize();
                 
-                // Apply movement based on input
+                // Store current position for collision rollback
+                const currentPosition = camera.position.clone();
+                
+                // Apply movement with collision detection and audio
                 if (window.moveState.forward) {
-                    camera.position.add(forward.clone().multiplyScalar(speed));
+                    const newPos = camera.position.clone().add(forward.clone().multiplyScalar(speed));
+                    if (!checkCollision(newPos)) {
+                        camera.position.copy(newPos);
+                        isMoving = true;
+                    }
                 }
                 if (window.moveState.backward) {
-                    camera.position.add(forward.clone().multiplyScalar(-speed));
+                    const newPos = camera.position.clone().add(forward.clone().multiplyScalar(-speed));
+                    if (!checkCollision(newPos)) {
+                        camera.position.copy(newPos);
+                        isMoving = true;
+                    }
                 }
                 if (window.moveState.left) {
-                    camera.position.add(right.clone().multiplyScalar(-speed));
+                    const newPos = camera.position.clone().add(right.clone().multiplyScalar(-speed));
+                    if (!checkCollision(newPos)) {
+                        camera.position.copy(newPos);
+                        isMoving = true;
+                    }
                 }
                 if (window.moveState.right) {
-                    camera.position.add(right.clone().multiplyScalar(speed));
+                    const newPos = camera.position.clone().add(right.clone().multiplyScalar(speed));
+                    if (!checkCollision(newPos)) {
+                        camera.position.copy(newPos);
+                        isMoving = true;
+                    }
+                }
+                
+                // Play footstep sounds when moving
+                if (isMoving) {
+                    playFootstepSound();
                 }
 
                 // Keep camera at eye level and within museum bounds
