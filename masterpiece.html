@@ -241,6 +241,24 @@
             animation: pulse 2s infinite;
         }
 
+        /* Map expand/collapse for mobile */
+        .map-wrap { position: relative; }
+        .map-wrap.collapsed canvas { height: 160px !important; }
+        .map-wrap.expanded canvas { height: 70vh !important; width: 100% !important; max-width: none !important; }
+        .map-toggle-btn {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+        body.touch .map-toggle-btn { display: inline-block; }
+        body:not(.touch) .map-toggle-btn { display: none; }
+
         @keyframes pulse {
             0%, 100% { opacity: 0.9; }
             50% { opacity: 0.6; }
@@ -459,16 +477,19 @@
                 <!-- Museum Map -->
                 <div id="museumMap" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
                     <h4 style="margin-top: 0; margin-bottom: 10px; font-size: 18px;">📍 Museum Map</h4>
-                    <canvas id="mapCanvas" width="800" height="600" style="
-                        background: #1a1a2e;
-                        border: 3px solid #666;
-                        border-radius: 10px;
-                        width: 100%;
-                        max-width: 800px;
-                        box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-                        display: block;
-                        margin: 0 auto;
-                    "></canvas>
+                    <div class="map-wrap collapsed" id="mapWrap">
+                        <canvas id="mapCanvas" width="800" height="600" style="
+                            background: #1a1a2e;
+                            border: 3px solid #666;
+                            border-radius: 10px;
+                            width: 100%;
+                            max-width: 800px;
+                            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+                            display: block;
+                            margin: 0 auto;
+                        "></canvas>
+                        <button id="mapToggleBtn" class="map-toggle-btn" type="button" aria-expanded="false">Expand Map</button>
+                    </div>
                 </div>
             </div>
 
@@ -1042,6 +1063,37 @@
                 
                 // Initialize museum map
                 initMuseumMap();
+                // Setup mobile map toggle
+                (function(){
+                    const wrap = document.getElementById('mapWrap');
+                    const btn = document.getElementById('mapToggleBtn');
+                    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+                    if (!wrap || !btn) return;
+                    if (!isTouch) {
+                        // Desktop: ensure expanded inline look
+                        wrap.classList.remove('collapsed');
+                        wrap.classList.remove('expanded');
+                    } else {
+                        // Mobile: start collapsed
+                        wrap.classList.add('collapsed');
+                    }
+                    const updateBtn = () => {
+                        const expanded = wrap.classList.contains('expanded');
+                        btn.textContent = expanded ? 'Collapse Map' : 'Expand Map';
+                        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                    };
+                    btn.addEventListener('click', () => {
+                        if (wrap.classList.contains('expanded')) {
+                            wrap.classList.remove('expanded');
+                            wrap.classList.add('collapsed');
+                        } else {
+                            wrap.classList.remove('collapsed');
+                            wrap.classList.add('expanded');
+                        }
+                        updateBtn();
+                    });
+                    updateBtn();
+                })();
                 
                 // Hide loading indicator and start animation loop
                 document.getElementById('loadingIndicator').style.display = 'none';
