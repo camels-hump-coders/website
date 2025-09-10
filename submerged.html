@@ -426,6 +426,57 @@
             background: rgb(204, 67, 49);
         }
 
+        /* Celebration overlay */
+        .celebration-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+        }
+        .celebration-modal {
+            position: relative;
+            background: #fff;
+            color: #333;
+            border-radius: 14px;
+            padding: 24px 20px;
+            max-width: 460px;
+            width: calc(100% - 40px);
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+        .celebration-title { font-size: 1.6rem; margin-bottom: 0.5rem; color: rgb(204, 67, 49); }
+        .celebration-text { margin-bottom: 1rem; color: #444; }
+        .celebration-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        .celebration-btn {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #fff;
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .celebration-btn.primary {
+            background: rgb(204, 67, 49);
+            border-color: rgb(204, 67, 49);
+            color: #fff;
+        }
+        .confetti-piece {
+            position: absolute;
+            top: -10px;
+            width: 8px;
+            height: 14px;
+            opacity: 0.9;
+            transform: translateY(-10vh) rotate(0deg);
+            animation: confetti-fall linear forwards;
+        }
+        @keyframes confetti-fall {
+            to { transform: translateY(110vh) rotate(360deg); opacity: 1; }
+        }
+
         /* Difficulty Selection */
         .difficulty-section {
             margin: 15px 0;
@@ -647,7 +698,8 @@
             },
             totalScore: 0,
             units: 'metric',
-            difficulty: 'medium'
+            difficulty: 'medium',
+            celebrated: false
         };
 
         const difficultySettings = {
@@ -695,9 +747,10 @@
         function initializeGame() {
             generateMissionItems();
             generateEnvironmentalElements();
+            ensureSolvable(20);
             updateDisplay();
             updateDepth();
-            
+
             // Clear existing bubble interval if any
             if (bubbleInterval) clearInterval(bubbleInterval);
             bubbleInterval = setInterval(createBubbles, difficultySettings[gameState.difficulty].bubbleInterval);
@@ -748,35 +801,164 @@
 
         function generateEnvironmentalElements() {
             const settings = difficultySettings[gameState.difficulty];
-            
-            // Define safe spawn zones to avoid UI elements
-            const leftUIBoundary = 250; // Avoid score board
-            const rightUIBoundary = window.innerWidth - 250; // Avoid control panel
-            
-            for (let i = 0; i < settings.kelpCount; i++) {
-                const kelp = document.createElement('div');
-                kelp.className = 'kelp';
-                const x = Math.random() * (rightUIBoundary - leftUIBoundary) + leftUIBoundary;
-                const y = Math.random() * 400 + 200;
-                const height = Math.random() * 150 + 100;
-                
-                kelp.style.left = x + 'px';
-                kelp.style.top = y + 'px';
-                kelp.style.height = height + 'px';
-                kelp.style.width = settings.kelpWidth + 'px';
-                kelp.style.animationDelay = Math.random() * 4 + 's';
-                
-                // Store kelp data for collision detection
-                kelpElements.push({
-                    element: kelp,
-                    x: x,
-                    y: y,
-                    width: settings.kelpWidth,
-                    height: height
-                });
-                
-                document.querySelector('.ocean-layers').appendChild(kelp);
+            // Safe spawn zones to avoid UI elements
+            const leftUIBoundary = 250;
+            const rightUIBoundary = window.innerWidth - 250;
+            const minY = 150; // keep clear of surface UI
+            const maxY = 760; // a bit above bottom
+
+            // Helper: distance from a rectangle to a point
+            function rectPointDistance(rx, ry, rw, rh, px, py) {
+                const dx = Math.max(rx - px, 0, px - (rx + rw));
+                const dy = Math.max(ry - py, 0, py - (ry + rh));
+                return Math.hypot(dx, dy);
             }
+
+            // Keep a central vertical corridor clear so a path always exists
+            const corridorHalf = 60;
+            const corridorLeft = window.innerWidth / 2 - corridorHalf;
+            const corridorRight = window.innerWidth / 2 + corridorHalf;
+
+            // Minimum clearance around each mission item so it isn't boxed in by kelp
+            const clearance = 80; // px radius clearance around items
+
+            for (let i = 0; i < settings.kelpCount; i++) {
+                let placed = false;
+                let guard = 0;
+                while (!placed && guard < 200) {
+                    guard++;
+                    const x = Math.random() * (rightUIBoundary - leftUIBoundary) + leftUIBoundary;
+                    const y = Math.random() * (maxY - minY) + minY;
+                    const height = Math.random() * 150 + 100;
+                    const width = settings.kelpWidth;
+
+                    // Respect central corridor
+                    if (x >= corridorLeft && x <= corridorRight) continue;
+
+                    // Ensure this kelp doesn't intrude too close to any mission item
+                    let tooClose = false;
+                    for (const it of missionItems) {
+                        const itemCx = it.x + 15;
+                        const itemCy = it.y + 15;
+                        if (rectPointDistance(x, y, width, height, itemCx, itemCy) < clearance) {
+                            tooClose = true; break;
+                        }
+                    }
+                    if (tooClose) continue;
+
+                    // Also avoid heavily clustering with existing kelp to reduce hard walls
+                    let cluster = false;
+                    for (const k of kelpElements) {
+                        if (Math.abs(k.x - x) < 10 && Math.abs(k.y - y) < 40) { cluster = true; break; }
+                    }
+                    if (cluster) continue;
+
+                    // Passed checks; create and store
+                    const kelp = document.createElement('div');
+                    kelp.className = 'kelp';
+                    kelp.style.left = x + 'px';
+                    kelp.style.top = y + 'px';
+                    kelp.style.height = height + 'px';
+                    kelp.style.width = width + 'px';
+                    kelp.style.animationDelay = Math.random() * 4 + 's';
+
+                    kelpElements.push({ element: kelp, x, y, width, height });
+                    document.querySelector('.ocean-layers').appendChild(kelp);
+                    placed = true;
+                }
+            }
+        }
+
+        // --- Level solvability validation ---
+        function ensureSolvable(maxAttempts = 10) {
+            let attempts = 0;
+            while (!isLevelSolvable() && attempts < maxAttempts) {
+                attempts++;
+                // Regenerate only items and kelp until we find a solvable layout
+                regenerateLevelElements();
+            }
+        }
+
+        function regenerateLevelElements() {
+            // Remove existing mission items
+            missionItems.forEach(item => { if (item.element) item.element.remove(); });
+            missionItems.length = 0;
+            // Remove existing kelp
+            kelpElements.forEach(k => { if (k.element) k.element.remove(); });
+            kelpElements.length = 0;
+            // Generate new ones
+            generateMissionItems();
+            generateEnvironmentalElements();
+        }
+
+        function isLevelSolvable() {
+            // Grid-based BFS using movement step and collision checks to verify reachability
+            const step = difficultySettings[gameState.difficulty].moveSpeed;
+            const maxX = window.innerWidth - 115; // same as movement bounds
+            const maxY = 740;
+            const minX = 10;
+            const minY = 25;
+
+            const start = { x: gameState.x, y: gameState.y };
+            const subWidth = 90;
+            const subHeight = 45;
+            const collectRadius = difficultySettings[gameState.difficulty].collectDistance / 2;
+
+            // If start collides, early fail (shouldn't happen with our defaults)
+            if (checkCollision(start.x, start.y)) return false;
+
+            // Track which items are reachable
+            const reachable = new Array(missionItems.length).fill(false);
+
+            const queue = [start];
+            const visited = new Set();
+            visited.add(start.x + '|' + start.y);
+
+            function canCollectFrom(x, y, item) {
+                const subCenterX = x + subWidth / 2;
+                const subCenterY = y + subHeight / 2;
+                const itemCenterX = item.x + 15;
+                const itemCenterY = item.y + 15;
+                const dx = subCenterX - itemCenterX;
+                const dy = subCenterY - itemCenterY;
+                return Math.hypot(dx, dy) <= collectRadius;
+            }
+
+            // Helper to enqueue a neighbor if valid and not visited
+            function tryEnqueue(nx, ny) {
+                // Clamp within bounds used by movement
+                nx = Math.max(minX, Math.min(maxX, nx));
+                ny = Math.max(minY, Math.min(maxY, ny));
+                const key = nx + '|' + ny;
+                if (!visited.has(key) && !checkCollision(nx, ny)) {
+                    visited.add(key);
+                    queue.push({ x: nx, y: ny });
+                }
+            }
+
+            while (queue.length) {
+                const { x, y } = queue.shift();
+
+                // Check collection reach for all items
+                for (let i = 0; i < missionItems.length; i++) {
+                    const item = missionItems[i];
+                    if (!reachable[i] && !item.collected && canCollectFrom(x, y, item)) {
+                        reachable[i] = true;
+                    }
+                }
+
+                // If all are reachable, success
+                if (reachable.every(Boolean)) return true;
+
+                // Explore neighbors (WASD-like moves)
+                tryEnqueue(x + step, y);
+                tryEnqueue(x - step, y);
+                tryEnqueue(x, y + step);
+                tryEnqueue(x, y - step);
+            }
+
+            // If BFS exhausted without reaching all items
+            return false;
         }
 
         function createBubbles() {
@@ -949,10 +1131,9 @@
             updateDisplay();
             
             const totalRequired = Object.values(difficultySettings[gameState.difficulty].missionRequirements).reduce((a, b) => a + b, 0);
-            if (gameState.totalScore === totalRequired) {
-                setTimeout(() => {
-                    alert(`🎉 Congratulations! You completed all SUBMERGED missions on ${gameState.difficulty.toUpperCase()} mode! 🎉`);
-                }, 500);
+            if (!gameState.celebrated && gameState.totalScore === totalRequired) {
+                gameState.celebrated = true;
+                setTimeout(() => { showCelebration(); }, 300);
             }
         }
 
@@ -1005,10 +1186,9 @@
             });
             
             // Check for game completion
-            if (gameState.totalScore === totalRequired) {
-                setTimeout(() => {
-                    alert(`🎉 Congratulations! You completed all missions on ${gameState.difficulty.toUpperCase()} mode! 🎉`);
-                }, 500);
+            if (!gameState.celebrated && gameState.totalScore === totalRequired) {
+                gameState.celebrated = true;
+                setTimeout(() => showCelebration(), 400);
             }
         }
 
@@ -1037,7 +1217,8 @@
                 missions: { coral: 0, sample: 0, plankton: 0, fish: 0, treasure: 0 },
                 totalScore: 0,
                 units: gameState.units, // Preserve current unit setting
-                difficulty: gameState.difficulty // Preserve difficulty setting
+                difficulty: gameState.difficulty, // Preserve difficulty setting
+                celebrated: false
             };
             
             missionItems.forEach(item => {
@@ -1054,9 +1235,10 @@
             
             updateSubmarinePosition();
             updateDepth();
-            updateDisplay();
             generateMissionItems();
             generateEnvironmentalElements();
+            ensureSolvable(20);
+            updateDisplay();
         }
 
         function showInstructions() {
@@ -1083,6 +1265,76 @@
 • Abyssal Zone - The deepest, darkest depths
 
 Complete all 20 missions to win! Good luck, ocean explorer! 🤖`);
+        }
+
+        function showCelebration() {
+            let overlay = document.getElementById('celebrationOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'celebrationOverlay';
+                overlay.className = 'celebration-overlay';
+                const modal = document.createElement('div');
+                modal.className = 'celebration-modal';
+                modal.innerHTML = `
+                    <h3 class="celebration-title">🎉 You Did It! 🎉</h3>
+                    <p class="celebration-text">Completed all missions on <strong>${gameState.difficulty.toUpperCase()}</strong> mode.</p>
+                    <div class="celebration-actions">
+                        <button class="celebration-btn" id="keepExploringBtn">Keep Exploring</button>
+                        <button class="celebration-btn primary" id="playAgainBtn">Play Again</button>
+                    </div>
+                `;
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+                // Wire buttons
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) hideCelebration();
+                });
+                document.addEventListener('click', (e) => {
+                    if (e.target && e.target.id === 'keepExploringBtn') hideCelebration();
+                    if (e.target && e.target.id === 'playAgainBtn') { hideCelebration(); resetGame(); }
+                });
+            } else {
+                // Update difficulty label if changed
+                const p = overlay.querySelector('.celebration-text');
+                if (p) p.innerHTML = `Completed all missions on <strong>${gameState.difficulty.toUpperCase()}</strong> mode.`;
+            }
+            overlay.style.display = 'flex';
+            spawnConfetti(1400);
+        }
+
+        function hideCelebration() {
+            const overlay = document.getElementById('celebrationOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function spawnConfetti(durationMs = 1200) {
+            const overlay = document.getElementById('celebrationOverlay');
+            if (!overlay) return;
+            // Remove existing confetti pieces
+            overlay.querySelectorAll('.confetti-piece').forEach(el => el.remove());
+            const colors = ['#ff6961', '#f8d66d', '#77dd77', '#84b6f4', '#f49ac2', '#aec6cf', '#cfcfc4'];
+            const count = 120;
+            for (let i = 0; i < count; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                const size = 6 + Math.random()*6;
+                piece.style.width = size + 'px';
+                piece.style.height = (size*1.5) + 'px';
+                piece.style.left = Math.random()*100 + 'vw';
+                piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+                const dur = 1 + Math.random()*1.2;
+                const delay = Math.random()*0.4;
+                piece.style.animationDuration = dur + 's';
+                piece.style.animationDelay = delay + 's';
+                piece.style.transform = `translateY(-10vh) rotate(${Math.random()*180}deg)`;
+                overlay.appendChild(piece);
+                // Clean up each piece after it falls
+                setTimeout(() => { piece.remove(); }, (dur+delay)*1000 + 200);
+            }
+            // Auto hide confetti after duration
+            setTimeout(() => {
+                overlay.querySelectorAll('.confetti-piece').forEach(el => el.remove());
+            }, durationMs);
         }
 
         document.addEventListener('keydown', function(event) {

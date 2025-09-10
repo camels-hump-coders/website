@@ -145,6 +145,11 @@
             position: relative;
             z-index: 2;
         }
+        /* Page-specific header color override (keep hero white) */
+        .content-section h2,
+        .content-section h3 {
+            color: #000 !important;
+        }
     </style>
 </head>
 <body>
@@ -159,6 +164,7 @@
                 <li class="dropdown">
                     <a href="about.html">About Us</a>
                     <ul class="dropdown-menu">
+                        <li><a href="2025-2026.html">2025-2026</a></li>
                         <li><a href="2024-2025.html" class="active">2024-2025</a></li>
                         <li><a href="2023-2024.html">2023-2024</a></li>
                     </ul>
@@ -222,18 +228,22 @@
                 <div class="team-info">
                     <h3>🏆 Major Achievements</h3>
                     <ul>
+                        <li><strong>Vermont Montpelier Qualifier:</strong> 1st Place Winners!</li>
                         <li><strong>Vermont State Championship:</strong> 2nd Place Winners!</li>
                         <li><strong>Award:</strong> $1,000 advancement grant from GlobalFoundries</li>
-                        <li><strong>Advancement:</strong> Qualified for the Florida Sunshine Invitational in Daytona Beach</li>
+                        <li><strong>Advancement:</strong> Qualified for the Florida Sunshine Invitational in Daytona Florida</li>
+                        <li><strong>Competed:</strong> Finished in the top 2/3 of the Florida Sunshine Invitational in Daytona Florida</li>
                     </ul>
                     
                     <h3>🌴 Florida Sunshine Tournament</h3>
-                    <p>Our team traveled to Daytona Beach, Florida to compete against teams from across the nation. During the tournament, we:</p>
+                    <p>Our team traveled to Daytona Beach, Florida to compete against teams from across the World! During the tournament, we:</p>
                     <ul>
                         <li>Presented our sea ice measurement innovation project</li>
                         <li>Competed in robot game missions</li>
-                        <li>Met with experts and researchers in marine science</li>
-                        <li>Shared ideas with teams from different states</li>
+                        <li>Met with our partner team from Puerto Rico and compeated in a double robot match with them</li>
+                        <li>Shared ideas with teams from different states and countries</li>
+                        <li>Learned infromation from the other teams from around the world</li>
+                        <li>Grew as a team developing a stronger bond</li>
                     </ul>
                 </div>
             </div>
@@ -241,26 +251,26 @@
 
         <section class="content-section highlight">
             <div class="container">
-                <h2>Our Presentations</h2>
+                <h2 id="our-presentations">Our Presentations</h2>
                 <p>Throughout the season, we developed and refined our presentations to share our research and solutions:</p>
                 
                 <div class="presentation-grid">
                     <div class="resource-card">
-                        <h3>Lego Club Slideshow</h3>
-                        <p>Introduction to our team and FIRST® LEGO® League</p>
-                        <a href="#" class="presentation-link">View Presentation</a>
+                        <h3>First version </h3>
+                        <p>This is the first version of our innovation project (note some slides were added after qualifiers)</p>
+                        <a href="lego-club-slideshow.html" class="presentation-link">View Presentation</a>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <h3>Second Version</h3>
+                        <p>After the first version of our slideshow presentation we cleaned things up to form version 2</p>
+                        <a href="second-version-slideshow.html" class="presentation-link">View Presentation</a>
                     </div>
                     
                     <div class="resource-card">
                         <h3>Florida Presentation</h3>
-                        <p>Competition presentation for the Sunshine Invitational</p>
-                        <a href="#" class="presentation-link">View Presentation</a>
-                    </div>
-                    
-                    <div class="resource-card">
-                        <h3>Innovation Project</h3>
-                        <p>Sea ice measurement research and solution</p>
-                        <a href="#" class="presentation-link">View Presentation</a>
+                        <p>We changed the presentation to be more understandable and easy to follow, keeping the same information but changing the style to a children’s book.</p>
+                        <a href="florida-presentation.html" class="presentation-link">View Presentation</a>
                     </div>
                 </div>
             </div>
@@ -282,23 +292,21 @@
 
         <section class="content-section">
             <div class="container">
-                <h2>Season Videos</h2>
-                <p>Watch our team in action during the 2024-2025 SUBMERGED season:</p>
+                <h2 id="season-videos">Season Videos</h2>
+                <p>Watch our team in action during the 2024-2025 SUBMERGED season and see the season videos:</p>
                 
                 <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
                     <!-- Video content will be added here -->
-                    <div class="video-placeholder" style="background: #f0f0f0; padding: 2rem; border-radius: 8px; text-align: center; border: 2px dashed #ccc;">
-                        <p style="color: #666; margin: 0;">🎬 Competition Videos</p>
-                        <p style="color: #888; font-size: 0.9em; margin: 0.5rem 0 0 0;">Robot performance and team presentations</p>
-                    </div>
+                    <a href="submerged-competition-videos.html" class="tile-button" role="button" aria-label="Open SUBMERGED competition videos">
+                        <p>🎬 Competition Videos</p>
+                        <p style="font-size: 0.95em; color: #444;">Click to watch SUBMERGED season information</p>
+                        <span class="cta">View now →</span>
+                    </a>
                     <div class="video-placeholder" style="background: #f0f0f0; padding: 2rem; border-radius: 8px; text-align: center; border: 2px dashed #ccc;">
                         <p style="color: #666; margin: 0;">🏆 Tournament Highlights</p>
                         <p style="color: #888; font-size: 0.9em; margin: 0.5rem 0 0 0;">State Championship and Florida Invitational</p>
                     </div>
-                    <div class="video-placeholder" style="background: #f0f0f0; padding: 2rem; border-radius: 8px; text-align: center; border: 2px dashed #ccc;">
-                        <p style="color: #666; margin: 0;">🔬 Innovation Project</p>
-                        <p style="color: #888; font-size: 0.9em; margin: 0.5rem 0 0 0;">Sea ice measurement research presentation</p>
-                    </div>
+                    
                 </div>
             </div>
         </section>
@@ -306,7 +314,7 @@
         <section class="content-section highlight">
             <div class="container">
                 <h2>Looking Forward</h2>
-                <p>The 2024-2025 season taught us valuable lessons about our oceans, teamwork, and innovation. As we prepare for next season, we're excited to apply what we've learned and continue making a positive impact in our community and the world.</p>
+                <p>The 2024-2025 season taught us valuable lessons about our oceans, teamwork, and innovation. As we prepare for next season, we're excited to apply what we've learned and continue making a positive impact in our community and (hopefuly) the world.</p>
                 
                 <div class="media-links" style="margin-top: 2rem;">
                     <a href="https://vermontbiz.com/news/2025/february/01/globalfoundries-hosts-vermont-state-championship-first-lego-league" class="media-link" target="_blank">Read About State Championship</a>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025-2026 Season - Camels Hump Coders</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
+    <style>
+        :root { --swing-dur: 1.4s; }
+        .season-header {
+            background: linear-gradient(135deg, #734332 0%, #C0543A 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .season-logo {
+            max-width: 320px;
+            height: auto;
+            margin: 2rem auto;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+        .earth-theme {
+            display: inline-block;
+            position: relative;
+            z-index: 2;
+        }
+        .grain {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+            background-size: 4px 4px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        /* Page heading overrides: keep section headers black, hero title white */
+        .content-section h2,
+        .content-section h3 { color: #000 !important; }
+        .season-header h2 { color: #fff !important; }
+        /* Mining animation */
+        .letter-d { display: inline-block; transform-origin: 0% 100%; animation: dShake var(--swing-dur) ease-in-out infinite; }
+        .miner { position: absolute; right: -26px; bottom: 2px; width: 58px; height: 58px; }
+        .miner .arm { animation: swing var(--swing-dur) ease-in-out infinite; }
+        @keyframes swing {
+            0% { transform: rotate(-40deg); }
+            45% { transform: rotate(10deg); }
+            52% { transform: rotate(12deg); }
+            100% { transform: rotate(-40deg); }
+        }
+        @keyframes dShake {
+            0%, 48% { transform: rotate(0deg); }
+            49% { transform: rotate(-2.2deg); }
+            52% { transform: rotate(2.2deg); }
+            56% { transform: rotate(-0.8deg); }
+            65% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .chip { position: absolute; right: -8px; bottom: 8px; width: 8px; height: 8px; background: currentColor; transform: rotate(45deg); opacity: 0; }
+        .chip1, .chip2, .chip3 { animation: chipFall var(--swing-dur) ease-in-out infinite; }
+        .chip2 { animation-delay: calc(var(--swing-dur) * 0.02); }
+        .chip3 { animation-delay: calc(var(--swing-dur) * 0.04); }
+        @keyframes chipFall {
+            0%, 49% { transform: translate(0,0) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            80% { transform: translate(12px,16px) rotate(75deg); opacity: 0.9; }
+            100% { transform: translate(24px,30px) rotate(95deg); opacity: 0; }
+        }
+        @media (max-width: 480px) {
+            .miner { right: -18px; bottom: 2px; transform: scale(0.85); }
+            .chip { right: -4px; }
+        }
+    </style>
+    <meta name="description" content="Camels Hump Coders 2025-2026 FIRST LEGO League season: UNEARTHED — highlights, project, robot design, and results." />
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1 class="site-title">Camels Hump Coders</h1>
+            <p class="tagline">FIRST® LEGO® League Team from Huntington, Vermont</p>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="about.html">About Us</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="2025-2026.html" class="active">2025-2026</a></li>
+                        <li><a href="2024-2025.html">2024-2025</a></li>
+                        <li><a href="2023-2024.html">2023-2024</a></li>
+                    </ul>
+                </li>
+                <li><a href="coders.html">Coders</a></li>
+                <li class="dropdown">
+                    <a href="#">Games</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="unearthed.html">Unearthed</a></li>
+                        <li><a href="submerged.html">Submerged</a></li>
+                        <li><a href="masterpiece.html">Masterpiece</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="season-header">
+            <div class="grain"></div>
+            <div class="container">
+                <h2>2025-2026 Season: <span class="earth-theme">UNEARTHE<span class="letter-d">D</span>
+                    <span class="miner" aria-hidden="true">
+                        <svg viewBox="0 0 90 90" width="56" height="56" role="img" aria-label="Swinging pickaxe">
+                            <defs>
+                                <linearGradient id="wood" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#8b5a2b"/>
+                                    <stop offset="100%" stop-color="#a8733a"/>
+                                </linearGradient>
+                                <linearGradient id="steel" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#d8dde3"/>
+                                    <stop offset="100%" stop-color="#9aa1a9"/>
+                                </linearGradient>
+                            </defs>
+                            <g transform="translate(0,0)">
+                                <!-- swinging pickaxe -->
+                                <g class="arm" transform="translate(20,40) rotate(-35)" style="transform-origin: 0px 0px;">
+                                    <!-- handle -->
+                                    <rect x="0" y="-3" width="54" height="6" rx="3" fill="url(#wood)" stroke="#6e4420" stroke-width="0.8"/>
+                                    <!-- head socket ring around handle -->
+                                    <rect x="47" y="-7" width="10" height="14" rx="3" fill="url(#steel)" stroke="#8f97a1" stroke-width="0.8"/>
+                                    <!-- left spike -->
+                                    <path d="M47,0 L28,-7 L28,7 Z" fill="url(#steel)" stroke="#8f97a1" stroke-width="0.8"/>
+                                    <!-- right adze (curved blade) -->
+                                    <path d="M57,-8 Q78,0 57,8 L50,8 L50,-8 Z" fill="url(#steel)" stroke="#8f97a1" stroke-width="0.8"/>
+                                    <!-- ferrule band on handle just before socket -->
+                                    <rect x="43" y="-4" width="4" height="8" rx="2" fill="#b7bdc5" stroke="#8f97a1" stroke-width="0.6"/>
+                                </g>
+                            </g>
+                        </svg>
+                    </span>
+                    <span class="chip chip1"></span>
+                    <span class="chip chip2"></span>
+                    <span class="chip chip3"></span>
+                </span></h2>
+                <img src="./assets/unearthed.gif" alt="UNEARTHED Season Animation" class="season-logo">
+                <p style="font-size: 1.2rem;">Digging into the past to inspire our future</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Season Theme: UNEARTHED</h2>
+                <p>The 2025-2026 FIRST® LEGO® League season invites teams to explore how archaeology and paleontology uncover the stories of our planet. Teams investigate, design, and prototype innovative ways to share discoveries and preserve artifacts for generations to come.</p>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Our Innovation Project</h2>
+                <p>We will update this as soon as we choose a project Idea</p>
+                <ul>
+                
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Robot Design & Game</h2>
+                <p>Our robot focuses on reliable attachments and consistent navigation to complete UNEARTHED missions. We prioritize simple, sturdy mechanisms and clear coding patterns for repeatable runs.</p>
+                <ul>
+                    <li>Modular attachments for quick swaps</li>
+                    <li>gyro-based navigation</li>
+                    <li>Documented runs and checklists for consistency</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2 id="season-videos">Season Videos</h2>
+                <p>Watch the informational videos for the UNEARTHED season:</p>
+                <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                    <a href="unearthed-competition-videos.html" class="tile-button" role="button" aria-label="Open UNEARTHED competition videos">
+                        <p>🎬 Competition Videos</p>
+                        <p style="font-size: 0.95em; color: #444;">Click to watch videos about the UNEARTHED season</p>
+                        <span class="cta">View now →</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Season Highlights</h2>
+                <p>We’ll update this section with competition results, photos, and videos as the season progresses.</p>
+                <div class="media-links" style="margin-top: 1rem;">
+                    <a href="https://www.firstlegoleague.org/" class="media-link" target="_blank">About FLL</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Camels Hump Coders. All rights reserved.</p>
+            <p>A FIRST® LEGO® League team from Huntington, Vermont</p>
+        </div>
+    </footer>
+</body>
+</html>
