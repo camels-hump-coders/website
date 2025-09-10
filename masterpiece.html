@@ -188,8 +188,8 @@
         /* Show mobile controls and adjust panels on touch devices */
         body.touch .mobile-controls { display: grid; }
         @media (max-width: 768px) {
-            .hud-panel { left: 10px; top: 10px; max-width: 60vw; }
-            .investigation-panel { right: 10px; top: 10px; width: 60vw; max-width: 60vw; }
+            .hud-panel { left: 10px; top: 10px; max-width: 50vw; }
+            .investigation-panel { right: 10px; top: 10px; width: 50vw; max-width: 50vw; }
             .controls-panel { left: 10px; bottom: 90px; }
         }
 
@@ -243,7 +243,7 @@
 
         /* Map expand/collapse for mobile */
         .map-wrap { position: relative; }
-        .map-wrap.collapsed canvas { height: 160px !important; }
+        .map-wrap.collapsed canvas { height: 140px !important; }
         .map-wrap.expanded canvas { height: 70vh !important; width: 100% !important; max-width: none !important; }
         .map-toggle-btn {
             position: absolute;
@@ -256,8 +256,7 @@
             padding: 6px 10px;
             font-size: 14px;
         }
-        body.touch .map-toggle-btn { display: inline-block; }
-        body:not(.touch) .map-toggle-btn { display: none; }
+        /* No toggle button now */
 
         @keyframes pulse {
             0%, 100% { opacity: 0.9; }
@@ -488,7 +487,6 @@
                             display: block;
                             margin: 0 auto;
                         "></canvas>
-                        <button id="mapToggleBtn" class="map-toggle-btn" type="button" aria-expanded="false">Expand Map</button>
                     </div>
                 </div>
             </div>
