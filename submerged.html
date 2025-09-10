@@ -397,6 +397,35 @@
             font-weight: bold;
         }
 
+        /* Mobile adjustments */
+        @media (max-width: 600px) {
+            .score-board {
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                min-width: auto;
+                width: 90vw;
+            }
+            .depth-indicator {
+                top: 90px;
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            .control-panel {
+                position: fixed;
+                bottom: 10px;
+                top: auto;
+                right: 50%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 92vw;
+                max-width: 480px;
+            }
+            .control-btn { padding: 12px; font-size: 16px; }
+            .unit-btn { font-size: 13px; padding: 6px; }
+            .difficulty-btn { font-size: 13px; padding: 8px; }
+        }
+
         .mission-popup {
             position: fixed;
             top: 50%;
@@ -588,7 +617,7 @@
         <div class="game-info">
             <h1>🌊 SUBMERGED: Ocean Explorer Mission 🌊</h1>
             <p>Navigate your robotic submarine through the ocean depths to complete FLL 2024-2025 SUBMERGED missions!</p>
-            <p><strong>Use WASD keys or control buttons to move. Navigate over mission items to collect them automatically!</strong></p>
+            <p id="controlTip"><strong>Use WASD keys or control buttons to move. Navigate over mission items to collect them automatically!</strong></p>
         </div>
 
         <div class="depth-indicator" id="depthIndicator">Surface Level - 0m</div>
@@ -684,6 +713,16 @@
     </footer>
 
     <script>
+        // Touch detection to adapt instructions/UI
+        (function(){
+            const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+            if (isTouch) {
+                document.body.classList.add('touch');
+                const tip = document.getElementById('controlTip');
+                if (tip) tip.innerHTML = '<strong>Use the on-screen controls to move. Tap items to collect.</strong>';
+            }
+        })();
+
         let submarine = document.getElementById('submarine');
         let gameState = {
             x: 300, // Start in safe zone, away from UI

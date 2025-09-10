@@ -8,6 +8,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+        // Basic touch detection to adapt UI
+        (function(){
+            const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+            if (isTouch) document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('touch');
+                const dc = document.getElementById('desktopControls');
+                const mc = document.getElementById('mobileControlsHelp');
+                if (dc && mc) { dc.style.display = 'none'; mc.style.display = 'block'; }
+                // Update start screen hint
+                const startHelp = document.querySelector('.start-screen div[style*="background:"]');
+                if (startHelp) startHelp.textContent = 'Tap arrows to move • Swipe to look';
+            });
+        })();
         // Load PointerLockControls directly
         window.addEventListener('load', () => {
             if (!THREE.PointerLockControls) {
@@ -146,6 +159,38 @@
             border-radius: 10px;
             border: 2px solid #4ECDC4;
             pointer-events: auto;
+        }
+
+        /* Mobile on-screen controls */
+        .mobile-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: none;
+            grid-template-columns: repeat(3, 56px);
+            grid-template-rows: repeat(2, 56px);
+            gap: 10px;
+            pointer-events: auto;
+            z-index: 1200;
+        }
+        .mobile-controls button {
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            border: 2px solid #FFD700;
+            border-radius: 12px;
+            font-size: 22px;
+            width: 56px;
+            height: 56px;
+            touch-action: none;
+        }
+        .mobile-controls .spacer { visibility: hidden; }
+        
+        /* Show mobile controls and adjust panels on touch devices */
+        body.touch .mobile-controls { display: grid; }
+        @media (max-width: 768px) {
+            .hud-panel { left: 10px; top: 10px; max-width: 60vw; }
+            .investigation-panel { right: 10px; top: 10px; width: 60vw; max-width: 60vw; }
+            .controls-panel { left: 10px; bottom: 90px; }
         }
 
         .crosshair {
@@ -429,13 +474,30 @@
 
             <div class="controls-panel">
                 <h3>🎮 Controls</h3>
-                <p><strong>WASD</strong> - Move</p>
-                <p><strong>Mouse</strong> - Look around</p>
-                <p><strong>Click</strong> - Interact with clues</p>
-                <p><strong>ESC</strong> - Exit first-person mode</p>
+                <div id="desktopControls">
+                    <p><strong>WASD</strong> - Move</p>
+                    <p><strong>Mouse</strong> - Look around</p>
+                    <p><strong>Click</strong> - Interact with clues</p>
+                    <p><strong>ESC</strong> - Exit first-person mode</p>
+                </div>
+                <div id="mobileControlsHelp" style="display:none;">
+                    <p><strong>Tap arrows</strong> to move</p>
+                    <p><strong>Swipe</strong> anywhere to look</p>
+                    <p><strong>Tap</strong> objects to investigate</p>
+                </div>
                 <div style="background: #2196F3; color: white; padding: 8px; margin-top: 10px; border-radius: 5px; text-align: center; font-size: 12px;">
                     Click anywhere to enter first-person mode
                 </div>
+            </div>
+
+            <!-- On-screen mobile D-pad -->
+            <div class="mobile-controls" id="mobileControls">
+                <div class="spacer"></div>
+                <button data-dir="forward" aria-label="Move forward">⬆️</button>
+                <div class="spacer"></div>
+                <button data-dir="left" aria-label="Move left">⬅️</button>
+                <button data-dir="backward" aria-label="Move backward">⬇️</button>
+                <button data-dir="right" aria-label="Move right">➡️</button>
             </div>
 
             <div class="crosshair"></div>
@@ -732,9 +794,40 @@
                     }
                 }, 1000);
                 
-                // Set up mouse look variables
+                // Set up mouse/touch look variables
                 let mouseX = 0, mouseY = 0;
                 let mouseLookActive = false;
+
+                // Touch look support
+                const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+                if (isTouch) {
+                    const mobilePad = document.getElementById('mobileControls');
+                    if (mobilePad) mobilePad.style.display = 'grid';
+                    const container = document.getElementById('gameContainer');
+                    let lastTx = null, lastTy = null;
+                    container.addEventListener('touchstart', (e) => {
+                        if (e.touches && e.touches[0]) {
+                            lastTx = e.touches[0].clientX;
+                            lastTy = e.touches[0].clientY;
+                        }
+                    }, { passive: true });
+                    container.addEventListener('touchmove', (e) => {
+                        if (!e.touches || !e.touches[0]) return;
+                        const t = e.touches[0];
+                        if (lastTx !== null) {
+                            const dx = t.clientX - lastTx;
+                            const dy = t.clientY - lastTy;
+                            mouseX += dx * 0.004;
+                            mouseY += dy * 0.004;
+                            mouseY = Math.max(-Math.PI/2, Math.min(Math.PI/2, mouseY));
+                            camera.rotation.order = 'YXZ';
+                            camera.rotation.y = -mouseX;
+                            camera.rotation.x = -mouseY;
+                        }
+                        lastTx = t.clientX; lastTy = t.clientY;
+                        e.preventDefault();
+                    }, { passive: false });
+                }
 
                 // Create global function for button
                 window.activatePointerLock = () => {
@@ -911,6 +1004,36 @@
 
                 // Movement controls already set up earlier
                 console.log('✅ Movement controls already active');
+
+                // Bind mobile D-pad controls when moveState is ready
+                (function bindMobileWhenReady(){
+                    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+                    if (!isTouch) return;
+                    const pad = document.getElementById('mobileControls');
+                    if (!pad) return;
+                    const setFlag = (dir, val) => {
+                        if (!window.moveState) return;
+                        if (dir==='forward') window.moveState.forward = val;
+                        if (dir==='backward') window.moveState.backward = val;
+                        if (dir==='left') window.moveState.left = val;
+                        if (dir==='right') window.moveState.right = val;
+                    };
+                    const attach = () => {
+                        if (!window.moveState) { setTimeout(attach, 200); return; }
+                        pad.querySelectorAll('button[data-dir]').forEach(btn => {
+                            const dir = btn.getAttribute('data-dir');
+                            const start = (e)=>{ setFlag(dir, true); e.preventDefault(); };
+                            const end = (e)=>{ setFlag(dir, false); e.preventDefault(); };
+                            btn.addEventListener('touchstart', start, { passive: false });
+                            btn.addEventListener('touchend', end, { passive: false });
+                            btn.addEventListener('touchcancel', end, { passive: false });
+                            btn.addEventListener('mousedown', start);
+                            btn.addEventListener('mouseup', end);
+                            btn.addEventListener('mouseleave', end);
+                        });
+                    };
+                    attach();
+                })();
 
                 // Click interaction
                 renderer.domElement.addEventListener('click', onMouseClick);
