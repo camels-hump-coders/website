@@ -257,6 +257,7 @@
             font-size: 14px;
         }
         /* No toggle button now */
+        body.touch .map-size-control { display: block !important; }
 
         @keyframes pulse {
             0%, 100% { opacity: 0.9; }
@@ -487,6 +488,14 @@
                             display: block;
                             margin: 0 auto;
                         "></canvas>
+                        <div id="mapSizeControl" class="map-size-control" style="display:none; margin-top: 8px; text-align: right;">
+                            <label for="mapSizeSelect" style="margin-right: 6px; color: #ccc; font-size: 12px;">Map Size:</label>
+                            <select id="mapSizeSelect" style="background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #555; border-radius: 6px; padding: 4px 8px; font-size: 12px;">
+                                <option value="small" selected>Small</option>
+                                <option value="medium">Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1061,36 +1070,21 @@
                 
                 // Initialize museum map
                 initMuseumMap();
-                // Setup mobile map toggle
+                // Setup mobile map size control (small/medium/large)
                 (function(){
-                    const wrap = document.getElementById('mapWrap');
-                    const btn = document.getElementById('mapToggleBtn');
                     const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-                    if (!wrap || !btn) return;
-                    if (!isTouch) {
-                        // Desktop: ensure expanded inline look
-                        wrap.classList.remove('collapsed');
-                        wrap.classList.remove('expanded');
-                    } else {
-                        // Mobile: start collapsed
-                        wrap.classList.add('collapsed');
-                    }
-                    const updateBtn = () => {
-                        const expanded = wrap.classList.contains('expanded');
-                        btn.textContent = expanded ? 'Collapse Map' : 'Expand Map';
-                        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                    const wrap = document.getElementById('mapWrap');
+                    const select = document.getElementById('mapSizeSelect');
+                    const canvas = document.getElementById('mapCanvas');
+                    const ctrl = document.getElementById('mapSizeControl');
+                    if (!wrap || !canvas || !select) return;
+                    if (isTouch && ctrl) ctrl.style.display = 'block';
+                    const applySize = (val)=>{
+                        const h = val==='small' ? 140 : (val==='medium' ? 220 : 320);
+                        canvas.style.height = h + 'px';
                     };
-                    btn.addEventListener('click', () => {
-                        if (wrap.classList.contains('expanded')) {
-                            wrap.classList.remove('expanded');
-                            wrap.classList.add('collapsed');
-                        } else {
-                            wrap.classList.remove('collapsed');
-                            wrap.classList.add('expanded');
-                        }
-                        updateBtn();
-                    });
-                    updateBtn();
+                    applySize(select.value);
+                    select.addEventListener('change', ()=>applySize(select.value));
                 })();
                 
                 // Hide loading indicator and start animation loop
@@ -4827,7 +4821,11 @@
             };
         }
 
+        let __lastFrame = performance.now();
         function animate() {
+            const now = performance.now();
+            const dt = (now - __lastFrame) / 1000; // seconds since last frame
+            __lastFrame = now;
             requestAnimationFrame(animate);
             
             // Debug: Log every 100 frames to confirm animation is running
@@ -4895,7 +4893,8 @@
             }
             
             if (window.moveState && camera) {
-                const speed = 0.1;
+                const baseSpeed = 0.1; // tuned for desktop feel
+                const speed = baseSpeed * (dt * 60); // normalize to ~60fps on all devices
                 let isMoving = false;
                 
                 // Check if any movement keys are pressed

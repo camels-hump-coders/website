@@ -783,8 +783,21 @@
         const missionItems = [];
         const kelpElements = [];
         let bubbleInterval;
+        let worldWidth = null; // virtual world width for panning on mobile
+
+        function isTouchDevice(){ return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
 
         function initializeGame() {
+            // On mobile, fix a wider virtual world and pan instead of shrinking
+            if (isTouchDevice()) {
+                worldWidth = Math.max(1400, window.innerWidth);
+                const ocean = document.querySelector('.ocean-layers');
+                if (ocean) {
+                    ocean.style.width = worldWidth + 'px';
+                }
+            } else {
+                worldWidth = window.innerWidth;
+            }
             generateMissionItems();
             generateEnvironmentalElements();
             ensureSolvable(20);
@@ -817,7 +830,7 @@
                     
                     // Define safe spawn zones to avoid UI elements
                     const leftUIBoundary = 250; // Avoid score board (left: 20px + width: 200px + buffer)
-                    const rightUIBoundary = window.innerWidth - 250; // Avoid control panel (right: 20px + width: 200px + buffer)
+                    const rightUIBoundary = worldWidth - 250; // Avoid control panel (right: 20px + width: 200px + buffer)
                     const topUIBoundary = Math.max(150, zoneInfo.min); // Avoid depth indicator and ensure we're below UI
                     
                     // Generate position within safe bounds
@@ -843,7 +856,7 @@
             const settings = difficultySettings[gameState.difficulty];
             // Safe spawn zones to avoid UI elements
             const leftUIBoundary = 250;
-            const rightUIBoundary = window.innerWidth - 250;
+            const rightUIBoundary = worldWidth - 250;
             const minY = 150; // keep clear of surface UI
             const maxY = 760; // a bit above bottom
 
@@ -856,8 +869,8 @@
 
             // Keep a central vertical corridor clear so a path always exists
             const corridorHalf = 60;
-            const corridorLeft = window.innerWidth / 2 - corridorHalf;
-            const corridorRight = window.innerWidth / 2 + corridorHalf;
+            const corridorLeft = worldWidth / 2 - corridorHalf;
+            const corridorRight = worldWidth / 2 + corridorHalf;
 
             // Minimum clearance around each mission item so it isn't boxed in by kelp
             const clearance = 80; // px radius clearance around items
@@ -934,7 +947,7 @@
         function isLevelSolvable() {
             // Grid-based BFS using movement step and collision checks to verify reachability
             const step = difficultySettings[gameState.difficulty].moveSpeed;
-            const maxX = window.innerWidth - 115; // same as movement bounds
+            const maxX = worldWidth - 115; // same as movement bounds
             const maxY = 740;
             const minX = 10;
             const minY = 25;
@@ -1039,7 +1052,7 @@
 
         function moveSubmarine(direction) {
             const step = difficultySettings[gameState.difficulty].moveSpeed;
-            const maxX = window.innerWidth - 115; // Updated for new submarine width
+            const maxX = worldWidth - 115; // Updated for new submarine width
             const maxY = 740; // Updated for new submarine height
             let newX = gameState.x;
             let newY = gameState.y;
@@ -1083,6 +1096,17 @@
             submarine.style.left = gameState.x + 'px';
             submarine.style.top = gameState.y + 'px';
             checkItemCollection(); // Check for item collection after moving
+            // Pan ocean layer horizontally on mobile so sub stays centered
+            try {
+                const ocean = document.querySelector('.ocean-layers');
+                const container = document.querySelector('.game-container');
+                if (ocean && container && isTouchDevice()) {
+                    const viewportW = container.clientWidth || window.innerWidth;
+                    const desiredX = gameState.x - (viewportW / 2 - 45); // center sub (width ~90)
+                    const offsetX = Math.max(0, Math.min(worldWidth - viewportW, desiredX));
+                    ocean.style.transform = `translate(${-offsetX}px, 0)`;
+                }
+            } catch(e) {}
         }
 
         function checkItemCollection() {
@@ -1383,6 +1407,20 @@ Complete all 20 missions to win! Good luck, ocean explorer! 🤖`);
                 case 's': moveSubmarine('down'); break;
                 case 'a': moveSubmarine('left'); break;
                 case 'd': moveSubmarine('right'); break;
+            }
+        });
+
+        // Adjust world width on resize and keep panning consistent on touch devices
+        window.addEventListener('resize', () => {
+            const ocean = document.querySelector('.ocean-layers');
+            if (!ocean) return;
+            if (isTouchDevice()) {
+                worldWidth = Math.max(1400, window.innerWidth);
+                ocean.style.width = worldWidth + 'px';
+                // Recenter view
+                updateSubmarinePosition();
+            } else {
+                worldWidth = window.innerWidth;
             }
         });
 
