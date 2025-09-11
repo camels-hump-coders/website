@@ -241,10 +241,13 @@
             animation: pulse 2s infinite;
         }
 
-        /* Map expand/collapse for mobile */
+        /* Map sizing for mobile */
         .map-wrap { position: relative; }
-        .map-wrap.collapsed canvas { height: 140px !important; }
-        .map-wrap.expanded canvas { height: 70vh !important; width: 100% !important; max-width: none !important; }
+        .map-wrap.collapsed canvas { height: 140px; }
+        .map-wrap.expanded canvas { height: 70vh; width: 100%; max-width: none; }
+        .map-wrap.size-small canvas { height: 140px; }
+        .map-wrap.size-medium canvas { height: 220px; }
+        .map-wrap.size-large canvas { height: 320px; }
         .map-toggle-btn {
             position: absolute;
             right: 10px;
@@ -1075,14 +1078,17 @@
                     const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
                     const wrap = document.getElementById('mapWrap');
                     const select = document.getElementById('mapSizeSelect');
-                    const canvas = document.getElementById('mapCanvas');
                     const ctrl = document.getElementById('mapSizeControl');
-                    if (!wrap || !canvas || !select) return;
+                    if (!wrap || !select) return;
                     if (isTouch && ctrl) ctrl.style.display = 'block';
                     const applySize = (val)=>{
-                        const h = val==='small' ? 140 : (val==='medium' ? 220 : 320);
-                        canvas.style.height = h + 'px';
+                        wrap.classList.remove('size-small','size-medium','size-large');
+                        if (val==='small') wrap.classList.add('size-small');
+                        else if (val==='medium') wrap.classList.add('size-medium');
+                        else wrap.classList.add('size-large');
                     };
+                    // Start small on touch devices
+                    if (isTouch) { wrap.classList.add('size-small'); }
                     applySize(select.value);
                     select.addEventListener('change', ()=>applySize(select.value));
                 })();

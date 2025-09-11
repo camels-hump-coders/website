@@ -744,8 +744,8 @@
 
         const difficultySettings = {
             easy: {
-                kelpCount: 8,
-                kelpWidth: 4,
+                kelpCount: 12,
+                kelpWidth: 5,
                 moveSpeed: 35,
                 collectDistance: 120,
                 bubbleInterval: 3000,
@@ -753,8 +753,8 @@
                 description: "Fewer obstacles, easier collection"
             },
             medium: {
-                kelpCount: 15,
-                kelpWidth: 4,
+                kelpCount: 22,
+                kelpWidth: 5,
                 moveSpeed: 30,
                 collectDistance: 100,
                 bubbleInterval: 2000,
@@ -762,8 +762,8 @@
                 description: "Standard challenge"
             },
             hard: {
-                kelpCount: 25,
-                kelpWidth: 6,
+                kelpCount: 32,
+                kelpWidth: 7,
                 moveSpeed: 25,
                 collectDistance: 80,
                 bubbleInterval: 1000,
@@ -873,7 +873,9 @@
             const corridorRight = worldWidth / 2 + corridorHalf;
 
             // Minimum clearance around each mission item so it isn't boxed in by kelp
-            const clearance = 80; // px radius clearance around items
+            const clearance = 70; // px radius clearance around items (slightly tighter for added challenge)
+            // Minimum spacing between kelp to spread them out across the map
+            const minSpacing = (gameState.difficulty === 'easy') ? 40 : (gameState.difficulty === 'medium') ? 55 : 70;
 
             for (let i = 0; i < settings.kelpCount; i++) {
                 let placed = false;
@@ -899,12 +901,14 @@
                     }
                     if (tooClose) continue;
 
-                    // Also avoid heavily clustering with existing kelp to reduce hard walls
-                    let cluster = false;
+                    // Also avoid clustering with existing kelp to encourage even spread
+                    let tooNearOtherKelp = false;
                     for (const k of kelpElements) {
-                        if (Math.abs(k.x - x) < 10 && Math.abs(k.y - y) < 40) { cluster = true; break; }
+                        const dx = k.x - x;
+                        const dy = k.y - y;
+                        if (Math.hypot(dx, dy) < minSpacing) { tooNearOtherKelp = true; break; }
                     }
-                    if (cluster) continue;
+                    if (tooNearOtherKelp) continue;
 
                     // Passed checks; create and store
                     const kelp = document.createElement('div');
