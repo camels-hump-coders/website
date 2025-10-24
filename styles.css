@@ -38,11 +38,51 @@ header {
     position: relative;
 }
 
+.settings-gear {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #111;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 1000000;
+    padding: 0;
+    line-height: 1;
+}
+
+.settings-gear:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.4);
+    border-radius: 50%;
+}
+
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+.branding {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
     text-align: center;
+}
+
+.branding-text {
+    text-align: center;
+}
+
+.site-logo {
+    max-height: 90px;
+    width: auto;
+    flex-shrink: 0;
 }
 
 .site-title {
@@ -122,6 +162,57 @@ nav a.active {
     display: block;
 }
 
+.secret-wrapper {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.secret-panel {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 2rem;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+}
+
+.secret-panel h2 {
+    margin-bottom: 1rem;
+    color: rgb(115, 67, 50);
+}
+
+.secret-panel p {
+    margin-bottom: 1.5rem;
+}
+
+.secret-panel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.secret-panel a {
+    display: block;
+    padding: 0.75rem;
+    border-radius: 6px;
+    background: rgb(115, 67, 50);
+    color: white;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.secret-panel a:hover,
+.secret-panel a:focus-visible {
+    background: rgb(204, 67, 49);
+}
+
 /* Add invisible bridge to prevent menu from disappearing */
 .dropdown-menu::before {
     content: '';
@@ -153,6 +244,15 @@ nav a.active {
     color: rgb(115, 67, 50);
     font-size: 2rem;
     margin-bottom: 1rem;
+}
+
+.hero-logo {
+    max-width: 360px;
+    width: 80%;
+    height: auto;
+    margin: 1.5rem auto;
+    display: block;
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
 }
 
 .season-tag {
