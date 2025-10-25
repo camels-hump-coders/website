@@ -286,6 +286,12 @@ nav a.active {
     margin-bottom: 1rem;
 }
 
+/* Override coder page section headers to black */
+.coders-page .hero-content h2,
+.coders-page .content-section h2 {
+    color: #000;
+}
+
 .content-section p {
     margin-bottom: 1rem;
 }
