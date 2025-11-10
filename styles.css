@@ -80,7 +80,7 @@ header {
 }
 
 .site-logo {
-    max-height: 90px;
+    max-height: 75px;
     width: auto;
     flex-shrink: 0;
 }
@@ -303,6 +303,26 @@ nav a.active {
 
 .content-section li {
     margin-bottom: 0.5rem;
+}
+
+.meet-team {
+    text-align: center;
+}
+
+.team-photo {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.team-photo img {
+    width: 100%;
+    max-width: 720px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
 /* Features Grid */
