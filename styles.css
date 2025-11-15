@@ -333,31 +333,25 @@ nav a.active {
 .photo-sheet {
     width: 100%;
     max-width: 760px;
-    padding: 1rem;
-    border-radius: 18px;
-    background: #fbf8ef;
-    border: 1px solid rgba(51, 37, 18, 0.08);
-    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.12), inset 0 0 35px rgba(255, 255, 255, 0.35);
+    padding: 0;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     position: relative;
 }
 
 .photo-sheet::after {
-    content: "";
-    position: absolute;
-    inset: 16px;
-    border-top: 1px dashed rgba(0, 0, 0, 0.06);
-    border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
-    pointer-events: none;
-    z-index: 0;
+    content: none;
 }
 
 .photo-sheet img {
     display: block;
     width: 100%;
     border-radius: 12px;
-    background: #fefcf5;
-    filter: saturate(0.92) contrast(1.02) brightness(1.01);
-    mix-blend-mode: multiply;
+    background: transparent;
+    filter: none;
+    mix-blend-mode: normal;
     position: relative;
     z-index: 1;
 }
