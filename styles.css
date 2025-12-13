@@ -29,6 +29,11 @@ main {
     padding: 0 20px;
 }
 
+.hello-word {
+    font-family: 'Rampart One', cursive;
+    font-size: 1.35em;
+}
+
 /* Header Styles */
 header {
     background: rgb(115, 67, 50);
