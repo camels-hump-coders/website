@@ -34,6 +34,10 @@ main {
     font-size: 1.35em;
 }
 
+.team-intro {
+    line-height: 1.75;
+}
+
 /* Header Styles */
 header {
     background: rgb(115, 67, 50);
