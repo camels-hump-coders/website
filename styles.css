@@ -112,6 +112,7 @@ nav {
     background: rgba(0,0,0,0.1);
     padding: 0.5rem 0;
     position: relative;
+    top: 0;
     overflow: visible;
     z-index: 99998;
 }
@@ -168,6 +169,30 @@ nav a.active {
 
 /* Enable dropdowns on tap/focus for mobile */
 .dropdown:focus-within .dropdown-menu {
+    display: block;
+}
+
+.no-sticky-nav nav {
+    position: relative;
+    top: auto;
+}
+
+.nav-stuck {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgb(115, 67, 50);
+    z-index: 100000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.nav-placeholder {
+    display: none;
+    width: 100%;
+}
+
+.nav-stuck + .nav-placeholder {
     display: block;
 }
 
