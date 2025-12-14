@@ -183,9 +183,39 @@
             font-style: italic;
             color: #333;
         }
+        .gallery-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .gallery-controls button {
+            background: rgb(115, 67, 50);
+            color: white;
+            border: none;
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .gallery-controls button:hover,
+        .gallery-controls button:focus-visible {
+            background: rgba(115, 67, 50, 0.9);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+            outline: none;
+        }
         @media (max-width: 640px) {
             .gallery-slide img {
                 height: 280px;
+            }
+            .gallery-controls {
+                flex-direction: column;
+            }
+            .gallery-controls button {
+                width: 100%;
             }
         }
     </style>
@@ -346,25 +376,29 @@
 
         <section class="content-section highlight">
             <div class="container">
-                <h2>Season Photo Highlights</h2>
-                <p>Scroll through a few favorite snapshots from our SUBMERGED season.</p>
+                <h2>Season Photos</h2>
+                <p>Scroll through a few snapshots from the SUBMERGED season.</p>
 
                 <div class="season-gallery">
                     <div class="gallery-window">
                         <div class="gallery-track">
-                            <div class="gallery-slide" data-caption="Submerged season snapshot 1">
-                                <img src="assets/IMG_3716.JPG" alt="Submerged season snapshot 1">
+                            <div class="gallery-slide" data-caption="For our innovation project we went to CRREL and they showed us ice cores from greenland dated over 60,00 years ago">
+                                <img src="assets/IMG_3716.JPG" alt="For our innovation project we went to CRREL and they showed us ice cores from greenland dated over 60,00 years ago">
                             </div>
-                            <div class="gallery-slide" data-caption="Submerged season snapshot 2">
-                                <img src="assets/IMG_3702.JPG" alt="Submerged season snapshot 2">
+                            <div class="gallery-slide" data-caption="For our innovation project we went to CRREL and they showed us ice 3D printers that can create 3D objects made of ice">
+                                <img src="assets/IMG_3702.JPG" alt="For our innovation project we went to CRREL and they showed us ice 3D printers that can create 3D objects made of ice">
                             </div>
-                            <div class="gallery-slide" data-caption="Submerged season snapshot 3">
-                                <img src="assets/IMG_3669.JPG" alt="Submerged season snapshot 3">
+                            <div class="gallery-slide" data-caption="For our innovation project we went to CRREL and they demonstrated and explaned about differint materials and how they are affected by arctic tempatures">
+                                <img src="assets/IMG_3669.JPG" alt="For our innovation project we went to CRREL and they demonstrated and explaned about differint materials and how they are affected by arctic tempatures">
                             </div>
-                            <div class="gallery-slide" data-caption="Submerged season snapshot 4">
-                                <img src="assets/IMG_3634.JPG" alt="Submerged season snapshot 4">
+                            <div class="gallery-slide" data-caption="For our innovation project we went to CRREL and they showed ussome ways of meausering sea ice in a detailed presentation">
+                                <img src="assets/IMG_3634.JPG" alt="For our innovation project we went to CRREL and they showed ussome ways of meausering sea ice in a detailed presentation">
                             </div>
                         </div>
+                    </div>
+                    <div class="gallery-controls">
+                        <button type="button" class="gallery-prev" aria-label="Previous photo">← Prev</button>
+                        <button type="button" class="gallery-next" aria-label="Next photo">Next →</button>
                     </div>
                     <p class="gallery-caption" aria-live="polite"></p>
                 </div>

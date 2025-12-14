@@ -86,6 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const track = gallery.querySelector('.gallery-track');
         const slides = Array.from(gallery.querySelectorAll('.gallery-slide'));
         const caption = gallery.querySelector('.gallery-caption');
+        const prevBtn = gallery.querySelector('.gallery-prev');
+        const nextBtn = gallery.querySelector('.gallery-next');
         let current = 0;
         let timer = null;
 
@@ -143,6 +145,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             gallery.addEventListener('mouseenter', stopTimer);
             gallery.addEventListener('mouseleave', startTimer);
+
+            prevBtn?.addEventListener('click', () => {
+                stopTimer();
+                goTo(current - 1, true);
+                startTimer();
+            });
+
+            nextBtn?.addEventListener('click', () => {
+                stopTimer();
+                nextSlide();
+                startTimer();
+            });
 
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
