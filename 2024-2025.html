@@ -150,6 +150,44 @@
         .content-section h3 {
             color: #000 !important;
         }
+
+        /* Photo carousel */
+        .season-gallery {
+            margin-top: 1.5rem;
+        }
+        .gallery-window {
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            background: #fff;
+        }
+        .gallery-track {
+            display: flex;
+            transition: transform 0.6s ease;
+            will-change: transform;
+        }
+        .gallery-slide {
+            min-width: 100%;
+            flex-shrink: 0;
+        }
+        .gallery-slide img {
+            display: block;
+            width: 100%;
+            height: 420px;
+            object-fit: contain;
+            background: #f4f4f4;
+        }
+        .gallery-caption {
+            margin-top: 0.5rem;
+            text-align: center;
+            font-style: italic;
+            color: #333;
+        }
+        @media (max-width: 640px) {
+            .gallery-slide img {
+                height: 280px;
+            }
+        }
     </style>
     <link rel="icon" type="image/png" href="assets/CHC%20logo.png">
     <script src="scripts.js" defer></script>
@@ -302,6 +340,33 @@
                         <p style="font-size: 0.95em; color: #444;">Click to watch SUBMERGED season information</p>
                         <span class="cta">View now →</span>
                     </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Season Photo Highlights</h2>
+                <p>Scroll through a few favorite snapshots from our SUBMERGED season.</p>
+
+                <div class="season-gallery">
+                    <div class="gallery-window">
+                        <div class="gallery-track">
+                            <div class="gallery-slide" data-caption="Submerged season snapshot 1">
+                                <img src="assets/IMG_3716.JPG" alt="Submerged season snapshot 1">
+                            </div>
+                            <div class="gallery-slide" data-caption="Submerged season snapshot 2">
+                                <img src="assets/IMG_3702.JPG" alt="Submerged season snapshot 2">
+                            </div>
+                            <div class="gallery-slide" data-caption="Submerged season snapshot 3">
+                                <img src="assets/IMG_3669.JPG" alt="Submerged season snapshot 3">
+                            </div>
+                            <div class="gallery-slide" data-caption="Submerged season snapshot 4">
+                                <img src="assets/IMG_3634.JPG" alt="Submerged season snapshot 4">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="gallery-caption" aria-live="polite"></p>
                 </div>
             </div>
         </section>

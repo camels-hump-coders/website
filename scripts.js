@@ -79,4 +79,82 @@ document.addEventListener('DOMContentLoaded', () => {
         updateNavTop();
         handleScroll();
     }
+
+    // Simple gallery carousel (used on 2024-2025 page)
+    const gallery = document.querySelector('.season-gallery');
+    if (gallery) {
+        const track = gallery.querySelector('.gallery-track');
+        const slides = Array.from(gallery.querySelectorAll('.gallery-slide'));
+        const caption = gallery.querySelector('.gallery-caption');
+        let current = 0;
+        let timer = null;
+
+        if (slides.length && track) {
+            if (slides.length === 1) {
+                track.style.transform = 'translateX(0)';
+                if (caption) {
+                    caption.textContent = slides[0].dataset.caption || '';
+                }
+                return;
+            }
+
+            const firstClone = slides[0].cloneNode(true);
+            const lastClone = slides[slides.length - 1].cloneNode(true);
+            track.appendChild(firstClone);
+            track.insertBefore(lastClone, track.firstChild);
+
+            const total = slides.length;
+            current = 1; // start at the first real slide
+
+            const setCaption = (idx) => {
+                if (!caption) return;
+                const realIndex = (idx - 1 + total) % total;
+                caption.textContent = slides[realIndex].dataset.caption || '';
+            };
+
+            const goTo = (idx, smooth = true) => {
+                current = idx;
+                track.style.transition = smooth ? 'transform 0.6s ease' : 'none';
+                track.style.transform = `translateX(-${current * 100}%)`;
+                setCaption(current);
+            };
+
+            const nextSlide = () => goTo(current + 1, true);
+
+            const startTimer = () => {
+                if (timer) clearInterval(timer);
+                timer = setInterval(nextSlide, 8000);
+            };
+
+            const stopTimer = () => {
+                if (timer) {
+                    clearInterval(timer);
+                    timer = null;
+                }
+            };
+
+            track.addEventListener('transitionend', () => {
+                if (current === 0) {
+                    goTo(total, false);
+                } else if (current === total + 1) {
+                    goTo(1, false);
+                }
+            });
+
+            gallery.addEventListener('mouseenter', stopTimer);
+            gallery.addEventListener('mouseleave', startTimer);
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    stopTimer();
+                } else {
+                    startTimer();
+                }
+            });
+
+            // Initialize position and caption, then start autoplay
+            goTo(current, false);
+            startTimer();
+        }
+    }
 });
