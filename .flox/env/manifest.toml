@@ -16,6 +16,7 @@ version = 1
 ## -------------------------------------------------------------------
 [install]
 nodejs.pkg-path = "nodejs"
+git-lfs.pkg-path = "git-lfs"
 
 
 ## Environment Variables ---------------------------------------------
