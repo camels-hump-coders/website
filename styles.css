@@ -603,6 +603,51 @@ nav a.active {
     margin-top: 0.5rem;
 }
 
+.donation-counter {
+    margin: 1.75rem auto 2rem;
+    padding: 1.5rem;
+    background: #fff8f2;
+    border: 2px solid rgb(204, 67, 49);
+    border-radius: 12px;
+    text-align: center;
+    max-width: 560px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+.donation-counter__label {
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(115, 67, 50);
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.donation-counter__amount {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(2.2rem, 4vw + 1rem, 3.6rem);
+    color: #111;
+    display: inline-block;
+}
+
+.donation-counter__amount--done {
+    color: rgb(204, 67, 49);
+    text-shadow: 0 0 12px rgba(204, 67, 49, 0.5), 0 0 24px rgba(255, 235, 59, 0.6);
+    animation: counter-pop 1.2s ease-out;
+}
+
+.donation-counter__note {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+@keyframes counter-pop {
+    0% { transform: scale(0.92); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
 .resource-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);

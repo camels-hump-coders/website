@@ -300,4 +300,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    // Donation counter (manual update on donate page)
+    const donationCounters = Array.from(document.querySelectorAll('.donation-counter__amount'));
+    if (donationCounters.length) {
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            maximumFractionDigits: 0,
+        });
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        donationCounters.forEach((counter) => {
+            const rawTarget = counter.getAttribute('data-target') || '0';
+            const target = Number.parseFloat(rawTarget.replace(/[^0-9.-]/g, ''));
+            const safeTarget = Number.isFinite(target) && target > 0 ? target : 0;
+
+            const setFinal = () => {
+                counter.textContent = formatter.format(safeTarget);
+                counter.classList.add('donation-counter__amount--done');
+            };
+
+            if (prefersReducedMotion || safeTarget === 0) {
+                setFinal();
+                return;
+            }
+
+            const duration = Math.min(2400, Math.max(1200, safeTarget / 25));
+            const start = performance.now();
+
+            const step = (now) => {
+                const progress = Math.min(1, (now - start) / duration);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const value = Math.round(safeTarget * eased);
+                counter.textContent = formatter.format(value);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    setFinal();
+                }
+            };
+
+            counter.textContent = formatter.format(0);
+            window.requestAnimationFrame(step);
+        });
+    }
 });
