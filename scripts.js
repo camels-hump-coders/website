@@ -301,67 +301,74 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Donation counter (manual update on donate page)
-    const donationCounters = Array.from(document.querySelectorAll('.donation-counter__amount'));
-    if (donationCounters.length) {
-        const formatter = new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            maximumFractionDigits: 0,
-        });
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const animatedCounters = new Set();
+    // World Championship stats counter (donate page)
+    const statsCounter = document.querySelector('.stats-counter');
+    if (statsCounter) {
+        const counters = Array.from(statsCounter.querySelectorAll('.stats-counter__number'));
+        if (counters.length) {
+            const formatter = new Intl.NumberFormat('en-US');
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const duration = 2200;
+            let hasStarted = false;
 
-        const animateCounter = (counter) => {
-            if (animatedCounters.has(counter)) return;
-            animatedCounters.add(counter);
+            const startCounters = () => {
+                if (hasStarted) return;
+                hasStarted = true;
 
-            const rawTarget = counter.getAttribute('data-target') || '0';
-            const target = Number.parseFloat(rawTarget.replace(/[^0-9.-]/g, ''));
-            const safeTarget = Number.isFinite(target) && target > 0 ? target : 0;
-
-            const setFinal = () => {
-                counter.textContent = formatter.format(safeTarget);
-                counter.classList.add('donation-counter__amount--done');
-            };
-
-            if (prefersReducedMotion || safeTarget === 0) {
-                setFinal();
-                return;
-            }
-
-            const duration = Math.min(2400, Math.max(1200, safeTarget / 25));
-            const start = performance.now();
-
-            const step = (now) => {
-                const progress = Math.min(1, (now - start) / duration);
-                const eased = 1 - Math.pow(1 - progress, 3);
-                const value = Math.round(safeTarget * eased);
-                counter.textContent = formatter.format(value);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                } else {
-                    setFinal();
-                }
-            };
-
-            counter.textContent = formatter.format(0);
-            window.requestAnimationFrame(step);
-        };
-
-        if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        animateCounter(entry.target);
-                        observer.unobserve(entry.target);
-                    }
+                const targets = counters.map((counter) => {
+                    const rawTarget = counter.getAttribute('data-target') || '0';
+                    const target = Number.parseFloat(rawTarget.replace(/[^0-9.-]/g, ''));
+                    return Number.isFinite(target) && target > 0 ? target : 0;
                 });
-            }, { threshold: 0.35 });
 
-            donationCounters.forEach((counter) => observer.observe(counter));
-        } else {
-            donationCounters.forEach((counter) => animateCounter(counter));
+                const startTime = performance.now();
+                counters.forEach((counter, index) => {
+                    const target = targets[index];
+                    const setFinal = () => {
+                        counter.textContent = formatter.format(target);
+                        counter.classList.add('stats-counter__number--done');
+                        const item = counter.closest('.stats-counter__item');
+                        if (item) {
+                            item.classList.add('stats-counter__item--done');
+                        }
+                    };
+
+                    if (prefersReducedMotion || target === 0) {
+                        setFinal();
+                        return;
+                    }
+
+                    const step = (now) => {
+                        const progress = Math.min(1, (now - startTime) / duration);
+                        const eased = 1 - Math.pow(1 - progress, 3);
+                        const value = Math.round(target * eased);
+                        counter.textContent = formatter.format(value);
+                        if (progress < 1) {
+                            window.requestAnimationFrame(step);
+                        } else {
+                            setFinal();
+                        }
+                    };
+
+                    counter.textContent = formatter.format(0);
+                    window.requestAnimationFrame(step);
+                });
+            };
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            startCounters();
+                            observer.disconnect();
+                        }
+                    });
+                }, { threshold: 0.35 });
+
+                observer.observe(statsCounter);
+            } else {
+                startCounters();
+            }
         }
     }
 });
