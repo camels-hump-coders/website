@@ -171,4 +171,133 @@ document.addEventListener('DOMContentLoaded', () => {
             startTimer();
         }
     }
+
+    // UNEARTHED title mining sequence (2025-2026 page)
+    const miningWord = document.querySelector('.earth-theme');
+    if (miningWord) {
+        const letters = Array.from(miningWord.querySelectorAll('.mined-letter'));
+        const pickaxe = miningWord.querySelector('.mining-pickaxe');
+        if (letters.length) {
+            const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const parseDuration = (value) => {
+                const trimmed = value.trim();
+                if (!trimmed) return null;
+                if (trimmed.endsWith('ms')) {
+                    const ms = Number.parseFloat(trimmed);
+                    return Number.isFinite(ms) ? ms : null;
+                }
+                if (trimmed.endsWith('s')) {
+                    const seconds = Number.parseFloat(trimmed);
+                    return Number.isFinite(seconds) ? seconds * 1000 : null;
+                }
+                const fallback = Number.parseFloat(trimmed);
+                return Number.isFinite(fallback) ? fallback : null;
+            };
+            const slotDuration = parseDuration(
+                getComputedStyle(miningWord).getPropertyValue('--mine-slot-duration')
+            ) || 1100;
+            const resetPause = 200;
+            const pickaxeAngles = [-25, 20, -85, 85, -160, 160, -5, 175, 35];
+            const pickaxeScales = [0.92, 0.9, 0.85, 0.85, 0.92, 0.92, 0.88, 0.88, 0.86];
+            let index = 0;
+            let activeIndex = 0;
+            let miningTimer = null;
+            let resetTimer = null;
+
+            const clearTimers = () => {
+                if (miningTimer) {
+                    window.clearTimeout(miningTimer);
+                    miningTimer = null;
+                }
+                if (resetTimer) {
+                    window.clearTimeout(resetTimer);
+                    resetTimer = null;
+                }
+            };
+
+            const resetLetters = () => {
+                letters.forEach((letter) => {
+                    letter.classList.remove('is-mining', 'is-gone');
+                });
+            };
+
+            const positionPickaxe = (letter, idx) => {
+                if (!pickaxe) return;
+                const letterRect = letter.getBoundingClientRect();
+                const containerRect = miningWord.getBoundingClientRect();
+                const x = letterRect.left - containerRect.left + letterRect.width / 2;
+                const y = letterRect.top - containerRect.top + letterRect.height * 0.2;
+                pickaxe.style.setProperty('--pickaxe-x', `${x}px`);
+                pickaxe.style.setProperty('--pickaxe-y', `${y}px`);
+                pickaxe.style.setProperty('--pickaxe-rot', `${pickaxeAngles[idx % pickaxeAngles.length]}deg`);
+                pickaxe.style.setProperty('--pickaxe-scale', `${pickaxeScales[idx % pickaxeScales.length]}`);
+            };
+
+            const swingPickaxe = () => {
+                if (!pickaxe) return;
+                pickaxe.classList.remove('is-mining');
+                void pickaxe.offsetWidth;
+                pickaxe.classList.add('is-mining');
+            };
+
+            const mineNext = () => {
+                const letter = letters[index];
+                activeIndex = index;
+                positionPickaxe(letter, index);
+                swingPickaxe();
+                letter.classList.add('is-mining');
+                miningTimer = window.setTimeout(() => {
+                    letter.classList.add('is-gone');
+                    letter.classList.remove('is-mining');
+                    index += 1;
+                    if (index >= letters.length) {
+                        index = 0;
+                        resetTimer = window.setTimeout(() => {
+                            resetLetters();
+                            mineNext();
+                        }, resetPause);
+                    } else {
+                        mineNext();
+                    }
+                }, slotDuration);
+            };
+
+            const startMining = () => {
+                clearTimers();
+                resetLetters();
+                if (pickaxe) {
+                    pickaxe.classList.remove('is-mining');
+                }
+                if (reduceMotionQuery.matches) {
+                    if (pickaxe) {
+                        pickaxe.classList.add('is-hidden');
+                    }
+                    return;
+                }
+                if (pickaxe) {
+                    pickaxe.classList.remove('is-hidden');
+                }
+                index = 0;
+                activeIndex = 0;
+                mineNext();
+            };
+
+            const handleResize = () => {
+                if (reduceMotionQuery.matches || !pickaxe) return;
+                const letter = letters[activeIndex] || letters[0];
+                if (letter) {
+                    positionPickaxe(letter, activeIndex);
+                }
+            };
+
+            startMining();
+            window.addEventListener('resize', handleResize);
+
+            if (typeof reduceMotionQuery.addEventListener === 'function') {
+                reduceMotionQuery.addEventListener('change', startMining);
+            } else if (typeof reduceMotionQuery.addListener === 'function') {
+                reduceMotionQuery.addListener(startMining);
+            }
+        }
+    }
 });

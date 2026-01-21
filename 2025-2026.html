@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Iceberg&family=Bungee&display=swap" rel="stylesheet">
     <style>
-        :root { --swing-dur: 1.4s; }
+        :root { --mine-slot-duration: 1.1s; }
         .season-header {
             background: linear-gradient(135deg, #734332 0%, #C0543A 100%);
             color: white;
@@ -25,9 +25,14 @@
             z-index: 2;
         }
         .earth-theme {
-            display: inline-block;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.12em;
+            --mine-slot-duration: 1.1s;
             position: relative;
             z-index: 2;
+            white-space: nowrap;
+            overflow: visible;
         }
         .grain {
             position: absolute;
@@ -42,37 +47,102 @@
         .content-section h3 { color: #000 !important; }
         .season-header h2 { color: #fff !important; }
         /* Mining animation */
-        .letter-d { display: inline-block; transform-origin: 0% 100%; animation: dShake var(--swing-dur) ease-in-out infinite; }
-        .miner { position: absolute; right: -26px; bottom: 2px; width: 58px; height: 58px; }
-        .miner .arm { animation: swing var(--swing-dur) ease-in-out infinite; }
+        .mined-letter {
+            display: inline-flex;
+            align-items: baseline;
+            justify-content: center;
+            position: relative;
+            padding: 0 0.02em;
+        }
+        .mined-letter__glyph {
+            display: inline-block;
+            line-height: 1;
+            transform-origin: 0% 100%;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            will-change: clip-path, opacity, transform;
+        }
+        .mined-letter.is-mining .mined-letter__glyph {
+            animation: chip-away var(--mine-slot-duration) linear forwards,
+                       dShake var(--mine-slot-duration) ease-in-out;
+        }
+        .mined-letter.is-gone .mined-letter__glyph {
+            opacity: 0;
+            clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+        }
+        .mining-pickaxe {
+            position: absolute;
+            width: 2.6em;
+            height: 2.6em;
+            pointer-events: none;
+            transform-origin: center;
+            z-index: 3;
+            opacity: 0.85;
+            transition: transform 0.35s ease, opacity 0.2s ease;
+            --pickaxe-x: -200px;
+            --pickaxe-y: -200px;
+            --pickaxe-rot: -25deg;
+            --pickaxe-scale: 0.92;
+            transform: translate(var(--pickaxe-x), var(--pickaxe-y)) translate(-50%, -60%) rotate(var(--pickaxe-rot)) scale(var(--pickaxe-scale));
+        }
+        .mining-pickaxe svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .mining-pickaxe.is-mining .arm {
+            animation: swing var(--mine-slot-duration) ease-in-out;
+        }
+        .mining-pickaxe.is-hidden {
+            opacity: 0;
+        }
         @keyframes swing {
             0% { transform: rotate(-40deg); }
-            45% { transform: rotate(10deg); }
-            52% { transform: rotate(12deg); }
+            35% { transform: rotate(14deg); }
+            55% { transform: rotate(8deg); }
             100% { transform: rotate(-40deg); }
         }
         @keyframes dShake {
-            0%, 48% { transform: rotate(0deg); }
-            49% { transform: rotate(-2.2deg); }
-            52% { transform: rotate(2.2deg); }
-            56% { transform: rotate(-0.8deg); }
-            65% { transform: rotate(0deg); }
+            0%, 35% { transform: rotate(0deg); }
+            40% { transform: rotate(-3deg); }
+            55% { transform: rotate(3deg); }
+            70% { transform: rotate(-1.2deg); }
             100% { transform: rotate(0deg); }
         }
-        .chip { position: absolute; right: -8px; bottom: 8px; width: 8px; height: 8px; background: currentColor; transform: rotate(45deg); opacity: 0; }
-        .chip1, .chip2, .chip3 { animation: chipFall var(--swing-dur) ease-in-out infinite; }
-        .chip2 { animation-delay: calc(var(--swing-dur) * 0.02); }
-        .chip3 { animation-delay: calc(var(--swing-dur) * 0.04); }
+        @keyframes chip-away {
+            0% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+            22% { clip-path: polygon(0 0, 100% 0, 100% 78%, 82% 72%, 76% 100%, 0 100%); }
+            44% { clip-path: polygon(0 0, 100% 0, 100% 60%, 70% 54%, 62% 100%, 0 100%); }
+            66% { clip-path: polygon(0 0, 100% 0, 100% 40%, 62% 32%, 52% 100%, 0 100%); }
+            84% { clip-path: polygon(0 0, 100% 0, 100% 22%, 54% 14%, 40% 100%, 0 100%); }
+            100% { clip-path: polygon(0 0, 16% 0, 6% 100%, 0 100%); opacity: 0; }
+        }
+        .mined-letter .chip {
+            position: absolute;
+            right: -8px;
+            bottom: 8px;
+            width: 8px;
+            height: 8px;
+            background: currentColor;
+            transform: rotate(45deg);
+            opacity: 0;
+            z-index: 1;
+        }
+        .mined-letter.is-mining .chip {
+            animation: chipFall var(--mine-slot-duration) ease-in-out;
+        }
+        .mined-letter.is-mining .chip2 { animation-delay: 0.12s; }
+        .mined-letter.is-mining .chip3 { animation-delay: 0.24s; }
         .team-info .major-achievements { font-size: 1.35rem; }
         @keyframes chipFall {
-            0%, 49% { transform: translate(0,0) rotate(45deg); opacity: 0; }
-            50% { opacity: 1; }
-            80% { transform: translate(12px,16px) rotate(75deg); opacity: 0.9; }
+            0%, 20% { transform: translate(0,0) rotate(45deg); opacity: 0; }
+            35% { opacity: 1; }
+            70% { transform: translate(12px,16px) rotate(75deg); opacity: 0.9; }
             100% { transform: translate(24px,30px) rotate(95deg); opacity: 0; }
         }
         @media (max-width: 480px) {
-            .miner { right: -18px; bottom: 2px; transform: scale(0.85); }
-            .chip { right: -4px; }
+            .earth-theme { gap: 0.08em; }
+            .mining-pickaxe { width: 2.2em; height: 2.2em; }
+            .mined-letter .chip { right: -4px; }
         }
     </style>
     <meta name="description" content="Camels Hump Coders 2025-2026 FIRST LEGO League season: UNEARTHED — highlights, project, robot design, and results." />
@@ -111,39 +181,74 @@
         <section class="season-header">
             <div class="grain"></div>
             <div class="container">
-                <h2>2025-2026 Season: <span class="earth-theme">UNEARTHE<span class="letter-d">D</span>
-                    <span class="miner" aria-hidden="true">
-                        <svg viewBox="0 0 90 90" width="56" height="56" role="img" aria-label="Swinging pickaxe">
-                            <defs>
-                                <linearGradient id="wood" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#8b5a2b"/>
-                                    <stop offset="100%" stop-color="#a8733a"/>
-                                </linearGradient>
-                                <linearGradient id="steel" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stop-color="#d8dde3"/>
-                                    <stop offset="100%" stop-color="#9aa1a9"/>
-                                </linearGradient>
-                            </defs>
+                <h2>2025-2026 Season: <span class="earth-theme">
+                    <span class="mined-letter mined-letter--1">
+                        <span class="mined-letter__glyph">U</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mined-letter mined-letter--2">
+                        <span class="mined-letter__glyph">N</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mined-letter mined-letter--3">
+                        <span class="mined-letter__glyph">E</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mined-letter mined-letter--4">
+                        <span class="mined-letter__glyph">A</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mined-letter mined-letter--5">
+                        <span class="mined-letter__glyph">R</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mined-letter mined-letter--6">
+                        <span class="mined-letter__glyph">T</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mined-letter mined-letter--7">
+                        <span class="mined-letter__glyph">H</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mined-letter mined-letter--8">
+                        <span class="mined-letter__glyph">E</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mined-letter mined-letter--9">
+                        <span class="mined-letter__glyph">D</span>
+                        <span class="chip chip1"></span>
+                        <span class="chip chip2"></span>
+                        <span class="chip chip3"></span>
+                    </span>
+                    <span class="mining-pickaxe" aria-hidden="true">
+                        <svg viewBox="0 0 90 90" aria-hidden="true" focusable="false">
                             <g transform="translate(0,0)">
-                                <!-- swinging pickaxe -->
                                 <g class="arm" transform="translate(20,40) rotate(-35)" style="transform-origin: 0px 0px;">
-                                    <!-- handle -->
-                                    <rect x="0" y="-3" width="54" height="6" rx="3" fill="url(#wood)" stroke="#6e4420" stroke-width="0.8"/>
-                                    <!-- head socket ring around handle -->
-                                    <rect x="47" y="-7" width="10" height="14" rx="3" fill="url(#steel)" stroke="#8f97a1" stroke-width="0.8"/>
-                                    <!-- left spike -->
-                                    <path d="M47,0 L28,-7 L28,7 Z" fill="url(#steel)" stroke="#8f97a1" stroke-width="0.8"/>
-                                    <!-- right adze (curved blade) -->
-                                    <path d="M57,-8 Q78,0 57,8 L50,8 L50,-8 Z" fill="url(#steel)" stroke="#8f97a1" stroke-width="0.8"/>
-                                    <!-- ferrule band on handle just before socket -->
+                                    <rect x="0" y="-3" width="54" height="6" rx="3" fill="#8b5a2b" stroke="#6e4420" stroke-width="0.8"/>
+                                    <rect x="47" y="-7" width="10" height="14" rx="3" fill="#cdd3da" stroke="#8f97a1" stroke-width="0.8"/>
+                                    <path d="M47,0 L28,-7 L28,7 Z" fill="#cdd3da" stroke="#8f97a1" stroke-width="0.8"/>
+                                    <path d="M57,-8 Q78,0 57,8 L50,8 L50,-8 Z" fill="#c3c9d1" stroke="#8f97a1" stroke-width="0.8"/>
                                     <rect x="43" y="-4" width="4" height="8" rx="2" fill="#b7bdc5" stroke="#8f97a1" stroke-width="0.6"/>
                                 </g>
                             </g>
                         </svg>
                     </span>
-                    <span class="chip chip1"></span>
-                    <span class="chip chip2"></span>
-                    <span class="chip chip3"></span>
                 </span></h2>
                 <img src="./assets/unearthed.gif" alt="UNEARTHED Season Animation" class="season-logo">
                 <p style="font-size: 1.2rem;">Digging into the past to inspire our future</p>
