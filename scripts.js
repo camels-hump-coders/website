@@ -310,8 +310,12 @@ document.addEventListener('DOMContentLoaded', () => {
             maximumFractionDigits: 0,
         });
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const animatedCounters = new Set();
 
-        donationCounters.forEach((counter) => {
+        const animateCounter = (counter) => {
+            if (animatedCounters.has(counter)) return;
+            animatedCounters.add(counter);
+
             const rawTarget = counter.getAttribute('data-target') || '0';
             const target = Number.parseFloat(rawTarget.replace(/[^0-9.-]/g, ''));
             const safeTarget = Number.isFinite(target) && target > 0 ? target : 0;
@@ -343,6 +347,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             counter.textContent = formatter.format(0);
             window.requestAnimationFrame(step);
-        });
+        };
+
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.35 });
+
+            donationCounters.forEach((counter) => observer.observe(counter));
+        } else {
+            donationCounters.forEach((counter) => animateCounter(counter));
+        }
     }
 });
