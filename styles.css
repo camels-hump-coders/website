@@ -628,12 +628,53 @@ nav a.active {
     font-size: clamp(2.2rem, 4vw + 1rem, 3.6rem);
     color: #111;
     display: inline-block;
+    position: relative;
 }
 
 .donation-counter__amount--done {
     color: rgb(204, 67, 49);
     text-shadow: 0 0 12px rgba(204, 67, 49, 0.5), 0 0 24px rgba(255, 235, 59, 0.6);
     animation: counter-pop 1.2s ease-out;
+}
+
+.donation-counter__amount--done::before,
+.donation-counter__amount--done::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.35em;
+    height: 0.35em;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.donation-counter__amount--done::before {
+    box-shadow:
+        0 -1.6em #ff3d00,
+        1.2em -1.1em #ffeb3b,
+        1.7em 0 #00c853,
+        1.1em 1.3em #00b0ff,
+        0 1.8em #ff4081,
+        -1.2em 1.2em #ff9100,
+        -1.7em 0 #7c4dff,
+        -1.1em -1.3em #00e5ff;
+    animation: firework-burst 1.4s ease-out forwards;
+}
+
+.donation-counter__amount--done::after {
+    box-shadow:
+        0 -2em #ffab00,
+        1.6em -1.4em #18ffff,
+        2.2em 0 #ff3d00,
+        1.4em 1.6em #76ff03,
+        0 2.2em #ff4081,
+        -1.6em 1.4em #ffd740,
+        -2.2em 0 #8c9eff,
+        -1.4em -1.6em #00b0ff;
+    animation: firework-burst 1.6s ease-out 0.25s forwards;
 }
 
 .donation-counter__note {
@@ -646,6 +687,20 @@ nav a.active {
     0% { transform: scale(0.92); }
     50% { transform: scale(1.08); }
     100% { transform: scale(1); }
+}
+
+@keyframes firework-burst {
+    0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+    20% { opacity: 1; }
+    65% { opacity: 0.95; }
+    100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .donation-counter__amount--done::before,
+    .donation-counter__amount--done::after {
+        animation: none;
+    }
 }
 
 .resource-card:hover {
