@@ -850,6 +850,8 @@ nav a.active {
     letter-spacing: 0.05em;
     position: relative;
     overflow: hidden;
+    border-radius: 16px;
+    transform-origin: center;
 }
 
 .presentation-link--fun::after {
@@ -870,11 +872,27 @@ nav a.active {
     color: #111;
     border-color: #ff6d00;
     box-shadow: 0 6px 16px rgba(255, 109, 0, 0.35);
+    animation: fun-morph 1.2s ease-in-out infinite;
 }
 
 .presentation-link--fun:hover::after,
 .presentation-link--fun:focus-visible::after {
     left: 140%;
+}
+
+@keyframes fun-morph {
+    0% { border-radius: 14px 42px 18px 40px; transform: scale(1) rotate(-0.8deg); }
+    20% { border-radius: 46px 16px 40px 18px; transform: scale(1.04) rotate(0.6deg); }
+    45% { border-radius: 20px 48px 16px 44px; transform: scale(1.06) rotate(-0.4deg); }
+    70% { border-radius: 52px 18px 46px 20px; transform: scale(1.03) rotate(0.5deg); }
+    100% { border-radius: 14px 42px 18px 40px; transform: scale(1) rotate(-0.8deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .presentation-link--fun:hover,
+    .presentation-link--fun:focus-visible {
+        animation: none;
+    }
 }
 
 /* Footer */
