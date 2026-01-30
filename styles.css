@@ -406,6 +406,10 @@ nav a.active {
     margin-bottom: 0.5rem;
 }
 
+.donate-page .content-section {
+    margin: 0;
+}
+
 .content-section.donate-callout {
     background: linear-gradient(135deg, #ffe29a 0%, #ff8a65 45%, #7dd3fc 100%);
     color: #111111;
