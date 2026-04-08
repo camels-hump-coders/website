@@ -664,6 +664,18 @@ nav a.active {
     justify-content: center;
 }
 
+.donate-sponsors__row--secondary .donate-sponsors__item--karmen {
+    width: clamp(190px, 24vw, 300px);
+}
+
+.donate-sponsors__row--secondary .donate-sponsors__item--md {
+    width: clamp(160px, 18vw, 230px);
+}
+
+.donate-sponsors__row--secondary .donate-sponsors__item--sm {
+    width: clamp(100px, 11vw, 145px);
+}
+
 .donate-sponsors__item {
     display: flex;
     align-items: center;
