@@ -676,6 +676,10 @@ nav a.active {
     width: clamp(100px, 11vw, 145px);
 }
 
+.donate-sponsors__row--secondary .donate-sponsors__item--benchmark {
+    width: clamp(160px, 18vw, 250px);
+}
+
 .donate-sponsors__item {
     display: flex;
     align-items: center;
@@ -704,6 +708,15 @@ nav a.active {
 
 .donate-sponsors__item--md {
     width: clamp(180px, 20vw, 260px);
+}
+
+.donate-sponsors__item--benchmark {
+    width: clamp(170px, 19vw, 260px);
+    box-sizing: border-box;
+    padding: 0.9rem 1.1rem;
+    border-radius: 18px;
+    background: #1c1a17;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
 }
 
 .donate-sponsors__item--sm {
