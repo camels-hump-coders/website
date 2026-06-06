@@ -94,6 +94,14 @@ header {
     flex-shrink: 0;
 }
 
+.bio-buzz-header-logo {
+    display: block;
+    max-height: 82px;
+    width: auto;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
 .site-title {
     font-family: 'Iceberg', cursive;
     font-size: 2.5rem;
@@ -261,9 +269,63 @@ nav a.active {
     margin: 0;
 }
 
-.dropdown-menu a {
+.dropdown-menu a,
+.dropdown-submenu-toggle {
     padding: 0.5rem 1rem;
     white-space: nowrap;
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    width: 100%;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+}
+
+.dropdown-submenu-toggle::after {
+    content: '›';
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.dropdown-submenu-menu {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    min-width: 150px;
+    margin-left: 0;
+    padding: 0.5rem 0;
+    border-radius: 4px;
+    background: rgb(115, 67, 50);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    list-style: none;
+    z-index: 1000000;
+}
+
+.dropdown-submenu:hover .dropdown-submenu-menu,
+.dropdown-submenu:focus-within .dropdown-submenu-menu {
+    display: block;
+}
+
+.dropdown-submenu-toggle:hover,
+.dropdown-submenu-toggle.active,
+.dropdown-submenu-toggle:focus-visible {
+    background: rgba(255,255,255,0.2);
+    outline: none;
 }
 
 /* Hero Section */
@@ -289,6 +351,26 @@ nav a.active {
     filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
 }
 
+.hero-season-video {
+    display: block;
+    max-width: 560px;
+    width: 92%;
+    height: auto;
+    margin: 1.5rem auto;
+}
+
+.fll-hero {
+    background: white;
+}
+
+.fll-hero-image {
+    display: block;
+    max-width: 460px;
+    width: min(85%, 460px);
+    height: auto;
+    margin: 0 auto 1.5rem;
+}
+
 .season-tag {
     color: rgb(204, 67, 49);
     font-size: 1.2rem;
@@ -296,69 +378,38 @@ nav a.active {
     margin-bottom: 1rem;
 }
 
-/* Flash Banner */
-.flash-banner {
-    background-color: #ffeb3b;
-    color: #111;
-    padding: 1.2rem 0;
-    border-bottom: 4px solid #ff3d00;
-    animation: flash-banner 1.1s ease-in-out infinite;
-}
-
-.flash-banner__content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+.ftc-flash-banner {
+    background: #0066ff;
+    border-bottom: 4px solid #003c99;
+    color: white;
+    padding: 1rem 1.5rem;
     text-align: center;
+    animation: ftc-flash-banner 1.25s ease-in-out infinite;
 }
 
-.flash-banner__text {
-    font-family: 'Bungee', cursive;
-    font-size: clamp(1.4rem, 2.4vw + 1rem, 2.4rem);
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    text-shadow: 0 2px 0 rgba(0,0,0,0.15), 0 0 18px rgba(255, 61, 0, 0.45);
+.ftc-flash-banner p {
+    font-size: clamp(1.35rem, 2vw + 1rem, 2.4rem);
+    font-weight: 900;
+    letter-spacing: 0.04em;
     margin: 0;
+    text-transform: uppercase;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.2), 0 0 18px rgba(255,255,255,0.35);
 }
 
-.flash-banner__button {
-    display: inline-block;
-    background: #111;
-    color: #ffeb3b;
-    text-decoration: none;
-    padding: 0.75rem 1.75rem;
-    border-radius: 999px;
-    font-weight: bold;
-    border: 2px solid #111;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
-}
-
-.flash-banner__button:hover,
-.flash-banner__button:focus-visible {
-    background: #fff;
-    color: #111;
-    transform: translateY(-1px);
-}
-
-@keyframes flash-banner {
+@keyframes ftc-flash-banner {
     0%,
     100% {
-        background-color: #ffeb3b;
-        color: #111;
-        box-shadow: inset 0 0 0 0 rgba(255, 61, 0, 0.25);
+        background: #0066ff;
+        box-shadow: inset 0 0 0 0 rgba(255,255,255,0.18);
     }
     50% {
-        background-color: #ff3d00;
-        color: #fff;
-        box-shadow: inset 0 0 0 8px rgba(255, 235, 59, 0.35);
+        background: #00a2ff;
+        box-shadow: inset 0 0 0 8px rgba(255,255,255,0.2);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .flash-banner {
+    .ftc-flash-banner {
         animation: none;
     }
 }
@@ -1323,27 +1374,295 @@ footer p {
     margin-bottom: 0.5rem;
 }
 
+/* Season Page Themes */
+body.season-theme {
+    background-color: var(--season-page-bg);
+}
+
+body.season-theme header,
+body.season-theme .nav-stuck,
+body.season-theme .dropdown-menu,
+body.season-theme .dropdown-submenu-menu,
+body.season-theme footer {
+    background: var(--season-main-bg) !important;
+    color: var(--season-main-text);
+}
+
+body.season-theme nav {
+    background: var(--season-nav-bg) !important;
+}
+
+body.season-theme nav a,
+body.season-theme .dropdown-submenu-toggle {
+    color: var(--season-main-text);
+}
+
+body.season-theme nav a:hover,
+body.season-theme nav a.active,
+body.season-theme .dropdown-submenu-toggle:hover,
+body.season-theme .dropdown-submenu-toggle.active,
+body.season-theme .dropdown-submenu-toggle:focus-visible {
+    background: var(--season-hover-bg);
+}
+
+body.season-theme .site-title {
+    text-shadow: var(--season-title-shadow);
+}
+
+body.season-theme .content-section,
+body.season-theme .content-section.highlight,
+body.season-theme .team-info,
+body.season-theme .feature,
+body.season-theme .resource-card,
+body.season-theme .gallery-window {
+    background: #ffffff;
+}
+
+body.season-theme .media-link,
+body.season-theme .presentation-link,
+body.season-theme .tile-button,
+body.season-theme .tile-button .cta,
+body.season-theme .gallery-controls button {
+    background: #ffffff;
+    border-color: #d7d7d7;
+    color: #111111;
+}
+
+body.season-theme .media-link:hover,
+body.season-theme .media-link:focus-visible,
+body.season-theme .presentation-link:hover,
+body.season-theme .presentation-link:focus-visible,
+body.season-theme .tile-button:hover,
+body.season-theme .tile-button:hover .cta,
+body.season-theme .gallery-controls button:hover,
+body.season-theme .gallery-controls button:focus-visible {
+    background: #f2f2f2;
+    border-color: #999999;
+    color: #111111;
+}
+
+body.season-theme .tile-button p:first-child {
+    color: #111111;
+}
+
+body.season-theme--unearthed {
+    --season-page-bg: rgb(115, 67, 50);
+    --season-main-bg: rgb(115, 67, 50);
+    --season-main-text: #fff;
+    --season-nav-bg: rgba(0,0,0,0.1);
+    --season-hover-bg: rgba(255,255,255,0.2);
+    --season-title-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+body.season-theme--submerged {
+    --season-page-bg: #1e6ba0;
+    --season-main-bg: #1e6ba0;
+    --season-main-text: #fff;
+    --season-nav-bg: rgba(0,42,80,0.22);
+    --season-hover-bg: rgba(255,255,255,0.22);
+    --season-title-shadow: 2px 2px 4px rgba(0,0,0,0.28);
+}
+
+body.season-theme--masterpiece {
+    --season-page-bg: #cdb8ff;
+    --season-main-bg: #cdb8ff;
+    --season-main-text: #241238;
+    --season-nav-bg: rgba(60,28,96,0.12);
+    --season-hover-bg: rgba(60,28,96,0.14);
+    --season-title-shadow: none;
+}
+
+/* BioBuzz FTC Theme */
+body.bio-theme {
+    background-color: #fff8cf;
+}
+
+body.bio-theme header,
+body.bio-theme .nav-stuck,
+body.bio-theme .dropdown-menu,
+body.bio-theme .dropdown-submenu-menu,
+body.bio-theme footer {
+    background: #f7ec9d !important;
+    color: #111;
+}
+
+body.bio-theme nav {
+    background: rgba(0,0,0,0.06) !important;
+}
+
+body.bio-theme nav a,
+body.bio-theme .dropdown-submenu-toggle {
+    color: #111;
+}
+
+body.bio-theme nav a:hover,
+body.bio-theme nav a.active,
+body.bio-theme .dropdown-submenu-toggle:hover,
+body.bio-theme .dropdown-submenu-toggle.active,
+body.bio-theme .dropdown-submenu-toggle:focus-visible {
+    background: rgba(0,0,0,0.12);
+}
+
+body.bio-theme .site-title {
+    text-shadow: none;
+}
+
+body.bio-theme .tagline {
+    opacity: 1;
+}
+
+body.bio-theme .hero {
+    background: #f7ec9d !important;
+    border-bottom-color: #d9c653;
+    color: #111 !important;
+}
+
+body.bio-theme .hero h2,
+body.bio-theme .hero p,
+body.bio-theme .season-tag {
+    color: #111 !important;
+}
+
+body.bio-theme .content-section h2,
+body.bio-theme .secret-panel h2,
+body.bio-theme .stats-counter__suffix {
+    color: #4f4300;
+}
+
+body.bio-theme .content-section h3,
+body.bio-theme .stats-counter__number--done {
+    color: #8a7200;
+}
+
+body.bio-theme .secret-panel a,
+body.bio-theme .media-link,
+body.bio-theme .presentation-link,
+body.bio-theme .donate-button,
+body.bio-theme .donate-callout__button {
+    background: #f7ec9d;
+    border-color: #d9c653;
+    color: #111;
+}
+
+body.bio-theme .secret-panel a:hover,
+body.bio-theme .secret-panel a:focus-visible,
+body.bio-theme .media-link:hover,
+body.bio-theme .media-link:focus-visible,
+body.bio-theme .presentation-link:hover,
+body.bio-theme .presentation-link:focus-visible,
+body.bio-theme .donate-button:hover,
+body.bio-theme .donate-button:focus-visible,
+body.bio-theme .donate-callout__button:hover,
+body.bio-theme .donate-callout__button:focus-visible {
+    background: #fff4b8;
+    color: #111;
+}
+
+body.bio-theme .media-content {
+    border-left-color: #d9c653;
+}
+
+body.bio-theme .video {
+    border-color: #d9c653;
+}
+
+body.bio-theme .stats-counter__item {
+    border-color: #d9c653;
+}
+
+body.bio-theme.coders-page .hero-content h2,
+body.bio-theme.coders-page .content-section h2,
+body.bio-theme.coders-page .content-section h3 {
+    color: #000;
+}
+
+body.season-theme.bio-theme {
+    background-color: var(--season-page-bg);
+}
+
+body.season-theme.bio-theme header,
+body.season-theme.bio-theme .nav-stuck,
+body.season-theme.bio-theme .dropdown-menu,
+body.season-theme.bio-theme .dropdown-submenu-menu,
+body.season-theme.bio-theme footer {
+    background: var(--season-main-bg) !important;
+    color: var(--season-main-text);
+}
+
+body.season-theme.bio-theme nav {
+    background: var(--season-nav-bg) !important;
+}
+
+body.season-theme.bio-theme nav a,
+body.season-theme.bio-theme .dropdown-submenu-toggle {
+    color: var(--season-main-text);
+}
+
+body.season-theme.bio-theme nav a:hover,
+body.season-theme.bio-theme nav a.active,
+body.season-theme.bio-theme .dropdown-submenu-toggle:hover,
+body.season-theme.bio-theme .dropdown-submenu-toggle.active,
+body.season-theme.bio-theme .dropdown-submenu-toggle:focus-visible {
+    background: var(--season-hover-bg);
+}
+
+body.season-theme.bio-theme .site-title {
+    text-shadow: var(--season-title-shadow);
+}
+
+body.season-theme.bio-theme .media-link,
+body.season-theme.bio-theme .presentation-link,
+body.season-theme.bio-theme .tile-button,
+body.season-theme.bio-theme .tile-button .cta,
+body.season-theme.bio-theme .gallery-controls button {
+    background: #ffffff;
+    border-color: #d7d7d7;
+    color: #111111;
+}
+
+body.season-theme.bio-theme .media-link:hover,
+body.season-theme.bio-theme .media-link:focus-visible,
+body.season-theme.bio-theme .presentation-link:hover,
+body.season-theme.bio-theme .presentation-link:focus-visible,
+body.season-theme.bio-theme .tile-button:hover,
+body.season-theme.bio-theme .tile-button:hover .cta,
+body.season-theme.bio-theme .gallery-controls button:hover,
+body.season-theme.bio-theme .gallery-controls button:focus-visible {
+    background: #f2f2f2;
+    border-color: #999999;
+    color: #111111;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .site-title {
         font-size: 2rem;
     }
-    
+
     nav ul {
         flex-direction: column;
         gap: 0.5rem;
         align-items: center;
     }
-    
+
+    .dropdown-submenu-menu {
+        position: static;
+        min-width: 0;
+        margin-left: 0;
+        padding: 0.25rem 0 0.25rem 0.75rem;
+        box-shadow: none;
+        background: rgba(0,0,0,0.12);
+    }
+
     .features {
         grid-template-columns: 1fr;
     }
-    
+
     .media-links {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .media-link {
         width: 100%;
         max-width: 250px;

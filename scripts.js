@@ -1,6 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
     const PASSWORD = '1108';
     const SECRET_PAGE = 'secret-games.html';
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const currentSlug = currentPage.replace(/\.html$/, '');
+    const seasonPages = new Set(['2023-2024', '2024-2025', '2025-2026']);
+    const isSeasonPage = document.body.classList.contains('season-theme') || seasonPages.has(currentSlug);
+
+    if (!isSeasonPage) {
+        document.body.classList.add('bio-theme');
+    }
+
+    if (currentPage !== '2025-2026.html') {
+        const siteLogo = document.querySelector('.site-logo');
+        if (siteLogo && !document.querySelector('.bio-buzz-header-logo')) {
+            const bioBuzzLogo = document.createElement('img');
+            bioBuzzLogo.className = 'bio-buzz-header-logo';
+            bioBuzzLogo.src = 'assets/biobuzz-hero-transparent.png';
+            bioBuzzLogo.alt = 'BioBuzz moving logo';
+            siteLogo.insertAdjacentElement('afterend', bioBuzzLogo);
+        }
+    }
+
+    const header = document.querySelector('header');
+    if (header && !document.querySelector('.ftc-flash-banner')) {
+        const ftcBanner = document.createElement('section');
+        ftcBanner.className = 'ftc-flash-banner';
+        ftcBanner.setAttribute('aria-label', 'FTC announcement');
+        ftcBanner.innerHTML = '<p>We Are Moving To FTC</p>';
+        header.insertAdjacentElement('afterend', ftcBanner);
+    }
 
     const gearButton = document.createElement('button');
     gearButton.type = 'button';
