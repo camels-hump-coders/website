@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const SECRET_PAGE = 'secret-games.html';
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const currentSlug = currentPage.replace(/\.html$/, '');
-    const seasonPages = new Set(['2023-2024', '2024-2025', '2025-2026']);
+    const seasonPages = new Set(['2023-2024', '2024-2025', '2025-2026', '2026-2027']);
     const isSeasonPage = document.body.classList.contains('season-theme') || seasonPages.has(currentSlug);
 
     if (!isSeasonPage) {

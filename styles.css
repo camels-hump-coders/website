@@ -1472,6 +1472,15 @@ body.season-theme--masterpiece {
     --season-title-shadow: none;
 }
 
+body.season-theme--ftc {
+    --season-page-bg: #fff8cf;
+    --season-main-bg: #f7ec9d;
+    --season-main-text: #111111;
+    --season-nav-bg: rgba(0,0,0,0.06);
+    --season-hover-bg: rgba(0,0,0,0.12);
+    --season-title-shadow: none;
+}
+
 /* BioBuzz FTC Theme */
 body.bio-theme {
     background-color: #fff8cf;

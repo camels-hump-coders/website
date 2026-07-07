@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026-2027 Season - Camels Hump Coders</title>
+    <meta name="description" content="Camels Hump Coders 2026-2027 BioBuzz FIRST Tech Chalange season page.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Iceberg&family=Bungee&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/CHC%20logo.png">
+    <script src="scripts.js" defer></script>
+    <style>
+        .season-header {
+            background: linear-gradient(135deg, #f7ec9d 0%, #fff8cf 54%, #f4d45e 100%);
+            color: #111111;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .season-header::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(90deg, rgba(17,17,17,0.07) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(17,17,17,0.07) 1px, transparent 1px),
+                radial-gradient(rgba(255,255,255,0.7) 1px, transparent 1px);
+            background-size: 96px 96px, 96px 96px, 16px 16px;
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .season-header .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .season-header h2,
+        .season-header p,
+        .content-section h2,
+        .content-section h3 {
+            color: #000000 !important;
+        }
+
+        .ftc-theme {
+            display: inline-block;
+            position: relative;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            letter-spacing: 0;
+            isolation: isolate;
+        }
+
+        .ftc-theme::after {
+            content: "";
+            position: absolute;
+            left: -0.04em;
+            right: -0.04em;
+            bottom: 0.02em;
+            height: 0.18em;
+            background: rgba(244, 212, 94, 0.72);
+            border-radius: 999px;
+            z-index: -1;
+        }
+
+        .bio-theme-graphics {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hex-cell {
+            position: absolute;
+            width: 84px;
+            aspect-ratio: 1.08;
+            background: rgba(255,255,255,0.28);
+            box-shadow: inset 0 0 0 3px rgba(155,126,0,0.22);
+            clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%);
+        }
+
+        .hex-cell--one {
+            left: 8%;
+            top: 18%;
+            transform: rotate(10deg);
+        }
+
+        .hex-cell--two {
+            left: 14%;
+            top: 36%;
+            transform: rotate(10deg);
+        }
+
+        .hex-cell--three {
+            right: 10%;
+            top: 16%;
+            transform: rotate(-8deg);
+        }
+
+        .hex-cell--four {
+            right: 16%;
+            top: 34%;
+            transform: rotate(-8deg);
+        }
+
+        .pollen-dot {
+            position: absolute;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #d7a800;
+            box-shadow: 0 0 0 6px rgba(255,255,255,0.28);
+            opacity: 0.62;
+            animation: pollen-drift 8s ease-in-out infinite;
+        }
+
+        .pollen-dot--one {
+            left: 24%;
+            top: 22%;
+        }
+
+        .pollen-dot--two {
+            right: 28%;
+            top: 46%;
+            animation-delay: -2s;
+        }
+
+        .pollen-dot--three {
+            left: 64%;
+            top: 18%;
+            animation-delay: -4s;
+        }
+
+        .signal-line {
+            position: absolute;
+            width: 170px;
+            height: 2px;
+            background: rgba(17,17,17,0.18);
+        }
+
+        .signal-line::before,
+        .signal-line::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #111111;
+            transform: translateY(-50%);
+            opacity: 0.5;
+        }
+
+        .signal-line::before {
+            left: 0;
+        }
+
+        .signal-line::after {
+            right: 0;
+        }
+
+        .signal-line--one {
+            left: 7%;
+            bottom: 18%;
+            transform: rotate(10deg);
+        }
+
+        .signal-line--two {
+            right: 7%;
+            bottom: 22%;
+            transform: rotate(-12deg);
+        }
+
+        .bee {
+            position: absolute;
+            width: 42px;
+            height: 30px;
+            pointer-events: none;
+            z-index: 3;
+            transform-origin: center;
+        }
+
+        .bee::before {
+            content: "";
+            position: absolute;
+            left: -12px;
+            top: 16px;
+            width: 16px;
+            height: 2px;
+            background: rgba(17,17,17,0.25);
+            border-radius: 999px;
+        }
+
+        .bee-body {
+            position: absolute;
+            left: 9px;
+            top: 11px;
+            width: 27px;
+            height: 15px;
+            border-radius: 50%;
+            background: repeating-linear-gradient(90deg, #f6d84b 0 7px, #111111 7px 10px);
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.18);
+        }
+
+        .bee-body::before {
+            content: "";
+            position: absolute;
+            left: -7px;
+            top: 3px;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #111111;
+        }
+
+        .bee-body::after {
+            content: "";
+            position: absolute;
+            right: -6px;
+            top: 5px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #111111;
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
+        }
+
+        .bee-wing {
+            position: absolute;
+            top: 2px;
+            width: 15px;
+            height: 12px;
+            border: 1px solid rgba(17,17,17,0.18);
+            border-radius: 50%;
+            background: rgba(255,255,255,0.78);
+            transform-origin: bottom center;
+            animation: wing-flap 0.2s linear infinite alternate;
+        }
+
+        .bee-wing--front {
+            left: 14px;
+            transform: rotate(-28deg);
+        }
+
+        .bee-wing--back {
+            left: 24px;
+            transform: rotate(24deg);
+            animation-delay: -0.1s;
+        }
+
+        .bee--one {
+            left: -50px;
+            top: -38px;
+            animation: bee-loop-one 6.6s ease-in-out infinite;
+        }
+
+        .bee--two {
+            right: -52px;
+            top: -28px;
+            animation: bee-loop-two 7.8s ease-in-out infinite;
+        }
+
+        .bee--three {
+            left: 42%;
+            bottom: -42px;
+            animation: bee-loop-three 8.4s ease-in-out infinite;
+        }
+
+        @keyframes wing-flap {
+            from { scale: 1 0.45; opacity: 0.72; }
+            to { scale: 1 1; opacity: 0.95; }
+        }
+
+        @keyframes bee-loop-one {
+            0%, 100% { transform: translate(0, 0) rotate(10deg); }
+            28% { transform: translate(48px, 18px) rotate(24deg); }
+            58% { transform: translate(92px, -8px) rotate(-12deg); }
+            78% { transform: translate(44px, -24px) rotate(-24deg); }
+        }
+
+        @keyframes bee-loop-two {
+            0%, 100% { transform: translate(0, 0) rotate(-18deg) scaleX(-1); }
+            30% { transform: translate(-46px, 20px) rotate(-2deg) scaleX(-1); }
+            60% { transform: translate(-92px, -12px) rotate(18deg) scaleX(-1); }
+            82% { transform: translate(-38px, -26px) rotate(28deg) scaleX(-1); }
+        }
+
+        @keyframes bee-loop-three {
+            0%, 100% { transform: translate(0, 0) rotate(4deg); }
+            24% { transform: translate(38px, -24px) rotate(-15deg); }
+            52% { transform: translate(4px, -42px) rotate(14deg); }
+            78% { transform: translate(-40px, -18px) rotate(22deg); }
+        }
+
+        @keyframes pollen-drift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(18px, -14px); }
+        }
+
+        .season-logo {
+            max-width: 420px;
+            width: min(72vw, 420px);
+            height: auto;
+            margin: 2rem auto;
+            display: block;
+            filter: drop-shadow(0 14px 24px rgba(0,0,0,0.15));
+        }
+
+        .ftc-focus-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .ftc-focus-card {
+            background: #ffffff;
+            border: 1px solid #e2d26a;
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .ftc-focus-card h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .season-header {
+                padding: 2.25rem 0;
+            }
+
+            .season-logo {
+                width: min(86vw, 340px);
+            }
+
+            .hex-cell,
+            .signal-line {
+                opacity: 0.45;
+            }
+
+            .bee {
+                width: 34px;
+                height: 24px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .bee,
+            .bee-wing,
+            .pollen-dot {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body class="season-theme season-theme--ftc">
+    <header>
+        <div class="header-container">
+            <div class="branding">
+                <img src="assets/CHC%20logo.png" alt="Camels Hump Coders logo" class="site-logo">
+                <div class="branding-text">
+                    <h1 class="site-title">Camels Hump Coders</h1>
+                    <p class="tagline">FIRST&reg; Tech Chalange Team from Huntington, Vermont</p>
+                </div>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li class="dropdown">
+                    <a href="2026-2027.html" class="active">Seasons</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="2026-2027.html" class="active">2026-2027</a></li>
+                        <li class="dropdown-submenu">
+                            <a class="dropdown-submenu-toggle" href="fll.html">FLL</a>
+                            <ul class="dropdown-submenu-menu">
+                                <li><a href="2025-2026.html">2025-2026</a></li>
+                                <li><a href="2024-2025.html">2024-2025</a></li>
+                                <li><a href="2023-2024.html">2023-2024</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="coders.html">Coders</a></li>
+                <li><a href="donate.html">Donate</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="season-header">
+            <div class="bio-theme-graphics" aria-hidden="true">
+                <span class="hex-cell hex-cell--one"></span>
+                <span class="hex-cell hex-cell--two"></span>
+                <span class="hex-cell hex-cell--three"></span>
+                <span class="hex-cell hex-cell--four"></span>
+                <span class="pollen-dot pollen-dot--one"></span>
+                <span class="pollen-dot pollen-dot--two"></span>
+                <span class="pollen-dot pollen-dot--three"></span>
+                <span class="signal-line signal-line--one"></span>
+                <span class="signal-line signal-line--two"></span>
+            </div>
+            <div class="container">
+                <h2>2026-2027 Season: <span class="ftc-theme">BioBuzz<span class="bee bee--one" aria-hidden="true"><span class="bee-wing bee-wing--front"></span><span class="bee-wing bee-wing--back"></span><span class="bee-body"></span></span><span class="bee bee--two" aria-hidden="true"><span class="bee-wing bee-wing--front"></span><span class="bee-wing bee-wing--back"></span><span class="bee-body"></span></span><span class="bee bee--three" aria-hidden="true"><span class="bee-wing bee-wing--front"></span><span class="bee-wing bee-wing--back"></span><span class="bee-body"></span></span></span></h2>
+                <img src="assets/biobuzz-hero-transparent.png" alt="BioBuzz moving logo" class="season-logo">
+                <p style="font-size: 1.2rem;">A new chapter in FIRST&reg; Tech Chalange</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Season Theme: BioBuzz</h2>
+                <p>The 2026-2027 BioBuzz season is our first year moving from FIRST&reg; LEGO&reg; League into FIRST&reg; Tech Chalange. This page will track the team's robot design, build progress, code work, outreach, and competition updates as the season develops.</p>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>What We Are Working On</h2>
+                <div class="ftc-focus-grid">
+                    <div class="ftc-focus-card">
+                        <h3>Robot Build</h3>
+                        <p>Learning FTC-scale robot parts, drivetrain choices, wiring, and mechanisms that can handle a larger competition field.</p>
+                    </div>
+                    <div class="ftc-focus-card">
+                        <h3>Code</h3>
+                        <p>Building reliable driver controls, autonomous routines, sensors, and documentation for repeatable robot performance.</p>
+                    </div>
+                    <div class="ftc-focus-card">
+                        <h3>Team Systems</h3>
+                        <p>Organizing engineering notebooks, scouting, outreach, judging materials, and team roles for the new program.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>Robot Design &amp; Game</h2>
+                <p>As we prepare for FTC, our focus for this year is to create a robot that can drive. We will try to add game-specific details once the season challenge is released.</p>
+                <ul>
+                    <p>Our Goals for the year</p>
+                    <li>Get the robot to drive</li>
+                    <li>Learn about FTC</li>
+                    <li>Driver practice routines and autonomous code experiments</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section highlight">
+            <div class="container">
+                <h2>Season Highlights</h2>
+                <p>This section will be updated with build milestones, outreach events, competition results, awards, and photos from the 2026-2027 season.</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2>About FTC</h2>
+                <p>Learn more about the program we are moving into this season.</p>
+                <div class="media-links" style="margin-top: 1rem;">
+                    <a href="https://www.firstinspires.org/robotics/ftc" class="media-link" target="_blank">About FTC</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Camels Hump Coders</p>
+            <p>A FIRST&reg; Tech Chalange team from Huntington, Vermont</p>
+        </div>
+    </footer>
+</body>
+</html>
