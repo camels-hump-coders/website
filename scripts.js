@@ -40,6 +40,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const projectCarousel = document.querySelector('.project-carousel');
+    if (projectCarousel) {
+        const track = projectCarousel.querySelector('.project-carousel__track');
+        const slides = Array.from(projectCarousel.querySelectorAll('.project-carousel__slide'));
+        const previousButton = projectCarousel.querySelector('.project-carousel__arrow--previous');
+        const nextButton = projectCarousel.querySelector('.project-carousel__arrow--next');
+        const status = projectCarousel.querySelector('.project-carousel__status');
+        let currentSlide = 0;
+        let touchStartX = null;
+
+        const showSlide = (index) => {
+            if (!track || !slides.length) return;
+            currentSlide = (index + slides.length) % slides.length;
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            slides.forEach((slide, slideIndex) => {
+                const isCurrent = slideIndex === currentSlide;
+                slide.setAttribute('aria-hidden', String(!isCurrent));
+                slide.inert = !isCurrent;
+                if (!isCurrent) {
+                    slide.querySelector('video')?.pause();
+                }
+            });
+            if (status) {
+                status.textContent = `Showing slide ${currentSlide + 1} of ${slides.length}`;
+            }
+        };
+
+        previousButton?.addEventListener('click', () => showSlide(currentSlide - 1));
+        nextButton?.addEventListener('click', () => showSlide(currentSlide + 1));
+
+        projectCarousel.tabIndex = 0;
+        projectCarousel.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                showSlide(currentSlide - 1);
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                showSlide(currentSlide + 1);
+            }
+        });
+
+        projectCarousel.addEventListener('touchstart', (event) => {
+            touchStartX = event.changedTouches[0]?.clientX ?? null;
+        }, { passive: true });
+
+        projectCarousel.addEventListener('touchend', (event) => {
+            if (touchStartX === null) return;
+            const touchEndX = event.changedTouches[0]?.clientX ?? touchStartX;
+            const distance = touchEndX - touchStartX;
+            touchStartX = null;
+            if (Math.abs(distance) < 50) return;
+            showSlide(currentSlide + (distance < 0 ? 1 : -1));
+        }, { passive: true });
+
+        showSlide(0);
+    }
+
     const bodyHasNoSticky = document.body.classList.contains('no-sticky-nav');
     const nav = document.querySelector('nav');
 
@@ -323,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const beeScene = document.querySelector('.bio-theme-graphics');
     const hiveEntrance = beeScene?.querySelector('.hive-entrance');
     if (beeScene && hiveEntrance) {
+        const funnyBee = beeScene.querySelector('.bee--funny');
         const flightConfigs = [
             {
                 bee: beeScene.querySelector('.bee--one'),
@@ -338,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             {
                 bee: beeScene.querySelector('.bee--two'),
-                flower: beeScene.querySelector('.flower-patch--far .flower--four .flower-bloom'),
+                flower: beeScene.querySelector('.flower-patch--far .flower--one .flower-bloom'),
                 duration: 4800,
                 rest: 2200,
                 hiveRest: 1100,
@@ -357,11 +415,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 delay: 2500,
                 lift: 0.11,
                 controlOne: 0.2,
-                controlTwo: 0.72
+                controlTwo: 0.72,
+                groundRoute: true
             }
         ].filter(({ bee, flower }) => bee && flower);
+        const animatedBees = [
+            ...flightConfigs.map(({ bee }) => bee),
+            funnyBee
+        ].filter(Boolean);
 
-        if (flightConfigs.length) {
+        if (animatedBees.length) {
             const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
             const activeAnimations = new Set();
             let flightRun = 0;
@@ -445,17 +508,106 @@ document.addEventListener('DOMContentLoaded', () => {
                     x: start.x + distanceX * config.controlTwo,
                     y: end.y - lift * (enteringHive ? 0.58 : 1)
                 };
-                if (sceneRect.width <= 640 && config.edgeRoute) {
-                    controlOne.x = enteringHive ? sceneRect.width * 1.1 : sceneRect.width * -0.1;
-                    controlTwo.x = enteringHive ? sceneRect.width * -0.1 : sceneRect.width * 1.1;
+                let segments = [{ start, controlOne, controlTwo, end }];
+                let segmentBreaks = [0, 1];
+
+                if (sceneRect.width <= 640 && config.groundRoute) {
+                    const size = Number.parseFloat(
+                        getComputedStyle(config.bee).getPropertyValue('--bee-size')
+                    ) || 1;
+                    const beeHeight = config.bee.offsetHeight * size;
+                    const groundY = Math.min(
+                        sceneHeight - beeHeight / 2 - 5,
+                        Math.max(start.y, end.y) + 14
+                    );
+                    controlOne.y = groundY;
+                    controlTwo.y = groundY;
                 }
-                const steps = 42;
+
+                if (sceneRect.width <= 640 && config.edgeRoute) {
+                    const subtitle = document.querySelector('.season-header .container p');
+                    const textRange = document.createRange();
+                    textRange.selectNodeContents(subtitle);
+                    const textRect = textRange.getBoundingClientRect();
+                    const size = Number.parseFloat(
+                        getComputedStyle(config.bee).getPropertyValue('--bee-size')
+                    ) || 1;
+                    const beeWidth = config.bee.offsetWidth * size;
+                    const leftGate = textRect.left - sceneRect.left - beeWidth / 2 - 8;
+                    const rightGate = textRect.right - sceneRect.left + beeWidth / 2 + 8;
+                    const aboveText = textRect.top - sceneRect.top - beeWidth * 0.85;
+                    const belowText = textRect.bottom - sceneRect.top + beeWidth * 1.1;
+                    const firstGate = enteringHive ? rightGate : leftGate;
+                    const secondGate = enteringHive ? leftGate : rightGate;
+                    const firstBelow = { x: firstGate, y: belowText };
+                    const firstAbove = { x: firstGate, y: aboveText };
+                    const secondAbove = { x: secondGate, y: aboveText };
+                    const secondBelow = { x: secondGate, y: belowText };
+
+                    segments = [
+                        {
+                            start,
+                            controlOne: { x: start.x, y: belowText },
+                            controlTwo: { x: firstGate, y: belowText },
+                            end: firstBelow
+                        },
+                        {
+                            start: firstBelow,
+                            controlOne: { x: firstGate, y: belowText },
+                            controlTwo: { x: firstGate, y: aboveText },
+                            end: firstAbove
+                        },
+                        {
+                            start: firstAbove,
+                            controlOne: { x: sceneRect.width * 0.2, y: aboveText - lift * 0.72 },
+                            controlTwo: { x: sceneRect.width * 0.8, y: aboveText - lift * 0.72 },
+                            end: secondAbove
+                        },
+                        {
+                            start: secondAbove,
+                            controlOne: { x: secondGate, y: aboveText },
+                            controlTwo: { x: secondGate, y: belowText },
+                            end: secondBelow
+                        },
+                        {
+                            start: secondBelow,
+                            controlOne: { x: secondGate, y: belowText },
+                            controlTwo: { x: end.x, y: belowText },
+                            end
+                        }
+                    ];
+                    segmentBreaks = [0, 0.14, 0.25, 0.75, 0.86, 1];
+                }
+                const steps = 60;
                 const frames = [];
 
                 for (let step = 0; step <= steps; step += 1) {
                     const progress = step / steps;
-                    const point = cubicPoint(start, controlOne, controlTwo, end, progress);
-                    const tangent = cubicTangent(start, controlOne, controlTwo, end, progress);
+                    let segmentIndex = segments.length - 1;
+                    for (let index = 0; index < segments.length; index += 1) {
+                        if (progress <= segmentBreaks[index + 1]) {
+                            segmentIndex = index;
+                            break;
+                        }
+                    }
+                    const segment = segments[segmentIndex];
+                    const segmentStart = segmentBreaks[segmentIndex];
+                    const segmentEnd = segmentBreaks[segmentIndex + 1];
+                    const segmentProgress = (progress - segmentStart) / (segmentEnd - segmentStart);
+                    const point = cubicPoint(
+                        segment.start,
+                        segment.controlOne,
+                        segment.controlTwo,
+                        segment.end,
+                        segmentProgress
+                    );
+                    const tangent = cubicTangent(
+                        segment.start,
+                        segment.controlOne,
+                        segment.controlTwo,
+                        segment.end,
+                        segmentProgress
+                    );
                     const edgeProgress = enteringHive
                         ? Math.max(0, (progress - 0.82) / 0.18)
                         : Math.min(1, progress / 0.13);
@@ -465,6 +617,107 @@ document.addEventListener('DOMContentLoaded', () => {
                         offset: progress,
                         opacity,
                         transform: beeTransform(config.bee, point, tangent, flightScale)
+                    });
+                }
+
+                return frames;
+            };
+
+            const buildFunnyFlightFrames = () => {
+                const sceneRect = beeScene.getBoundingClientRect();
+                const entrance = pointAtCenter(hiveEntrance);
+                const center = {
+                    x: sceneRect.width * 0.55,
+                    y: sceneRect.height * 0.39
+                };
+                const radiusX = sceneRect.width * 0.32;
+                const radiusY = sceneRect.height * 0.22;
+                const startAngle = Math.PI * 0.75;
+                const loopStart = {
+                    x: center.x + Math.cos(startAngle) * radiusX,
+                    y: center.y + Math.sin(startAngle) * radiusY
+                };
+                const exitControlOne = {
+                    x: entrance.x + sceneRect.width * 0.05,
+                    y: entrance.y - sceneRect.height * 0.02
+                };
+                const exitControlTwo = {
+                    x: loopStart.x + sceneRect.width * 0.06,
+                    y: loopStart.y + sceneRect.height * 0.14
+                };
+                const returnControlOne = {
+                    x: loopStart.x - sceneRect.width * 0.08,
+                    y: loopStart.y - sceneRect.height * 0.13
+                };
+                const returnControlTwo = {
+                    x: entrance.x + sceneRect.width * 0.08,
+                    y: entrance.y - sceneRect.height * 0.16
+                };
+                const steps = 120;
+                const frames = [];
+
+                for (let step = 0; step <= steps; step += 1) {
+                    const progress = step / steps;
+                    let point;
+                    let tangent;
+                    let opacity = 1;
+                    let flightScale = 1;
+
+                    if (progress <= 0.18) {
+                        const routeProgress = progress / 0.18;
+                        point = cubicPoint(
+                            entrance,
+                            exitControlOne,
+                            exitControlTwo,
+                            loopStart,
+                            routeProgress
+                        );
+                        tangent = cubicTangent(
+                            entrance,
+                            exitControlOne,
+                            exitControlTwo,
+                            loopStart,
+                            routeProgress
+                        );
+                        const emergeProgress = Math.min(1, routeProgress / 0.32);
+                        opacity = emergeProgress;
+                        flightScale = 0.18 + emergeProgress * 0.82;
+                    } else if (progress <= 0.8) {
+                        const loopProgress = (progress - 0.18) / 0.62;
+                        const angle = startAngle + loopProgress * Math.PI * 4;
+                        point = {
+                            x: center.x + Math.cos(angle) * radiusX,
+                            y: center.y + Math.sin(angle) * radiusY + Math.sin(angle * 3) * 5
+                        };
+                        tangent = {
+                            x: -Math.sin(angle) * radiusX,
+                            y: Math.cos(angle) * radiusY
+                        };
+                    } else {
+                        const routeProgress = (progress - 0.8) / 0.2;
+                        point = cubicPoint(
+                            loopStart,
+                            returnControlOne,
+                            returnControlTwo,
+                            entrance,
+                            routeProgress
+                        );
+                        tangent = cubicTangent(
+                            loopStart,
+                            returnControlOne,
+                            returnControlTwo,
+                            entrance,
+                            routeProgress
+                        );
+                        const enterProgress = Math.max(0, (routeProgress - 0.72) / 0.28);
+                        opacity = 1 - enterProgress;
+                        flightScale = 1 - enterProgress * 0.82;
+                    }
+
+                    frames.push({
+                        offset: progress,
+                        opacity,
+                        transform: beeTransform(funnyBee, point, tangent, flightScale)
                     });
                 }
 
@@ -524,6 +777,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
+            const runFunnyBee = async (run) => {
+                if (!funnyBee) return;
+                await wait(1800);
+                while (run === flightRun && !reduceMotionQuery.matches) {
+                    const previousAnimation = funnyBee.flightAnimation;
+                    const animation = funnyBee.animate(
+                        buildFunnyFlightFrames(),
+                        { duration: 32000, easing: 'linear', fill: 'forwards' }
+                    );
+                    funnyBee.flightAnimation = animation;
+                    activeAnimations.add(animation);
+                    previousAnimation?.cancel();
+
+                    try {
+                        await animation.finished;
+                    } catch {
+                        return;
+                    } finally {
+                        activeAnimations.delete(animation);
+                    }
+
+                    if (run !== flightRun) return;
+                    await wait(3500);
+                }
+            };
+
             const showReducedMotionScene = () => {
                 flightConfigs.forEach((config) => {
                     const point = pointOnFlower(config.flower, config.bee);
@@ -531,6 +810,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     config.bee.style.transform = beeTransform(config.bee, point, { x: 1, y: 0 }, 1);
                     config.bee.classList.add('is-resting');
                 });
+                if (funnyBee) {
+                    const point = pointAtCenter(hiveEntrance);
+                    point.y -= funnyBee.offsetHeight * 0.55;
+                    funnyBee.style.opacity = '1';
+                    funnyBee.style.transform = beeTransform(funnyBee, point, { x: 1, y: 0 }, 1);
+                    funnyBee.classList.add('is-resting');
+                }
             };
 
             const startBeeFlights = () => {
@@ -540,11 +826,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeAnimations.clear();
                 beeScene.classList.add('bee-flight-ready');
 
-                flightConfigs.forEach((config) => {
-                    config.bee.flightAnimation = null;
-                    config.bee.classList.remove('is-resting');
-                    config.bee.style.opacity = '0';
-                    config.bee.style.transform = 'none';
+                animatedBees.forEach((bee) => {
+                    bee.flightAnimation = null;
+                    bee.classList.remove('is-resting');
+                    bee.style.opacity = '0';
+                    bee.style.transform = 'none';
                 });
 
                 if (reduceMotionQuery.matches) {
@@ -555,6 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 flightConfigs.forEach((config) => {
                     runBee(config, run);
                 });
+                runFunnyBee(run);
             };
 
             window.addEventListener('resize', () => {

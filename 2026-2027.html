@@ -107,74 +107,6 @@
             transform: rotate(-8deg);
         }
 
-        .pollen-dot {
-            position: absolute;
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            background: #d7a800;
-            box-shadow: 0 0 0 6px rgba(255,255,255,0.28);
-            opacity: 0.62;
-            animation: pollen-drift 8s ease-in-out infinite;
-        }
-
-        .pollen-dot--one {
-            left: 24%;
-            top: 22%;
-        }
-
-        .pollen-dot--two {
-            right: 28%;
-            top: 46%;
-            animation-delay: -2s;
-        }
-
-        .pollen-dot--three {
-            left: 64%;
-            top: 18%;
-            animation-delay: -4s;
-        }
-
-        .signal-line {
-            position: absolute;
-            width: 170px;
-            height: 2px;
-            background: rgba(17,17,17,0.18);
-        }
-
-        .signal-line::before,
-        .signal-line::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #111111;
-            transform: translateY(-50%);
-            opacity: 0.5;
-        }
-
-        .signal-line::before {
-            left: 0;
-        }
-
-        .signal-line::after {
-            right: 0;
-        }
-
-        .signal-line--one {
-            left: 7%;
-            bottom: 18%;
-            transform: rotate(10deg);
-        }
-
-        .signal-line--two {
-            right: 7%;
-            bottom: 22%;
-            transform: rotate(-12deg);
-        }
-
         .bee-hive {
             position: absolute;
             left: 5%;
@@ -630,6 +562,29 @@
             transform: translate(-50%, -50%) scale(var(--bee-size));
         }
 
+        .bee--funny {
+            left: 12%;
+            top: 88%;
+            --bee-size: 0.82;
+            transform: translate(-50%, -50%) scale(var(--bee-size));
+        }
+
+        .bee--funny .bee-head::before {
+            width: 7px;
+            height: 8px;
+            right: 0;
+            top: 2px;
+            background: radial-gradient(circle at 38% 32%, #ffffff 0 18%, #6d8c8f 20%, #12100e 52%, #050504 100%);
+        }
+
+        .bee--funny .bee-antenna--upper {
+            rotate: -42deg;
+        }
+
+        .bee--funny .bee-antenna--lower {
+            rotate: 16deg;
+        }
+
         .bee-flight-ready .bee {
             left: 0;
             top: 0;
@@ -648,11 +603,6 @@
         @keyframes wing-flap {
             from { scale: 0.96 0.3; opacity: 0.56; }
             to { scale: 1 1; opacity: 0.92; }
-        }
-
-        @keyframes pollen-drift {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(18px, -14px); }
         }
 
         .season-logo {
@@ -691,8 +641,7 @@
                 width: min(86vw, 340px);
             }
 
-            .hex-cell,
-            .signal-line {
+            .hex-cell {
                 opacity: 0.45;
             }
 
@@ -721,12 +670,15 @@
             .bee--three {
                 --bee-size: 0.62;
             }
+
+            .bee--funny {
+                --bee-size: 0.58;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
             .bee,
-            .bee-wing,
-            .pollen-dot {
+            .bee-wing {
                 animation: none;
             }
         }
@@ -774,11 +726,6 @@
                 <span class="hex-cell hex-cell--two"></span>
                 <span class="hex-cell hex-cell--three"></span>
                 <span class="hex-cell hex-cell--four"></span>
-                <span class="pollen-dot pollen-dot--one"></span>
-                <span class="pollen-dot pollen-dot--two"></span>
-                <span class="pollen-dot pollen-dot--three"></span>
-                <span class="signal-line signal-line--one"></span>
-                <span class="signal-line signal-line--two"></span>
                 <span class="bee-hive">
                     <span class="hive-body"></span>
                     <span class="hive-entrance"></span>
@@ -820,6 +767,18 @@
                     <span class="bee-wing bee-wing--near"></span>
                 </span>
                 <span class="bee bee--three">
+                    <span class="bee-wing bee-wing--far"></span>
+                    <span class="bee-leg bee-leg--front"></span>
+                    <span class="bee-leg bee-leg--middle"></span>
+                    <span class="bee-leg bee-leg--back"></span>
+                    <span class="bee-abdomen"></span>
+                    <span class="bee-thorax"></span>
+                    <span class="bee-head"></span>
+                    <span class="bee-antenna bee-antenna--upper"></span>
+                    <span class="bee-antenna bee-antenna--lower"></span>
+                    <span class="bee-wing bee-wing--near"></span>
+                </span>
+                <span class="bee bee--funny">
                     <span class="bee-wing bee-wing--far"></span>
                     <span class="bee-leg bee-leg--front"></span>
                     <span class="bee-leg bee-leg--middle"></span>

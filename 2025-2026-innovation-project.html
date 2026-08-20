@@ -8,10 +8,89 @@
     <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
     <meta name="description" content="Camels Hump Coders 2025-2026 UNEARTHED Innovation Project teaser video.">
     <style>
-        .project-wrap { max-width: 900px; margin: 0 auto; }
+        .project-wrap { max-width: 1040px; margin: 0 auto; }
         .hero .hero-content h2,
         .content-section h2,
         .content-section h3 { color: #000 !important; }
+        .project-carousel {
+            position: relative;
+            padding: 0 58px;
+        }
+        .project-carousel__viewport {
+            overflow: hidden;
+        }
+        .project-carousel__track {
+            display: flex;
+            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform;
+        }
+        .project-carousel__slide {
+            flex: 0 0 100%;
+            min-width: 0;
+            padding: 0 4px;
+            text-align: center;
+        }
+        .project-carousel__slide h2 {
+            margin-bottom: 1rem;
+        }
+        .project-carousel__slide .video {
+            max-width: 900px;
+            margin: 0 auto 1rem;
+        }
+        .project-carousel__description {
+            max-width: 760px;
+            margin: 0 auto;
+        }
+        .project-carousel__arrow {
+            position: absolute;
+            top: 50%;
+            width: 44px;
+            height: 44px;
+            z-index: 2;
+            display: grid;
+            place-items: center;
+            border: 2px solid #111111;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.92);
+            color: #111111;
+            font-size: 1.75rem;
+            line-height: 1;
+            cursor: pointer;
+            transform: translateY(-50%);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .project-carousel__arrow:hover,
+        .project-carousel__arrow:focus-visible {
+            background: #111111;
+            color: #ffffff;
+        }
+        .project-carousel__arrow--previous { left: 0; }
+        .project-carousel__arrow--next { right: 0; }
+        .project-carousel__status {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        @media (max-width: 640px) {
+            .project-carousel { padding: 0 10px; }
+            .project-carousel__arrow {
+                top: 55%;
+                width: 40px;
+                height: 40px;
+                background: rgba(255,255,255,0.86);
+            }
+            .project-carousel__arrow--previous { left: 2px; }
+            .project-carousel__arrow--next { right: 2px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .project-carousel__track { transition: none; }
+        }
     </style>
     <link rel="icon" type="image/png" href="assets/CHC%20logo.png">
     <script src="scripts.js" defer></script>
@@ -59,35 +138,44 @@
             </div>
         </section>
 
-        <section class="content-section">
-            <div class="container project-wrap">
-                <figure class="video" style="margin-top: 0;">
-                    <div class="video-embed">
-                        <video controls preload="metadata" playsinline poster="assets/innovation-project-teaser-poster.jpg">
-                            <source src="./assets/Copy%20of%20teaser%20for%20lego%20club%20-%20new%20and%20improved.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                </figure>
-                <p>This is a teaser video we created to advertise our idea to the public (note this is theoretical and not a actual event... Yet!).</p>
-            </div>
-        </section>
-
         <section class="content-section highlight">
             <div class="container project-wrap">
-                <h2>Our Work at States</h2>
-                <figure class="video">
-                    <div class="video-embed">
-                        <iframe
-                            src="https://prezi.com/p/embed/akPToltHIDUNDTmHmVub/"
-                            title="Our Work at States"
-                            frameborder="0"
-                            allow="autoplay; fullscreen"
-                            allowfullscreen
-                            loading="lazy"
-                        ></iframe>
+                <div class="project-carousel" aria-label="Innovation project media" aria-roledescription="carousel">
+                    <button class="project-carousel__arrow project-carousel__arrow--previous" type="button" aria-label="Previous presentation" title="Previous presentation">&#8249;</button>
+                    <div class="project-carousel__viewport">
+                        <div class="project-carousel__track">
+                            <article class="project-carousel__slide" role="group" aria-roledescription="slide" aria-label="1 of 2">
+                                <h2>Project Teaser</h2>
+                                <figure class="video">
+                                    <div class="video-embed">
+                                        <video controls preload="metadata" playsinline poster="assets/innovation-project-teaser-poster.jpg">
+                                            <source src="./assets/Copy%20of%20teaser%20for%20lego%20club%20-%20new%20and%20improved.mp4" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                </figure>
+                                <p class="project-carousel__description">This is a teaser video we created to advertise our idea to the public (note this is theoretical and not a actual event... Yet!).</p>
+                            </article>
+                            <article class="project-carousel__slide" role="group" aria-roledescription="slide" aria-label="2 of 2">
+                                <h2>Our Work at States</h2>
+                                <figure class="video">
+                                    <div class="video-embed">
+                                        <iframe
+                                            src="https://prezi.com/p/embed/akPToltHIDUNDTmHmVub/"
+                                            title="Our Work at States"
+                                            frameborder="0"
+                                            allow="autoplay; fullscreen"
+                                            allowfullscreen
+                                            loading="lazy"
+                                        ></iframe>
+                                    </div>
+                                </figure>
+                            </article>
+                        </div>
                     </div>
-                </figure>
+                    <button class="project-carousel__arrow project-carousel__arrow--next" type="button" aria-label="Next presentation" title="Next presentation">&#8250;</button>
+                    <span class="project-carousel__status" aria-live="polite">Showing slide 1 of 2</span>
+                </div>
             </div>
         </section>
     </main>
