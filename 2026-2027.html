@@ -13,7 +13,7 @@
         .season-header {
             background: linear-gradient(135deg, #f7ec9d 0%, #fff8cf 54%, #f4d45e 100%);
             color: #111111;
-            padding: 3rem 0;
+            padding: 3rem 0 6.5rem;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -175,125 +175,495 @@
             transform: rotate(-12deg);
         }
 
+        .bee-hive {
+            position: absolute;
+            left: 5%;
+            bottom: 3%;
+            width: 118px;
+            height: 136px;
+            z-index: 2;
+            filter: drop-shadow(0 8px 6px rgba(69, 45, 9, 0.22));
+        }
+
+        .bee-hive::after {
+            content: "";
+            position: absolute;
+            left: -14px;
+            right: -14px;
+            bottom: 0;
+            height: 16px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(79, 104, 34, 0.5), rgba(79, 104, 34, 0) 70%);
+        }
+
+        .hive-body {
+            position: absolute;
+            left: 10px;
+            bottom: 7px;
+            width: 98px;
+            height: 120px;
+            background:
+                linear-gradient(90deg, rgba(91,55,7,0.3), transparent 18%, rgba(255,232,130,0.36) 46%, transparent 72%, rgba(88,54,8,0.26)),
+                repeating-linear-gradient(0deg, #765014 0 3px, #bd8b29 3px 13px, #dfb44b 13px 17px, #8c6119 17px 20px);
+            border: 1px solid rgba(87, 55, 9, 0.6);
+            clip-path: polygon(45% 0, 55% 0, 72% 7%, 84% 18%, 94% 36%, 100% 61%, 94% 81%, 82% 95%, 50% 100%, 18% 95%, 6% 81%, 0 61%, 6% 36%, 16% 18%, 28% 7%);
+        }
+
+        .hive-body::before {
+            content: "";
+            position: absolute;
+            inset: 8px 13px 15px;
+            background: repeating-linear-gradient(9deg, transparent 0 7px, rgba(255,238,165,0.18) 7px 9px);
+            border-radius: 45%;
+        }
+
+        .hive-entrance {
+            position: absolute;
+            left: 41px;
+            bottom: 24px;
+            width: 35px;
+            height: 28px;
+            z-index: 2;
+            border: 5px solid #805316;
+            border-radius: 52% 52% 44% 44%;
+            background: radial-gradient(ellipse at 50% 60%, #090704 0 52%, #2d1b08 72%, #65400f 100%);
+            box-shadow: inset 0 3px 5px #000000;
+        }
+
+        .hive-entrance::after {
+            content: "";
+            position: absolute;
+            left: -8px;
+            bottom: -8px;
+            width: 42px;
+            height: 7px;
+            border-radius: 2px 2px 5px 5px;
+            background: linear-gradient(#b78024, #62400f);
+            box-shadow: 0 2px 2px rgba(50,31,6,0.3);
+        }
+
+        .flower-patch {
+            position: absolute;
+            bottom: 1%;
+            width: 190px;
+            height: 128px;
+            z-index: 2;
+            filter: drop-shadow(0 4px 2px rgba(53, 71, 20, 0.16));
+        }
+
+        .flower-patch::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 20px;
+            border-radius: 50%;
+            background:
+                radial-gradient(ellipse at 28% 60%, #748f32 0 12%, transparent 13%),
+                radial-gradient(ellipse at 52% 55%, #526f25 0 18%, transparent 19%),
+                radial-gradient(ellipse at 76% 62%, #829b3d 0 15%, transparent 16%);
+            opacity: 0.76;
+        }
+
+        .flower-patch--near {
+            left: 30%;
+            scale: 0.72;
+            transform-origin: bottom center;
+        }
+
+        .flower-patch--far {
+            right: 3%;
+        }
+
+        .flower {
+            position: absolute;
+            bottom: 7px;
+            width: 4px;
+            height: var(--stem-height);
+            z-index: 1;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #37551e, #759743 48%, #2f4c18);
+            rotate: var(--lean);
+            transform-origin: bottom center;
+        }
+
+        .flower::before,
+        .flower::after {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 8px;
+            border-radius: 100% 0 100% 0;
+            background: linear-gradient(135deg, #7fa547, #3d6423);
+        }
+
+        .flower::before {
+            left: -16px;
+            top: 54%;
+            rotate: 18deg;
+        }
+
+        .flower::after {
+            left: 2px;
+            top: 69%;
+            rotate: -18deg;
+            scale: -1 1;
+        }
+
+        .flower-bloom {
+            position: absolute;
+            left: -11px;
+            top: -15px;
+            width: 26px;
+            height: 28px;
+            filter: drop-shadow(0 2px 1px rgba(55, 38, 9, 0.2));
+        }
+
+        .flower-bloom::before {
+            content: "";
+            position: absolute;
+            left: 9px;
+            top: 0;
+            width: 9px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--petal);
+            box-shadow:
+                8px 5px 0 var(--petal),
+                8px 14px 0 var(--petal),
+                0 18px 0 var(--petal),
+                -8px 14px 0 var(--petal),
+                -8px 5px 0 var(--petal);
+        }
+
+        .flower-bloom::after {
+            content: "";
+            position: absolute;
+            left: 9px;
+            top: 10px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ffe875, var(--center) 48%, #714414 100%);
+            box-shadow: 0 0 0 2px rgba(111, 72, 19, 0.16);
+        }
+
+        .flower--one {
+            --stem-height: 65px;
+            --lean: -6deg;
+            --petal: #f8f0d4;
+            --center: #d99b1d;
+            left: 18px;
+        }
+
+        .flower--two {
+            --stem-height: 94px;
+            --lean: 4deg;
+            --petal: #efbd3d;
+            --center: #7d4b18;
+            left: 66px;
+        }
+
+        .flower--three {
+            --stem-height: 76px;
+            --lean: -3deg;
+            --petal: #73a7cf;
+            --center: #d4a52c;
+            left: 112px;
+        }
+
+        .flower--four {
+            --stem-height: 105px;
+            --lean: 6deg;
+            --petal: #e9959b;
+            --center: #9c5c1b;
+            left: 158px;
+        }
+
         .bee {
             position: absolute;
-            width: 42px;
-            height: 30px;
+            width: 62px;
+            height: 44px;
             pointer-events: none;
             z-index: 3;
             transform-origin: center;
+            filter: drop-shadow(0 3px 2px rgba(42, 28, 8, 0.2));
         }
 
-        .bee::before {
-            content: "";
+        .bee-abdomen {
             position: absolute;
-            left: -12px;
+            left: 2px;
             top: 16px;
-            width: 16px;
-            height: 2px;
-            background: rgba(17,17,17,0.25);
-            border-radius: 999px;
+            width: 38px;
+            height: 20px;
+            z-index: 2;
+            border-radius: 58% 42% 44% 56%;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.38), transparent 35%, rgba(43,27,11,0.3) 100%),
+                linear-gradient(90deg,
+                    #31251a 0 12%,
+                    #c28a18 12% 27%,
+                    #35271a 27% 39%,
+                    #dfa92c 39% 54%,
+                    #302218 54% 66%,
+                    #c78c18 66% 81%,
+                    #2a2018 81% 100%);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,0.35),
+                inset 0 -2px 2px rgba(28,18,8,0.34),
+                0 0 0 1px rgba(46,32,17,0.22);
+            clip-path: polygon(0 50%, 9% 23%, 67% 6%, 100% 24%, 100% 76%, 67% 94%, 9% 77%);
         }
 
-        .bee-body {
-            position: absolute;
-            left: 9px;
-            top: 11px;
-            width: 27px;
-            height: 15px;
-            border-radius: 50%;
-            background: repeating-linear-gradient(90deg, #f6d84b 0 7px, #111111 7px 10px);
-            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.18);
-        }
-
-        .bee-body::before {
+        .bee-abdomen::before {
             content: "";
             position: absolute;
-            left: -7px;
+            left: -5px;
+            top: 7px;
+            width: 8px;
+            height: 5px;
+            background: #2a2018;
+            clip-path: polygon(0 50%, 100% 0, 100% 100%);
+        }
+
+        .bee-abdomen::after {
+            content: "";
+            position: absolute;
+            inset: 2px 4px 3px 7px;
+            border-radius: inherit;
+            background: repeating-linear-gradient(104deg, transparent 0 3px, rgba(255,238,178,0.16) 3px 4px);
+        }
+
+        .bee-thorax {
+            position: absolute;
+            left: 34px;
+            top: 13px;
+            width: 19px;
+            height: 23px;
+            z-index: 3;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 62% 28%, #70502e 0 10%, transparent 11%),
+                radial-gradient(circle at 38% 48%, #5a3e25 0 28%, #35271d 63%, #211a14 100%);
+            box-shadow:
+                -1px -1px 0 #8b673b,
+                1px 0 0 #261c14,
+                0 0 4px rgba(74,48,24,0.55);
+        }
+
+        .bee-thorax::after {
+            content: "";
+            position: absolute;
+            inset: 2px;
+            border-radius: inherit;
+            background: repeating-radial-gradient(circle at 40% 50%, transparent 0 2px, rgba(226,190,112,0.13) 2px 3px);
+        }
+
+        .bee-head {
+            position: absolute;
+            left: 49px;
+            top: 16px;
+            width: 14px;
+            height: 17px;
+            z-index: 4;
+            border-radius: 48% 58% 52% 46%;
+            background: radial-gradient(circle at 38% 35%, #594431 0 13%, #2a211b 42%, #171411 100%);
+            box-shadow: inset -1px -1px 1px rgba(0,0,0,0.42);
+        }
+
+        .bee-head::before {
+            content: "";
+            position: absolute;
+            right: 1px;
             top: 3px;
-            width: 11px;
-            height: 11px;
+            width: 6px;
+            height: 7px;
             border-radius: 50%;
-            background: #111111;
+            background: radial-gradient(circle at 34% 30%, #8f775d 0 10%, #211c18 25%, #080807 100%);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
         }
 
-        .bee-body::after {
+        .bee-head::after {
             content: "";
             position: absolute;
-            right: -6px;
-            top: 5px;
-            width: 0;
-            height: 0;
-            border-left: 8px solid #111111;
-            border-top: 3px solid transparent;
-            border-bottom: 3px solid transparent;
+            right: -3px;
+            bottom: 3px;
+            width: 5px;
+            height: 4px;
+            border-right: 2px solid #171411;
+            border-bottom: 1px solid #171411;
+            border-radius: 0 0 5px 0;
         }
 
         .bee-wing {
             position: absolute;
-            top: 2px;
-            width: 15px;
-            height: 12px;
-            border: 1px solid rgba(17,17,17,0.18);
+            transform-origin: 18% 82%;
+            border: 1px solid rgba(75,68,55,0.32);
+            border-radius: 56% 46% 60% 42%;
+            background:
+                linear-gradient(24deg, transparent 47%, rgba(100,91,72,0.28) 49%, rgba(100,91,72,0.28) 51%, transparent 53%),
+                linear-gradient(100deg, transparent 47%, rgba(100,91,72,0.22) 49%, rgba(100,91,72,0.22) 51%, transparent 53%),
+                radial-gradient(ellipse at 30% 70%, rgba(255,255,255,0.88), rgba(226,236,229,0.54) 58%, rgba(255,255,255,0.2));
+            box-shadow: inset 0 0 5px rgba(255,255,255,0.62);
+            animation: wing-flap 0.16s ease-in-out infinite alternate;
+        }
+
+        .bee-wing::after {
+            content: "";
+            position: absolute;
+            left: 19%;
+            top: 53%;
+            width: 70%;
+            border-top: 1px solid rgba(100,91,72,0.23);
+            rotate: 8deg;
+        }
+
+        .bee-wing--near {
+            left: 34px;
+            top: 0;
+            width: 27px;
+            height: 17px;
+            z-index: 5;
+            rotate: -19deg;
+        }
+
+        .bee-wing--far {
+            left: 27px;
+            top: 5px;
+            width: 24px;
+            height: 15px;
+            z-index: 1;
+            rotate: 15deg;
+            opacity: 0.72;
+            animation-delay: -0.08s;
+        }
+
+        .bee-antenna {
+            position: absolute;
+            left: 57px;
+            width: 12px;
+            height: 9px;
+            z-index: 3;
+            border-top: 1px solid #2b2119;
             border-radius: 50%;
-            background: rgba(255,255,255,0.78);
-            transform-origin: bottom center;
-            animation: wing-flap 0.2s linear infinite alternate;
+            transform-origin: left center;
         }
 
-        .bee-wing--front {
-            left: 14px;
-            transform: rotate(-28deg);
+        .bee-antenna::after {
+            content: "";
+            position: absolute;
+            right: -1px;
+            top: -2px;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: #2b2119;
         }
 
-        .bee-wing--back {
-            left: 24px;
-            transform: rotate(24deg);
-            animation-delay: -0.1s;
+        .bee-antenna--upper {
+            top: 13px;
+            rotate: -23deg;
+        }
+
+        .bee-antenna--lower {
+            top: 17px;
+            rotate: 5deg;
+            scale: 0.9;
+        }
+
+        .bee-leg {
+            position: absolute;
+            left: 39px;
+            top: 29px;
+            width: 14px;
+            height: 9px;
+            z-index: 1;
+            border-bottom: 1.5px solid #2c2118;
+            transform-origin: left top;
+        }
+
+        .bee-leg::after {
+            content: "";
+            position: absolute;
+            right: -7px;
+            bottom: -4px;
+            width: 9px;
+            border-bottom: 1.5px solid #2c2118;
+            rotate: 24deg;
+        }
+
+        .bee-leg--front {
+            left: 45px;
+            rotate: -28deg;
+        }
+
+        .bee-leg--middle {
+            left: 40px;
+            top: 31px;
+            rotate: 8deg;
+        }
+
+        .bee-leg--back {
+            left: 34px;
+            top: 30px;
+            rotate: 34deg;
         }
 
         .bee--one {
-            left: -50px;
-            top: -38px;
-            animation: bee-loop-one 6.6s ease-in-out infinite;
+            left: 12%;
+            top: 72%;
+            transform: translate(-50%, -50%);
+            animation: bee-hive-to-far-flowers 12s ease-in-out infinite;
         }
 
         .bee--two {
-            right: -52px;
-            top: -28px;
-            animation: bee-loop-two 7.8s ease-in-out infinite;
+            left: 86%;
+            top: 70%;
+            transform: translate(-50%, -50%) scaleX(-1);
+            animation: bee-far-flowers-to-hive 13.4s ease-in-out -4s infinite;
         }
 
         .bee--three {
-            left: 42%;
-            bottom: -42px;
-            animation: bee-loop-three 8.4s ease-in-out infinite;
+            left: 12%;
+            top: 72%;
+            transform: translate(-50%, -50%);
+            scale: 0.88;
+            animation: bee-hive-to-near-flowers 9.8s ease-in-out -6.5s infinite;
         }
 
         @keyframes wing-flap {
-            from { scale: 1 0.45; opacity: 0.72; }
-            to { scale: 1 1; opacity: 0.95; }
+            from { scale: 0.96 0.3; opacity: 0.56; }
+            to { scale: 1 1; opacity: 0.92; }
         }
 
-        @keyframes bee-loop-one {
-            0%, 100% { transform: translate(0, 0) rotate(10deg); }
-            28% { transform: translate(48px, 18px) rotate(24deg); }
-            58% { transform: translate(92px, -8px) rotate(-12deg); }
-            78% { transform: translate(44px, -24px) rotate(-24deg); }
+        @keyframes bee-hive-to-far-flowers {
+            0%, 6% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-10deg); }
+            20% { left: 23%; top: 39%; transform: translate(-50%, -50%) rotate(-20deg); }
+            38% { left: 48%; top: 15%; transform: translate(-50%, -50%) rotate(2deg); }
+            54%, 60% { left: 86%; top: 70%; transform: translate(-50%, -50%) rotate(19deg); }
+            61% { left: 86%; top: 70%; transform: translate(-50%, -50%) rotate(-19deg) scaleX(-1); }
+            76% { left: 66%; top: 30%; transform: translate(-50%, -50%) rotate(13deg) scaleX(-1); }
+            91%, 100% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-14deg) scaleX(-1); }
         }
 
-        @keyframes bee-loop-two {
-            0%, 100% { transform: translate(0, 0) rotate(-18deg) scaleX(-1); }
-            30% { transform: translate(-46px, 20px) rotate(-2deg) scaleX(-1); }
-            60% { transform: translate(-92px, -12px) rotate(18deg) scaleX(-1); }
-            82% { transform: translate(-38px, -26px) rotate(28deg) scaleX(-1); }
+        @keyframes bee-far-flowers-to-hive {
+            0%, 7% { left: 86%; top: 70%; transform: translate(-50%, -50%) rotate(-18deg) scaleX(-1); }
+            21% { left: 74%; top: 42%; transform: translate(-50%, -50%) rotate(22deg) scaleX(-1); }
+            39% { left: 45%; top: 22%; transform: translate(-50%, -50%) rotate(-5deg) scaleX(-1); }
+            55%, 62% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(14deg) scaleX(-1); }
+            63% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-14deg); }
+            78% { left: 34%; top: 34%; transform: translate(-50%, -50%) rotate(-18deg); }
+            93%, 100% { left: 86%; top: 70%; transform: translate(-50%, -50%) rotate(13deg); }
         }
 
-        @keyframes bee-loop-three {
-            0%, 100% { transform: translate(0, 0) rotate(4deg); }
-            24% { transform: translate(38px, -24px) rotate(-15deg); }
-            52% { transform: translate(4px, -42px) rotate(14deg); }
-            78% { transform: translate(-40px, -18px) rotate(22deg); }
+        @keyframes bee-hive-to-near-flowers {
+            0%, 8% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-8deg); }
+            27% { left: 19%; top: 36%; transform: translate(-50%, -50%) rotate(-18deg); }
+            48%, 57% { left: 38%; top: 76%; transform: translate(-50%, -50%) rotate(22deg); }
+            58% { left: 38%; top: 76%; transform: translate(-50%, -50%) rotate(-22deg) scaleX(-1); }
+            76% { left: 25%; top: 31%; transform: translate(-50%, -50%) rotate(16deg) scaleX(-1); }
+            94%, 100% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-13deg) scaleX(-1); }
         }
 
         @keyframes pollen-drift {
@@ -330,7 +700,7 @@
 
         @media (max-width: 640px) {
             .season-header {
-                padding: 2.25rem 0;
+                padding: 2.25rem 0 6.5rem;
             }
 
             .season-logo {
@@ -342,9 +712,30 @@
                 opacity: 0.45;
             }
 
+            .bee-hive {
+                left: -1%;
+                bottom: 1%;
+                scale: 0.68;
+                transform-origin: bottom left;
+            }
+
+            .flower-patch--near {
+                left: 15%;
+                scale: 0.48;
+            }
+
+            .flower-patch--far {
+                right: -7%;
+                scale: 0.67;
+                transform-origin: bottom center;
+            }
+
             .bee {
-                width: 34px;
-                height: 24px;
+                scale: 0.7;
+            }
+
+            .bee--three {
+                scale: 0.62;
             }
         }
 
@@ -404,9 +795,61 @@
                 <span class="pollen-dot pollen-dot--three"></span>
                 <span class="signal-line signal-line--one"></span>
                 <span class="signal-line signal-line--two"></span>
+                <span class="bee-hive">
+                    <span class="hive-body"></span>
+                    <span class="hive-entrance"></span>
+                </span>
+                <span class="flower-patch flower-patch--near">
+                    <span class="flower flower--one"><span class="flower-bloom"></span></span>
+                    <span class="flower flower--two"><span class="flower-bloom"></span></span>
+                    <span class="flower flower--three"><span class="flower-bloom"></span></span>
+                    <span class="flower flower--four"><span class="flower-bloom"></span></span>
+                </span>
+                <span class="flower-patch flower-patch--far">
+                    <span class="flower flower--one"><span class="flower-bloom"></span></span>
+                    <span class="flower flower--two"><span class="flower-bloom"></span></span>
+                    <span class="flower flower--three"><span class="flower-bloom"></span></span>
+                    <span class="flower flower--four"><span class="flower-bloom"></span></span>
+                </span>
+                <span class="bee bee--one">
+                    <span class="bee-wing bee-wing--far"></span>
+                    <span class="bee-leg bee-leg--front"></span>
+                    <span class="bee-leg bee-leg--middle"></span>
+                    <span class="bee-leg bee-leg--back"></span>
+                    <span class="bee-abdomen"></span>
+                    <span class="bee-thorax"></span>
+                    <span class="bee-head"></span>
+                    <span class="bee-antenna bee-antenna--upper"></span>
+                    <span class="bee-antenna bee-antenna--lower"></span>
+                    <span class="bee-wing bee-wing--near"></span>
+                </span>
+                <span class="bee bee--two">
+                    <span class="bee-wing bee-wing--far"></span>
+                    <span class="bee-leg bee-leg--front"></span>
+                    <span class="bee-leg bee-leg--middle"></span>
+                    <span class="bee-leg bee-leg--back"></span>
+                    <span class="bee-abdomen"></span>
+                    <span class="bee-thorax"></span>
+                    <span class="bee-head"></span>
+                    <span class="bee-antenna bee-antenna--upper"></span>
+                    <span class="bee-antenna bee-antenna--lower"></span>
+                    <span class="bee-wing bee-wing--near"></span>
+                </span>
+                <span class="bee bee--three">
+                    <span class="bee-wing bee-wing--far"></span>
+                    <span class="bee-leg bee-leg--front"></span>
+                    <span class="bee-leg bee-leg--middle"></span>
+                    <span class="bee-leg bee-leg--back"></span>
+                    <span class="bee-abdomen"></span>
+                    <span class="bee-thorax"></span>
+                    <span class="bee-head"></span>
+                    <span class="bee-antenna bee-antenna--upper"></span>
+                    <span class="bee-antenna bee-antenna--lower"></span>
+                    <span class="bee-wing bee-wing--near"></span>
+                </span>
             </div>
             <div class="container">
-                <h2>2026-2027 Season: <span class="ftc-theme">BioBuzz<span class="bee bee--one" aria-hidden="true"><span class="bee-wing bee-wing--front"></span><span class="bee-wing bee-wing--back"></span><span class="bee-body"></span></span><span class="bee bee--two" aria-hidden="true"><span class="bee-wing bee-wing--front"></span><span class="bee-wing bee-wing--back"></span><span class="bee-body"></span></span><span class="bee bee--three" aria-hidden="true"><span class="bee-wing bee-wing--front"></span><span class="bee-wing bee-wing--back"></span><span class="bee-body"></span></span></span></h2>
+                <h2>2026-2027 Season: <span class="ftc-theme">BioBuzz</span></h2>
                 <img src="assets/biobuzz-hero-transparent.png" alt="BioBuzz moving logo" class="season-logo">
                 <p style="font-size: 1.2rem;">A new chapter in FIRST&reg; Tech Chalange</p>
             </div>
