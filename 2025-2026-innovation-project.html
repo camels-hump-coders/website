@@ -8,30 +8,76 @@
     <link href="https://fonts.googleapis.com/css2?family=Iceberg&display=swap" rel="stylesheet">
     <meta name="description" content="Camels Hump Coders 2025-2026 UNEARTHED Innovation Project teaser video.">
     <style>
-        .project-wrap { max-width: 1040px; margin: 0 auto; }
+        .project-wrap { max-width: 1180px; margin: 0 auto; }
         .hero .hero-content h2,
         .content-section h2,
         .content-section h3 { color: #000 !important; }
         .project-carousel {
+            --slide-gap: 18px;
+            --slide-size: 67%;
+            --slide-step: 0px;
+            --active-offset: 0px;
+            --preview-angle: -14deg;
+            --preview-drop: 12px;
             position: relative;
-            padding: 0 58px;
+            padding: 0;
         }
         .project-carousel__viewport {
             overflow: hidden;
+            overflow: clip;
+            padding: 16px 0 24px;
+            perspective: 1000px;
         }
         .project-carousel__track {
-            display: flex;
-            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-            will-change: transform;
+            position: relative;
+            width: 100%;
         }
         .project-carousel__slide {
-            flex: 0 0 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--slide-size);
             min-width: 0;
-            padding: 0 4px;
             text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate3d(calc(var(--active-offset) - var(--slide-step)), var(--preview-drop), 0)
+                rotateY(calc(-1 * var(--preview-angle))) scale(0.92);
+            transform-origin: right center;
+            backface-visibility: hidden;
+            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                transform-origin 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform;
+        }
+        .project-carousel__slide.is-active {
+            z-index: 3;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate3d(var(--active-offset), 0, 0) scale(1);
+            transform-origin: center;
+        }
+        .project-carousel__slide.is-next {
+            z-index: 2;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate3d(calc(var(--active-offset) + var(--slide-step)), var(--preview-drop), 0)
+                rotateY(var(--preview-angle)) scale(0.92);
+            transform-origin: left center;
+        }
+        .project-carousel__slide.is-previous {
+            z-index: 2;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .project-carousel__slide.is-jumping {
+            transition: none !important;
         }
         .project-carousel__slide h2 {
             margin-bottom: 1rem;
+        }
+        .project-carousel__slide.is-next h2,
+        .project-carousel__slide.is-previous h2 {
+            opacity: 0;
         }
         .project-carousel__slide .video {
             max-width: 900px;
@@ -41,31 +87,55 @@
             max-width: 760px;
             margin: 0 auto;
         }
+        .project-carousel__slide:not(.is-active) .project-carousel__description {
+            visibility: hidden;
+        }
+        .project-carousel__select {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            width: 100%;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+        .project-carousel__select:focus-visible {
+            outline: 3px solid #111111;
+            outline-offset: -3px;
+        }
+        .project-carousel__slide:not(.is-next):not(.is-previous) .project-carousel__select {
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .project-carousel__slide.is-next .video-embed {
+            box-shadow: -12px 10px 22px rgba(0, 0, 0, 0.16);
+        }
         .project-carousel__arrow {
             position: absolute;
             top: 50%;
-            width: 44px;
-            height: 44px;
-            z-index: 2;
+            width: 38px;
+            height: 38px;
+            z-index: 4;
             display: grid;
             place-items: center;
-            border: 2px solid #111111;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.92);
-            color: #111111;
-            font-size: 1.75rem;
+            border: 1px solid #111111;
+            border-radius: 4px;
+            background: #111111;
+            color: #ffffff;
+            font-size: 1.35rem;
             line-height: 1;
             cursor: pointer;
             transform: translateY(-50%);
-            transition: background-color 0.2s ease, color 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
         }
         .project-carousel__arrow:hover,
         .project-carousel__arrow:focus-visible {
-            background: #111111;
-            color: #ffffff;
+            background: #ffffff;
+            color: #111111;
+            transform: translateY(-50%) scale(1.06);
         }
-        .project-carousel__arrow--previous { left: 0; }
-        .project-carousel__arrow--next { right: 0; }
+        .project-carousel__arrow--previous { left: 8px; }
+        .project-carousel__arrow--next { right: 8px; }
         .project-carousel__status {
             position: absolute;
             width: 1px;
@@ -78,18 +148,25 @@
             border: 0;
         }
         @media (max-width: 640px) {
-            .project-carousel { padding: 0 10px; }
-            .project-carousel__arrow {
-                top: 55%;
-                width: 40px;
-                height: 40px;
-                background: rgba(255,255,255,0.86);
+            .project-carousel {
+                --slide-gap: 10px;
+                --slide-size: 65%;
+                --preview-angle: -11deg;
+                --preview-drop: 8px;
+                padding: 0;
             }
-            .project-carousel__arrow--previous { left: 2px; }
-            .project-carousel__arrow--next { right: 2px; }
+            .project-carousel__viewport { padding-top: 8px; }
+            .project-carousel__arrow {
+                width: 30px;
+                height: 36px;
+                font-size: 1.1rem;
+            }
+            .project-carousel__arrow--previous { left: 4px; }
+            .project-carousel__arrow--next { right: 4px; }
         }
         @media (prefers-reduced-motion: reduce) {
-            .project-carousel__track { transition: none; }
+            .project-carousel__slide,
+            .project-carousel__arrow { transition: none; }
         }
     </style>
     <link rel="icon" type="image/png" href="assets/CHC%20logo.png">
@@ -141,22 +218,23 @@
         <section class="content-section highlight">
             <div class="container project-wrap">
                 <div class="project-carousel" aria-label="Innovation project media" aria-roledescription="carousel">
-                    <button class="project-carousel__arrow project-carousel__arrow--previous" type="button" aria-label="Previous presentation" title="Previous presentation">&#8249;</button>
+                    <button class="project-carousel__arrow project-carousel__arrow--previous" type="button" aria-label="Previous item" title="Previous item">&#8592;</button>
                     <div class="project-carousel__viewport">
                         <div class="project-carousel__track">
-                            <article class="project-carousel__slide" role="group" aria-roledescription="slide" aria-label="1 of 2">
+                            <article class="project-carousel__slide" role="group" aria-roledescription="slide" aria-label="1 of 3">
                                 <h2>Project Teaser</h2>
                                 <figure class="video">
                                     <div class="video-embed">
-                                        <video controls preload="metadata" playsinline poster="assets/innovation-project-teaser-poster.jpg">
-                                            <source src="./assets/Copy%20of%20teaser%20for%20lego%20club%20-%20new%20and%20improved.mp4" type="video/mp4">
+                                        <video controls preload="metadata" playsinline poster="assets/houston-teaser-poster.jpg">
+                                            <source src="./assets/assets%3AHouston%20teaser%20for%20lego%20club%20-%20new%20and%20improved%20%282%29.mp4" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
                                     </div>
                                 </figure>
                                 <p class="project-carousel__description">This is a teaser video we created to advertise our idea to the public (note this is theoretical and not a actual event... Yet!).</p>
+                                <button class="project-carousel__select" type="button" aria-label="Show Project Teaser"></button>
                             </article>
-                            <article class="project-carousel__slide" role="group" aria-roledescription="slide" aria-label="2 of 2">
+                            <article class="project-carousel__slide" role="group" aria-roledescription="slide" aria-label="2 of 3">
                                 <h2>Our Work at States</h2>
                                 <figure class="video">
                                     <div class="video-embed">
@@ -166,15 +244,32 @@
                                             frameborder="0"
                                             allow="autoplay; fullscreen"
                                             allowfullscreen
-                                            loading="lazy"
                                         ></iframe>
                                     </div>
                                 </figure>
+                                <p class="project-carousel__description">The presentation we shared at the Vermont State Championship.</p>
+                                <button class="project-carousel__select" type="button" aria-label="Show Our Work at States"></button>
+                            </article>
+                            <article class="project-carousel__slide" role="group" aria-roledescription="slide" aria-label="3 of 3">
+                                <h2>Worlds Presentation</h2>
+                                <figure class="video">
+                                    <div class="video-embed">
+                                        <iframe
+                                            src="https://prezi.com/p/embed/77KY5UX2Ar7lvVmLesqE/"
+                                            title="Worlds Presentation"
+                                            frameborder="0"
+                                            allow="autoplay; fullscreen"
+                                            allowfullscreen
+                                        ></iframe>
+                                    </div>
+                                </figure>
+                                <p class="project-carousel__description">The presentation we shared at the FIRST® LEGO® League World Championship in Houston, Texas.</p>
+                                <button class="project-carousel__select" type="button" aria-label="Show Worlds Presentation"></button>
                             </article>
                         </div>
                     </div>
-                    <button class="project-carousel__arrow project-carousel__arrow--next" type="button" aria-label="Next presentation" title="Next presentation">&#8250;</button>
-                    <span class="project-carousel__status" aria-live="polite">Showing slide 1 of 2</span>
+                    <button class="project-carousel__arrow project-carousel__arrow--next" type="button" aria-label="Next item" title="Next item">&#8594;</button>
+                    <span class="project-carousel__status" aria-live="polite">Showing slide 1 of 3</span>
                 </div>
             </div>
         </section>

@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const projectCarousel = document.querySelector('.project-carousel');
     if (projectCarousel) {
+        const viewport = projectCarousel.querySelector('.project-carousel__viewport');
         const track = projectCarousel.querySelector('.project-carousel__track');
         const slides = Array.from(projectCarousel.querySelectorAll('.project-carousel__slide'));
         const previousButton = projectCarousel.querySelector('.project-carousel__arrow--previous');
@@ -49,26 +50,105 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = projectCarousel.querySelector('.project-carousel__status');
         let currentSlide = 0;
         let touchStartX = null;
+        let isAnimating = false;
+        let animationTimer = null;
 
-        const showSlide = (index) => {
-            if (!track || !slides.length) return;
-            currentSlide = (index + slides.length) % slides.length;
-            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        const normalizeSlide = (index) => (
+            (index + slides.length) % slides.length
+        );
+
+        const updateDimensions = () => {
+            if (!viewport || !track || !slides.length) return;
+            const styles = getComputedStyle(projectCarousel);
+            const gap = Number.parseFloat(styles.getPropertyValue('--slide-gap')) || 0;
+            const slideWidth = slides[0].offsetWidth;
+            const trackHeight = Math.max(...slides.map((slide) => slide.offsetHeight));
+            projectCarousel.style.setProperty('--slide-step', `${slideWidth + gap}px`);
+            projectCarousel.style.setProperty(
+                '--active-offset',
+                `${(viewport.clientWidth - slideWidth) / 2}px`
+            );
+            track.style.height = `${trackHeight}px`;
+        };
+
+        const updateSlideStates = () => {
+            const nextSlide = normalizeSlide(currentSlide + 1);
+            const previousSlide = normalizeSlide(currentSlide - 1);
+
             slides.forEach((slide, slideIndex) => {
                 const isCurrent = slideIndex === currentSlide;
-                slide.setAttribute('aria-hidden', String(!isCurrent));
-                slide.inert = !isCurrent;
+                const isNext = slideIndex === nextSlide;
+                const isPrevious = slideIndex === previousSlide;
+                slide.classList.toggle('is-active', isCurrent);
+                slide.classList.toggle('is-next', isNext);
+                slide.classList.toggle('is-previous', isPrevious);
+                slide.toggleAttribute('aria-current', isCurrent);
+                slide.setAttribute('aria-hidden', String(!isCurrent && !isNext && !isPrevious));
+
+                const selectButton = slide.querySelector('.project-carousel__select');
+                if (selectButton) {
+                    const isPreview = isNext || isPrevious;
+                    selectButton.tabIndex = isPreview ? 0 : -1;
+                    selectButton.setAttribute('aria-hidden', String(!isPreview));
+                }
+
+                slide.querySelectorAll('video, iframe').forEach((media) => {
+                    if (isCurrent) {
+                        media.removeAttribute('tabindex');
+                    } else {
+                        media.setAttribute('tabindex', '-1');
+                    }
+                });
+
                 if (!isCurrent) {
                     slide.querySelector('video')?.pause();
                 }
             });
+
             if (status) {
                 status.textContent = `Showing slide ${currentSlide + 1} of ${slides.length}`;
             }
         };
 
+        const showSlide = (index) => {
+            if (!viewport || !track || !slides.length) return;
+            const targetSlide = normalizeSlide(index);
+            if (targetSlide === currentSlide) {
+                updateDimensions();
+                return;
+            }
+            if (isAnimating) return;
+
+            viewport.scrollLeft = 0;
+            const oldSlide = currentSlide;
+            const movingForward = targetSlide === normalizeSlide(oldSlide + 1);
+            const wrappingSlide = slides[
+                movingForward
+                    ? normalizeSlide(oldSlide - 1)
+                    : normalizeSlide(oldSlide + 1)
+            ];
+
+            wrappingSlide.classList.add('is-jumping');
+            wrappingSlide.getBoundingClientRect();
+            currentSlide = targetSlide;
+            updateSlideStates();
+            wrappingSlide.getBoundingClientRect();
+            requestAnimationFrame(() => wrappingSlide.classList.remove('is-jumping'));
+
+            isAnimating = true;
+            window.clearTimeout(animationTimer);
+            animationTimer = window.setTimeout(() => {
+                isAnimating = false;
+            }, 575);
+        };
+
         previousButton?.addEventListener('click', () => showSlide(currentSlide - 1));
         nextButton?.addEventListener('click', () => showSlide(currentSlide + 1));
+        slides.forEach((slide, slideIndex) => {
+            slide.querySelector('.project-carousel__select')?.addEventListener('click', () => {
+                showSlide(slideIndex);
+            });
+        });
 
         projectCarousel.tabIndex = 0;
         projectCarousel.addEventListener('keydown', (event) => {
@@ -94,7 +174,20 @@ document.addEventListener('DOMContentLoaded', () => {
             showSlide(currentSlide + (distance < 0 ? 1 : -1));
         }, { passive: true });
 
-        showSlide(0);
+        const refreshLayout = () => {
+            slides.forEach((slide) => slide.classList.add('is-jumping'));
+            updateDimensions();
+            track?.getBoundingClientRect();
+            requestAnimationFrame(() => {
+                slides.forEach((slide) => slide.classList.remove('is-jumping'));
+            });
+        };
+
+        updateSlideStates();
+        refreshLayout();
+        window.addEventListener('resize', refreshLayout);
+        window.addEventListener('load', refreshLayout, { once: true });
+        document.fonts?.ready.then(refreshLayout);
     }
 
     const bodyHasNoSticky = document.body.classList.contains('no-sticky-nav');
