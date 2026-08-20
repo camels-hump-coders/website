@@ -382,6 +382,7 @@
         }
 
         .bee {
+            --bee-size: 1;
             position: absolute;
             width: 62px;
             height: 44px;
@@ -612,58 +613,41 @@
 
         .bee--one {
             left: 12%;
-            top: 72%;
-            transform: translate(-50%, -50%);
-            animation: bee-hive-to-far-flowers 12s ease-in-out infinite;
+            top: 88%;
+            transform: translate(-50%, -50%) scale(var(--bee-size));
         }
 
         .bee--two {
-            left: 86%;
-            top: 70%;
-            transform: translate(-50%, -50%) scaleX(-1);
-            animation: bee-far-flowers-to-hive 13.4s ease-in-out -4s infinite;
+            left: 88%;
+            top: 78%;
+            transform: translate(-50%, -50%) scaleX(-1) scale(var(--bee-size));
         }
 
         .bee--three {
-            left: 12%;
-            top: 72%;
-            transform: translate(-50%, -50%);
-            scale: 0.88;
-            animation: bee-hive-to-near-flowers 9.8s ease-in-out -6.5s infinite;
+            left: 37%;
+            top: 82%;
+            --bee-size: 0.88;
+            transform: translate(-50%, -50%) scale(var(--bee-size));
+        }
+
+        .bee-flight-ready .bee {
+            left: 0;
+            top: 0;
+            opacity: 0;
+            transform: none;
+            animation: none;
+            will-change: transform, opacity;
+        }
+
+        .bee.is-resting .bee-wing {
+            animation: none;
+            scale: 0.94 0.55;
+            opacity: 0.76;
         }
 
         @keyframes wing-flap {
             from { scale: 0.96 0.3; opacity: 0.56; }
             to { scale: 1 1; opacity: 0.92; }
-        }
-
-        @keyframes bee-hive-to-far-flowers {
-            0%, 6% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-10deg); }
-            20% { left: 23%; top: 39%; transform: translate(-50%, -50%) rotate(-20deg); }
-            38% { left: 48%; top: 15%; transform: translate(-50%, -50%) rotate(2deg); }
-            54%, 60% { left: 86%; top: 70%; transform: translate(-50%, -50%) rotate(19deg); }
-            61% { left: 86%; top: 70%; transform: translate(-50%, -50%) rotate(-19deg) scaleX(-1); }
-            76% { left: 66%; top: 30%; transform: translate(-50%, -50%) rotate(13deg) scaleX(-1); }
-            91%, 100% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-14deg) scaleX(-1); }
-        }
-
-        @keyframes bee-far-flowers-to-hive {
-            0%, 7% { left: 86%; top: 70%; transform: translate(-50%, -50%) rotate(-18deg) scaleX(-1); }
-            21% { left: 74%; top: 42%; transform: translate(-50%, -50%) rotate(22deg) scaleX(-1); }
-            39% { left: 45%; top: 22%; transform: translate(-50%, -50%) rotate(-5deg) scaleX(-1); }
-            55%, 62% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(14deg) scaleX(-1); }
-            63% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-14deg); }
-            78% { left: 34%; top: 34%; transform: translate(-50%, -50%) rotate(-18deg); }
-            93%, 100% { left: 86%; top: 70%; transform: translate(-50%, -50%) rotate(13deg); }
-        }
-
-        @keyframes bee-hive-to-near-flowers {
-            0%, 8% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-8deg); }
-            27% { left: 19%; top: 36%; transform: translate(-50%, -50%) rotate(-18deg); }
-            48%, 57% { left: 38%; top: 76%; transform: translate(-50%, -50%) rotate(22deg); }
-            58% { left: 38%; top: 76%; transform: translate(-50%, -50%) rotate(-22deg) scaleX(-1); }
-            76% { left: 25%; top: 31%; transform: translate(-50%, -50%) rotate(16deg) scaleX(-1); }
-            94%, 100% { left: 12%; top: 72%; transform: translate(-50%, -50%) rotate(-13deg) scaleX(-1); }
         }
 
         @keyframes pollen-drift {
@@ -731,11 +715,11 @@
             }
 
             .bee {
-                scale: 0.7;
+                --bee-size: 0.7;
             }
 
             .bee--three {
-                scale: 0.62;
+                --bee-size: 0.62;
             }
         }
 

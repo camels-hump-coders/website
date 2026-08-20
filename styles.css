@@ -378,42 +378,6 @@ nav a.active {
     margin-bottom: 1rem;
 }
 
-.ftc-flash-banner {
-    background: #0066ff;
-    border-bottom: 4px solid #003c99;
-    color: white;
-    padding: 1rem 1.5rem;
-    text-align: center;
-    animation: ftc-flash-banner 1.25s ease-in-out infinite;
-}
-
-.ftc-flash-banner p {
-    font-size: clamp(1.35rem, 2vw + 1rem, 2.4rem);
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    margin: 0;
-    text-transform: uppercase;
-    text-shadow: 0 2px 0 rgba(0,0,0,0.2), 0 0 18px rgba(255,255,255,0.35);
-}
-
-@keyframes ftc-flash-banner {
-    0%,
-    100% {
-        background: #0066ff;
-        box-shadow: inset 0 0 0 0 rgba(255,255,255,0.18);
-    }
-    50% {
-        background: #00a2ff;
-        box-shadow: inset 0 0 0 8px rgba(255,255,255,0.2);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .ftc-flash-banner {
-        animation: none;
-    }
-}
-
 /* Content Sections */
 .content-section {
     padding: 3rem 0;

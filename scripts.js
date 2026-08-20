@@ -21,15 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    const header = document.querySelector('header');
-    if (header && !document.querySelector('.ftc-flash-banner')) {
-        const ftcBanner = document.createElement('section');
-        ftcBanner.className = 'ftc-flash-banner';
-        ftcBanner.setAttribute('aria-label', 'FTC announcement');
-        ftcBanner.innerHTML = '<p>We Are Moving To FTC</p>';
-        header.insertAdjacentElement('afterend', ftcBanner);
-    }
-
     const gearButton = document.createElement('button');
     gearButton.type = 'button';
     gearButton.className = 'settings-gear';
@@ -326,6 +317,258 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (typeof reduceMotionQuery.addListener === 'function') {
                 reduceMotionQuery.addListener(startMining);
             }
+        }
+    }
+
+    const beeScene = document.querySelector('.bio-theme-graphics');
+    const hiveEntrance = beeScene?.querySelector('.hive-entrance');
+    if (beeScene && hiveEntrance) {
+        const flightConfigs = [
+            {
+                bee: beeScene.querySelector('.bee--one'),
+                flower: beeScene.querySelector('.flower-patch--far .flower--two .flower-bloom'),
+                duration: 5200,
+                rest: 1900,
+                hiveRest: 850,
+                delay: 0,
+                lift: 0.58,
+                controlOne: 0.18,
+                controlTwo: 0.76,
+                edgeRoute: true
+            },
+            {
+                bee: beeScene.querySelector('.bee--two'),
+                flower: beeScene.querySelector('.flower-patch--far .flower--four .flower-bloom'),
+                duration: 4800,
+                rest: 2200,
+                hiveRest: 1100,
+                delay: 1300,
+                lift: 0.44,
+                controlOne: 0.25,
+                controlTwo: 0.82,
+                edgeRoute: true
+            },
+            {
+                bee: beeScene.querySelector('.bee--three'),
+                flower: beeScene.querySelector('.flower-patch--near .flower--three .flower-bloom'),
+                duration: 3900,
+                rest: 1700,
+                hiveRest: 700,
+                delay: 2500,
+                lift: 0.11,
+                controlOne: 0.2,
+                controlTwo: 0.72
+            }
+        ].filter(({ bee, flower }) => bee && flower);
+
+        if (flightConfigs.length) {
+            const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const activeAnimations = new Set();
+            let flightRun = 0;
+            let resizeTimer = null;
+
+            const wait = (duration) => new Promise((resolve) => {
+                window.setTimeout(resolve, duration);
+            });
+
+            const pointAtCenter = (element) => {
+                const sceneRect = beeScene.getBoundingClientRect();
+                const rect = element.getBoundingClientRect();
+                return {
+                    x: rect.left - sceneRect.left + rect.width / 2,
+                    y: rect.top - sceneRect.top + rect.height / 2
+                };
+            };
+
+            const pointOnFlower = (flower, bee) => {
+                const sceneRect = beeScene.getBoundingClientRect();
+                const flowerRect = flower.getBoundingClientRect();
+                const size = Number.parseFloat(
+                    getComputedStyle(bee).getPropertyValue('--bee-size')
+                ) || 1;
+                const beeHeight = bee.offsetHeight * size;
+                return {
+                    x: flowerRect.left - sceneRect.left + flowerRect.width / 2,
+                    y: flowerRect.top - sceneRect.top + flowerRect.height * 0.52 - beeHeight * 0.38
+                };
+            };
+
+            const cubicPoint = (start, controlOne, controlTwo, end, progress) => {
+                const inverse = 1 - progress;
+                return {
+                    x: inverse ** 3 * start.x
+                        + 3 * inverse ** 2 * progress * controlOne.x
+                        + 3 * inverse * progress ** 2 * controlTwo.x
+                        + progress ** 3 * end.x,
+                    y: inverse ** 3 * start.y
+                        + 3 * inverse ** 2 * progress * controlOne.y
+                        + 3 * inverse * progress ** 2 * controlTwo.y
+                        + progress ** 3 * end.y
+                };
+            };
+
+            const cubicTangent = (start, controlOne, controlTwo, end, progress) => {
+                const inverse = 1 - progress;
+                return {
+                    x: 3 * inverse ** 2 * (controlOne.x - start.x)
+                        + 6 * inverse * progress * (controlTwo.x - controlOne.x)
+                        + 3 * progress ** 2 * (end.x - controlTwo.x),
+                    y: 3 * inverse ** 2 * (controlOne.y - start.y)
+                        + 6 * inverse * progress * (controlTwo.y - controlOne.y)
+                        + 3 * progress ** 2 * (end.y - controlTwo.y)
+                };
+            };
+
+            const beeTransform = (bee, point, tangent, flightScale) => {
+                const movingRight = tangent.x >= 0;
+                const rawAngle = movingRight
+                    ? Math.atan2(tangent.y, Math.max(tangent.x, 0.01)) * 180 / Math.PI
+                    : -Math.atan2(tangent.y, Math.max(-tangent.x, 0.01)) * 180 / Math.PI;
+                const angle = Math.max(-32, Math.min(32, rawAngle));
+                const facing = movingRight ? 1 : -1;
+                const size = Number.parseFloat(
+                    getComputedStyle(bee).getPropertyValue('--bee-size')
+                ) || 1;
+                return `translate(${point.x}px, ${point.y}px) translate(-50%, -50%) rotate(${angle}deg) scaleX(${facing}) scale(${flightScale * size})`;
+            };
+
+            const buildFlightFrames = (start, end, config, enteringHive) => {
+                const sceneRect = beeScene.getBoundingClientRect();
+                const sceneHeight = sceneRect.height;
+                const lift = sceneHeight * config.lift;
+                const distanceX = end.x - start.x;
+                const controlOne = {
+                    x: start.x + distanceX * config.controlOne,
+                    y: start.y - lift * (enteringHive ? 0.82 : 0.68)
+                };
+                const controlTwo = {
+                    x: start.x + distanceX * config.controlTwo,
+                    y: end.y - lift * (enteringHive ? 0.58 : 1)
+                };
+                if (sceneRect.width <= 640 && config.edgeRoute) {
+                    controlOne.x = enteringHive ? sceneRect.width * 1.1 : sceneRect.width * -0.1;
+                    controlTwo.x = enteringHive ? sceneRect.width * -0.1 : sceneRect.width * 1.1;
+                }
+                const steps = 42;
+                const frames = [];
+
+                for (let step = 0; step <= steps; step += 1) {
+                    const progress = step / steps;
+                    const point = cubicPoint(start, controlOne, controlTwo, end, progress);
+                    const tangent = cubicTangent(start, controlOne, controlTwo, end, progress);
+                    const edgeProgress = enteringHive
+                        ? Math.max(0, (progress - 0.82) / 0.18)
+                        : Math.min(1, progress / 0.13);
+                    const opacity = enteringHive ? 1 - edgeProgress : edgeProgress;
+                    const flightScale = 0.18 + 0.82 * (enteringHive ? 1 - edgeProgress : edgeProgress);
+                    frames.push({
+                        offset: progress,
+                        opacity,
+                        transform: beeTransform(config.bee, point, tangent, flightScale)
+                    });
+                }
+
+                return frames;
+            };
+
+            const fly = async (bee, start, end, config, enteringHive, run) => {
+                const previousAnimation = bee.flightAnimation;
+                const animation = bee.animate(
+                    buildFlightFrames(start, end, config, enteringHive),
+                    { duration: config.duration, easing: 'linear', fill: 'forwards' }
+                );
+                bee.flightAnimation = animation;
+                activeAnimations.add(animation);
+                previousAnimation?.cancel();
+
+                try {
+                    await animation.finished;
+                    return run === flightRun;
+                } catch {
+                    return false;
+                } finally {
+                    activeAnimations.delete(animation);
+                }
+            };
+
+            const runBee = async (config, run) => {
+                await wait(config.delay);
+                while (run === flightRun && !reduceMotionQuery.matches) {
+                    config.bee.classList.remove('is-resting');
+                    const leftHive = await fly(
+                        config.bee,
+                        pointAtCenter(hiveEntrance),
+                        pointOnFlower(config.flower, config.bee),
+                        config,
+                        false,
+                        run
+                    );
+                    if (!leftHive || run !== flightRun) return;
+
+                    config.bee.classList.add('is-resting');
+                    await wait(config.rest);
+                    if (run !== flightRun) return;
+
+                    config.bee.classList.remove('is-resting');
+                    const enteredHive = await fly(
+                        config.bee,
+                        pointOnFlower(config.flower, config.bee),
+                        pointAtCenter(hiveEntrance),
+                        config,
+                        true,
+                        run
+                    );
+                    if (!enteredHive || run !== flightRun) return;
+
+                    await wait(config.hiveRest);
+                }
+            };
+
+            const showReducedMotionScene = () => {
+                flightConfigs.forEach((config) => {
+                    const point = pointOnFlower(config.flower, config.bee);
+                    config.bee.style.opacity = '1';
+                    config.bee.style.transform = beeTransform(config.bee, point, { x: 1, y: 0 }, 1);
+                    config.bee.classList.add('is-resting');
+                });
+            };
+
+            const startBeeFlights = () => {
+                flightRun += 1;
+                const run = flightRun;
+                activeAnimations.forEach((animation) => animation.cancel());
+                activeAnimations.clear();
+                beeScene.classList.add('bee-flight-ready');
+
+                flightConfigs.forEach((config) => {
+                    config.bee.flightAnimation = null;
+                    config.bee.classList.remove('is-resting');
+                    config.bee.style.opacity = '0';
+                    config.bee.style.transform = 'none';
+                });
+
+                if (reduceMotionQuery.matches) {
+                    showReducedMotionScene();
+                    return;
+                }
+
+                flightConfigs.forEach((config) => {
+                    runBee(config, run);
+                });
+            };
+
+            window.addEventListener('resize', () => {
+                window.clearTimeout(resizeTimer);
+                resizeTimer = window.setTimeout(startBeeFlights, 180);
+            });
+
+            if (typeof reduceMotionQuery.addEventListener === 'function') {
+                reduceMotionQuery.addEventListener('change', startBeeFlights);
+            } else if (typeof reduceMotionQuery.addListener === 'function') {
+                reduceMotionQuery.addListener(startBeeFlights);
+            }
+
+            startBeeFlights();
         }
     }
 
