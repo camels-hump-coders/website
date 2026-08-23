@@ -341,6 +341,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Home page Great Moments gallery
+    document.querySelectorAll('.moments-gallery').forEach((momentsGallery) => {
+        const track = momentsGallery.querySelector('.moments-track');
+        const slides = Array.from(momentsGallery.querySelectorAll('.moments-slide'));
+        const caption = momentsGallery.querySelector('.moments-caption');
+        const previousButton = momentsGallery.querySelector('.moments-control--previous');
+        const nextButton = momentsGallery.querySelector('.moments-control--next');
+
+        if (!track || !slides.length || !previousButton || !nextButton) return;
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const firstClone = slides[0].cloneNode(true);
+        const lastClone = slides[slides.length - 1].cloneNode(true);
+        let current = 1;
+        let timer = null;
+
+        firstClone.setAttribute('aria-hidden', 'true');
+        lastClone.setAttribute('aria-hidden', 'true');
+        track.appendChild(firstClone);
+        track.insertBefore(lastClone, track.firstChild);
+
+        const setCaption = (index) => {
+            if (!caption) return;
+            const realIndex = (index - 1 + slides.length) % slides.length;
+            caption.textContent = slides[realIndex].dataset.caption || '';
+        };
+
+        const goTo = (index, smooth = true) => {
+            current = index;
+            track.style.transition = smooth && !reduceMotion.matches ? 'transform 0.6s ease' : 'none';
+            track.style.transform = `translateX(-${current * 100}%)`;
+            setCaption(current);
+        };
+
+        const stopTimer = () => {
+            if (timer) {
+                window.clearInterval(timer);
+                timer = null;
+            }
+        };
+
+        const startTimer = () => {
+            stopTimer();
+            if (!reduceMotion.matches) {
+                timer = window.setInterval(() => goTo(current + 1), 5000);
+            }
+        };
+
+        track.addEventListener('transitionend', () => {
+            if (current === 0) {
+                goTo(slides.length, false);
+            } else if (current === slides.length + 1) {
+                goTo(1, false);
+            }
+        });
+
+        previousButton.addEventListener('click', () => {
+            stopTimer();
+            goTo(current - 1);
+            startTimer();
+        });
+
+        nextButton.addEventListener('click', () => {
+            stopTimer();
+            goTo(current + 1);
+            startTimer();
+        });
+
+        momentsGallery.addEventListener('mouseenter', stopTimer);
+        momentsGallery.addEventListener('mouseleave', startTimer);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        goTo(current, false);
+        startTimer();
+    });
+
     // UNEARTHED title mining sequence (2025-2026 page)
     const miningWord = document.querySelector('.earth-theme');
     if (miningWord) {
