@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (siteLogo && !document.querySelector('.bio-buzz-header-logo')) {
             const bioBuzzLogo = document.createElement('img');
             bioBuzzLogo.className = 'bio-buzz-header-logo';
-            bioBuzzLogo.src = 'assets/biobuzz-hero-transparent.png';
+            bioBuzzLogo.src = 'canopy_ftc_biobuzz_animated_logo.gif';
             bioBuzzLogo.alt = 'BioBuzz moving logo';
             siteLogo.insertAdjacentElement('afterend', bioBuzzLogo);
         }
