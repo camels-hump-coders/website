@@ -27,3 +27,6 @@ logs/
 # Build outputs
 dist/
 build/
+
+# Local browser verification captures
+/output/playwright/

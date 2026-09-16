@@ -255,6 +255,27 @@ nav a.active {
     background: rgb(204, 67, 49);
 }
 
+.game-variants summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 48px;
+    padding: 0.75rem;
+    border-radius: 6px;
+    background: #efd662;
+    color: #18392c;
+    cursor: pointer;
+    list-style: none;
+    font-weight: bold;
+}
+
+.game-variants summary::-webkit-details-marker { display: none; }
+.game-variants summary:focus-visible { outline: 3px solid #346849; outline-offset: 3px; }
+.game-variants[open] summary span { transform: rotate(180deg); }
+.game-variants__options { display: grid; gap: 0.5rem; padding-top: 0.5rem; text-align: left; }
+.game-variants__options a strong, .game-variants__options a small { display: block; }
+.game-variants__options a small { margin-top: 0.2rem; font-size: 0.8rem; line-height: 1.45; }
+
 /* Add invisible bridge to prevent menu from disappearing */
 .dropdown-menu::before {
     content: '';

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#213f35">
+    <meta name="description" content="Small wings. Wild possibilities. Explore five living landscapes, discover native flowers, and restore their ecosystems in the BioBuzz pollinator adventure.">
+    <title>BioBuzz · The Pollinator Adventure</title>
+    <link rel="icon" type="image/png" href="assets/CHC%20favicon.png">
+    <link rel="stylesheet" href="biobuzz-complex.css">
+    <script type="module" src="biobuzz-complex.js"></script>
+</head>
+<body>
+    <div id="gameApp" data-mode="menu">
+        <header class="site-topbar">
+            <a class="brand" href="biobuzz-complex.html" aria-label="BioBuzz home">
+                <span class="brand-mark" aria-hidden="true"><span></span></span>
+                <span>Bio<span class="brand-highlight">Buzz</span></span>
+            </a>
+            <p class="brand-tagline">A little bee. A bigger world.</p>
+            <a class="all-games" href="secret-games.html"><span aria-hidden="true">↗</span> All games</a>
+        </header>
+
+        <main class="game-main">
+            <div class="game-heading">
+                <p><span class="live-dot" aria-hidden="true"></span> THE POLLINATOR ADVENTURE</p>
+                <span class="edition-label">EXPLORE · DISCOVER · RESTORE</span>
+            </div>
+            <section class="game-shell" aria-label="BioBuzz game">
+                <div id="gameHud" class="game-hud" aria-label="Game status">
+                    <div class="landscape-name"><span class="hud-label">Your landscape</span><strong id="levelName">Backyard Garden</strong></div>
+                    <div class="hud-stat"><span class="hud-label">Score</span><strong id="scoreValue">0</strong></div>
+                    <div class="hud-stat health-stat"><span class="hud-label">Health</span><strong id="healthValue">♥ ♥ ♥</strong></div>
+                    <div class="hud-stat"><span class="hud-label">Pollen</span><strong id="pollenValue">0 / 8</strong></div>
+                    <div class="hud-stat timer-stat"><span class="hud-label">Time left</span><strong id="timeValue">3:00</strong></div>
+                    <button id="pauseButton" class="pause-button" type="button" aria-label="Pause game" title="Pause (Esc)"><span aria-hidden="true">Ⅱ</span></button>
+                </div>
+
+                <div class="game-viewport">
+                    <canvas id="worldCanvas" width="1100" height="650" tabindex="0" role="img" aria-label="BioBuzz game world. Move with WASD or arrow keys, use your ability with Space, and pause with Escape. Visit flowers, follow the flower trail, and bring pollen to the hive.">Your browser needs canvas support to play BioBuzz.</canvas>
+
+                    <div class="in-world-hud">
+                        <div class="hive-status"><span aria-hidden="true">⬡</span><div><span class="hud-label">Hive delivery</span><strong id="deliveryValue">0 / 12</strong></div></div>
+                        <div class="restoration-status"><span class="hud-label">Ecosystem restored</span><strong id="restorationValue">0%</strong></div>
+                    </div>
+
+                    <button id="abilityButton" class="ability-button" type="button" aria-label="Use bee ability"><span class="ability-symbol" aria-hidden="true">✦</span><span><strong id="abilityLabel">Nectar dash</strong><span id="abilityCooldown">Ready</span></span><kbd>SPACE</kbd></button>
+
+                    <aside id="discoveryToast" class="discovery-toast" aria-live="polite" hidden><span class="discovery-icon" aria-hidden="true">✿</span><div><p class="discovery-eyebrow">A LITTLE FIELD DISCOVERY</p><h2 id="discoveryTitle"></h2><p id="discoveryFact"></p></div></aside>
+                    <div id="statusToast" class="status-toast" role="status" hidden></div>
+
+                    <div id="menuOverlay" class="menu-overlay" role="dialog" aria-modal="true" aria-label="BioBuzz menu" tabindex="-1">
+                        <div id="menuPanel" class="menu-panel"></div>
+                    </div>
+                </div>
+
+                <div class="objective-strip">
+                    <div class="objective-copy"><span class="hud-label">Your next little mission</span><strong id="objectiveText">Follow the flowers. Bring the world back into bloom.</strong><p id="hintText">Collect pollen, then return to your hive.</p></div>
+                    <div class="objective-trail"><div id="sequenceSteps" class="sequence-steps" aria-label="Pollination challenge flower order"></div><progress id="objectiveProgress" max="100" value="0" aria-label="Level objective progress">0%</progress></div>
+                </div>
+            </section>
+
+            <div class="touch-controls" aria-label="Touch game controls">
+                <div class="direction-pad"><button type="button" data-move="up" aria-label="Fly up">↑</button><button type="button" data-move="left" aria-label="Fly left">←</button><button type="button" data-move="down" aria-label="Fly down">↓</button><button type="button" data-move="right" aria-label="Fly right">→</button></div>
+                <button type="button" data-action="ability" aria-label="Use bee ability">✦ Ability</button>
+            </div>
+            <footer class="game-footer">
+                <div class="control-legend"><span><kbd>WASD</kbd> <span class="legend-or">/</span> <kbd>↑ ↓ ← →</kbd> Fly</span><span><kbd>SPACE</kbd> Ability</span><span><kbd>ESC</kbd> Pause</span></div>
+                <p>Collect pollen <span aria-hidden="true">→</span> follow the flower trail <span aria-hidden="true">→</span> return to your hive</p>
+            </footer>
+            <p class="made-with-care">A world worth exploring. A world worth protecting. <span>Made by Camels Hump Coders.</span></p>
+        </main>
+        <noscript><div class="noscript-message">BioBuzz needs JavaScript to bring its ecosystem to life. Please enable JavaScript in your browser, then reload this page. <a href="secret-games.html">Return to all games.</a></div></noscript>
+    </div>
+</body>
+</html>
