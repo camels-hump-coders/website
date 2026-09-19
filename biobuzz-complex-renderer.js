@@ -2,6 +2,8 @@ import { FLOWERS } from './biobuzz-complex-data.js';
 
 const TAU = Math.PI * 2;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const hiddenFlower = flower => flower.behavior === 'hidden' && !flower.revealed;
+const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const THEMES = {
     garden: { ground: '#608b62', light: '#83aa70', dark: '#3b684b', grass: '#a1bb7b', path: '#bac38b' },
     meadow: { ground: '#769856', light: '#9cb575', dark: '#52774d', grass: '#bed189', path: '#c8c796' },
@@ -101,14 +103,23 @@ export class Renderer {
         this.drawTerrain(world, scene, theme, time);
         for (const patch of world.patches || []) if (this.visible(patch.x, patch.y, patch.r + 20)) this.drawPatch(patch, time);
         this.drawGardenDetails(world, theme);
+        for (const zone of world.zones || []) {
+            if (zone.type !== 'dark' && this.visible(zone.x, zone.y, zone.r + 30)) this.drawZone(zone, time);
+        }
+        for (const hazard of world.hazards || []) this.drawHazardRoute(hazard, state);
+        const nextSpecies = this.nextSpecies(world, state);
         for (const flower of world.flowers || []) {
             if (!this.visible(flower.x, flower.y)) continue;
-            const target = state.carried < state.capacity && state.sequence[state.sequenceIndex] === flower.type && state.lastSequenceFlower !== flower.id;
-            this.drawFlower(flower, time, target, state.sequenceIndex);
+            if (hiddenFlower(flower)) {
+                if (distance(flower, state.bee) < 180) this.drawDiscoveryGlint(flower, time, state);
+                continue;
+            }
+            const target = state.carried < state.capacity && nextSpecies === flower.type && state.lastSequenceFlower !== flower.id;
+            this.drawFlower(flower, time, target, state.sequence?.[state.sequenceIndex] ? state.sequenceIndex : -1, distance(flower, state.bee) < 100);
         }
         const objects = [
             ...(world.obstacles || []).map(item => ({ ...item, kind: 'obstacle' })),
-            { ...world.hive, kind: 'hive' },
+            ...(world.hives?.length ? world.hives : [world.hive]).map(item => ({ ...item, kind: 'hive' })),
             ...(world.hazards || []).map(item => ({ ...item, kind: 'hazard' })),
         ].sort((a, b) => a.y - b.y);
         for (const object of objects) {
@@ -120,6 +131,7 @@ export class Renderer {
         this.drawButterflies(scene, time);
         this.drawParticles(state.particles || []);
         this.drawBee(state, time);
+        this.drawVisibility(world, state, time);
         ctx.restore();
         this.drawAtmosphere(time, world.theme);
         if (state.mode !== 'menu') {
@@ -219,7 +231,119 @@ export class Renderer {
         ctx.restore();
     }
 
-    drawFlower(flower, time, target, sequenceIndex) {
+    nextSpecies(world, state) {
+        const trailSpecies = state.sequence?.[state.sequenceIndex];
+        if (trailSpecies) return trailSpecies;
+        return Object.entries(world.missions?.typed || {}).find(([species, quota]) =>
+            (state.deliveredTypes?.[species] || 0) + (state.inventory?.[species] || 0) < quota)?.[0];
+    }
+
+    drawDiscoveryGlint(flower, time, state) {
+        const ctx = this.ctx;
+        const proximity = 1 - distance(flower, state.bee) / 180;
+        ctx.save(); ctx.globalAlpha = 0.2 + proximity * 0.45;
+        const x = flower.x + Math.sin(time * 1.2) * 3, y = flower.y - 9;
+        const size = 3 + Math.sin(time * 2.2 + flower.x) * 1.3;
+        ctx.strokeStyle = '#f6e5b3'; ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(x - size, y); ctx.lineTo(x + size, y);
+        ctx.moveTo(x, y - size); ctx.lineTo(x, y + size); ctx.stroke();
+        circle(ctx, x + 10, y + 6, 1, '#e3dda0'); ctx.restore();
+    }
+
+    drawZone(zone, time) {
+        const ctx = this.ctx, { x, y, r, type } = zone;
+        ctx.save();
+        if (type === 'wind') {
+            ctx.globalAlpha = zone.active === false ? 0.22 : 0.68;
+            const wash = ctx.createRadialGradient(x, y, r * 0.2, x, y, r);
+            wash.addColorStop(0, 'rgba(212,233,192,.07)'); wash.addColorStop(1, 'rgba(212,233,192,0)');
+            circle(ctx, x, y, r, wash);
+            ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
+            ctx.translate(x, y); ctx.rotate(zone.angle || 0);
+            ctx.strokeStyle = '#dce6bd'; ctx.lineWidth = 1.4;
+            for (let i = 0; i < 10; i++) {
+                const px = ((time * (zone.active === false ? 10 : 55) + i * 53) % (r * 2 + 45)) - r - 40;
+                const py = Math.sin(i * 8.13) * r * 0.83;
+                ctx.beginPath(); ctx.moveTo(px, py); ctx.quadraticCurveTo(px + 17, py - 4, px + 34, py); ctx.stroke();
+                if (i % 3 === 0) ellipse(ctx, px + 17, py + 6, 4, 1.6, -0.3, '#c7d899');
+            }
+            ctx.restore();
+            text(ctx, zone.active === false ? 'CALM AIR' : 'WIND CURRENT', x, y + r + 13, 8, '#e0e5bf');
+            return;
+        }
+        if (type === 'gate') {
+            const closed = zone.active !== false;
+            const color = zone.warning ? '#e7c785' : closed ? '#b5c6a1' : '#d0e8a9';
+            circle(ctx, x, y, r, closed ? 'rgba(54,88,71,.25)' : 'rgba(169,197,126,.06)');
+            ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.6; ctx.setLineDash([5, 7]);
+            ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+            if (closed) {
+                // A translucent fog bank matches the circular blocking region.
+                for (let i = 0; i < 5; i++) {
+                    const drift = Math.sin(time * 0.8 + i) * 5;
+                    const py = y + (i - 2) * r * 0.25;
+                    ellipse(ctx, x + drift, py, r * (0.74 - Math.abs(i - 2) * 0.1), r * 0.19, 0, 'rgba(176,199,178,.2)');
+                }
+                text(ctx, zone.untilOpen > 0 ? `FOG · WAIT ${Math.ceil(zone.untilOpen)}s` : 'FOG BANK · WAIT', x, y + 1, 9, '#e3e9d2');
+            } else {
+                text(ctx, zone.warning ? 'CLOSING SOON' : 'PASSAGE OPEN', x, y + 1, 9, color);
+            }
+        }
+        ctx.restore();
+    }
+
+    drawVisibility(world, state, time) {
+        const ctx = this.ctx;
+        for (const zone of world.zones || []) {
+            if (zone.type !== 'dark' || !this.visible(zone.x, zone.y, zone.r + 20)) continue;
+            ctx.save(); ctx.beginPath(); ctx.arc(zone.x, zone.y, zone.r, 0, TAU); ctx.clip();
+            const light = ctx.createRadialGradient(state.bee.x, state.bee.y, 48, state.bee.x, state.bee.y, 195);
+            light.addColorStop(0, 'rgba(17,41,36,0)'); light.addColorStop(0.55, 'rgba(17,41,36,.22)'); light.addColorStop(1, 'rgba(17,41,36,.54)');
+            ctx.fillStyle = light; ctx.fillRect(zone.x - zone.r, zone.y - zone.r, zone.r * 2, zone.r * 2);
+            ctx.restore();
+            ctx.save(); ctx.strokeStyle = 'rgba(198,220,194,.15)'; ctx.lineWidth = 1; ctx.setLineDash([3, 12]);
+            ctx.beginPath(); ctx.arc(zone.x, zone.y, zone.r, 0, TAU); ctx.stroke(); ctx.restore();
+            text(ctx, 'SHADED GROVE · EXPLORE', zone.x, zone.y + zone.r + 12, 8, '#cddcc5');
+        }
+        for (const hazard of world.hazards || []) {
+            if (hazard.type !== 'rain' || hazard.active === false || !this.visible(hazard.x, hazard.y, hazard.r)) continue;
+            const shade = ctx.createRadialGradient(hazard.x, hazard.y, 0, hazard.x, hazard.y, hazard.r);
+            shade.addColorStop(0, 'rgba(66,88,105,.21)'); shade.addColorStop(1, 'rgba(66,88,105,0)');
+            circle(ctx, hazard.x, hazard.y, hazard.r, shade);
+            if (distance(hazard, state.bee) < hazard.r + 20) {
+                ctx.strokeStyle = 'rgba(220,238,241,.25)'; ctx.lineWidth = 2;
+                for (let i = 0; i < 18; i++) {
+                    const px = hazard.x + Math.sin(i * 7.2) * hazard.r * 0.85;
+                    const py = hazard.y - hazard.r + (time * 180 + i * 29) % (hazard.r * 1.7);
+                    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - 7, py + 21); ctx.stroke();
+                }
+            }
+        }
+    }
+
+    drawHazardRoute(hazard, state) {
+        const ctx = this.ctx;
+        if (hazard.type === 'machine') {
+            const x = hazard.originX ?? hazard.x, y = hazard.originY ?? hazard.y;
+            const range = hazard.range || 160;
+            if (!this.visible(x, y, range + hazard.r)) return;
+            const horizontal = hazard.axis !== 'y';
+            ctx.save(); ctx.strokeStyle = 'rgba(228,208,150,.28)'; ctx.lineWidth = 2; ctx.setLineDash([8, 10]);
+            for (const side of [-1, 1]) {
+                ctx.beginPath();
+                ctx.moveTo(x + (horizontal ? -range : side * hazard.r), y + (horizontal ? side * hazard.r : -range));
+                ctx.lineTo(x + (horizontal ? range : side * hazard.r), y + (horizontal ? side * hazard.r : range)); ctx.stroke();
+            }
+            ctx.restore();
+        }
+        if (hazard.type === 'wasp' && (hazard.behaviorState === 'warning' || hazard.behaviorState === 'chase')) {
+            ctx.save(); ctx.strokeStyle = hazard.behaviorState === 'warning' ? 'rgba(255,214,113,.7)' : 'rgba(233,171,109,.5)';
+            ctx.setLineDash([4, 7]); ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(hazard.x, hazard.y); ctx.lineTo(hazard.targetX ?? state.bee.x, hazard.targetY ?? state.bee.y); ctx.stroke(); ctx.restore();
+        }
+    }
+
+    drawFlower(flower, time, target, sequenceIndex, nearby = false) {
         const ctx = this.ctx, data = FLOWERS[flower.type] || FLOWERS.clover;
         const { x, y } = flower;
         const sway = Math.sin(time * 1.6 + x * 0.03) * 2.3;
@@ -228,6 +352,21 @@ export class Renderer {
         ctx.strokeStyle = '#315d42'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x, y + 20); ctx.quadraticCurveTo(x - 4, y + 3, x + sway, y - 5); ctx.stroke();
         ellipse(ctx, x - 11, y + 14, 12, 5, 0.45, '#a2bc7c');
         ellipse(ctx, x + 10, y + 7, 13, 5, -0.55, '#b0c887');
+        if (flower.behavior === 'timed' && flower.open === false) {
+            ellipse(ctx, x + sway, y - 10, 10, 15, -0.12, '#649468');
+            ellipse(ctx, x + sway - 3, y - 13, 5, 10, -0.2, data.color);
+            ctx.strokeStyle = '#a6c083'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + sway, y + 2); ctx.quadraticCurveTo(x + 9, y - 11, x + sway + 5, y - 21); ctx.stroke();
+            rounded(ctx, x - 44, y + 32, 88, 19, 9, 'rgba(35,71,48,.84)');
+            text(ctx, `OPENS IN ${Math.ceil(flower.untilOpen || 0)}s`, x, y + 42, 8, '#ede3b7');
+            if (nearby || target) text(ctx, data.name, x, y - 37, 9, '#efeacf');
+            ctx.restore(); return;
+        }
+        if (flower.rare || flower.behavior === 'rare') {
+            const halo = ctx.createRadialGradient(x, y - 7, 10, x, y - 7, 46);
+            halo.addColorStop(0, 'rgba(252,218,115,.28)'); halo.addColorStop(1, 'rgba(252,218,115,0)');
+            circle(ctx, x, y - 7, 46, halo);
+            ctx.strokeStyle = '#ecd698'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.ellipse(x, y + 11, 33, 22, 0, 0, TAU); ctx.stroke();
+        }
         if (target && flower.ready) {
             ctx.strokeStyle = '#f6edb9'; ctx.lineWidth = 1.8; ctx.globalAlpha = 0.65 + Math.sin(time * 3) * 0.15;
             ctx.setLineDash([5, 6]); ctx.beginPath(); ctx.ellipse(x, y + 10, 40, 28, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
@@ -261,7 +400,22 @@ export class Renderer {
         if (flower.pollinated) { circle(ctx, 21, 19, 8, '#dbe7a2'); text(ctx, '✓', 21, 19, 11, '#446a43'); }
         if (target && flower.ready) {
             circle(ctx, 23, -25, 10, '#fff3ca');
-            text(ctx, String(sequenceIndex + 1), 23, -25, 11, '#5a6440');
+            text(ctx, sequenceIndex < 0 ? '✦' : String(sequenceIndex + 1), 23, -25, 11, '#5a6440');
+        }
+        if (flower.behavior === 'multi') {
+            const required = flower.visitsRequired || 2;
+            for (let i = 0; i < required; i++) {
+                circle(ctx, (i - (required - 1) / 2) * 10, 35, 3.2, i < (flower.visits || 0) ? '#f7dfa0' : '#38684c');
+                ctx.strokeStyle = '#d8d9ac'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc((i - (required - 1) / 2) * 10, 35, 3.2, 0, TAU); ctx.stroke();
+            }
+        }
+        if (flower.rare || flower.behavior === 'rare') text(ctx, '✦', -25, -26, 13, '#ffe5a2');
+        if (nearby || target) {
+            const label = `${flower.rare || flower.behavior === 'rare' ? 'Rare · ' : ''}${data.name}`;
+            ctx.font = '600 9px "DM Sans", system-ui, sans-serif';
+            const labelWidth = ctx.measureText(label).width + 16, labelY = flower.behavior === 'multi' ? 49 : 42;
+            rounded(ctx, -labelWidth / 2, labelY - 9, labelWidth, 18, 9, 'rgba(34,68,47,.8)');
+            text(ctx, label, 0, labelY, 9, '#ecebce', 600);
         }
         ctx.restore();
     }
@@ -293,6 +447,7 @@ export class Renderer {
     drawHive(hive, time, state) {
         const ctx = this.ctx, { x, y } = hive;
         const carrying = state.carried > 0;
+        const outpost = hive.id && hive.id !== 'home';
         if (carrying) {
             ctx.strokeStyle = '#ffe9a0'; ctx.globalAlpha = 0.35 + Math.sin(time * 3) * 0.1; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.ellipse(x, y + 23, 76, 46, 0, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
@@ -311,18 +466,25 @@ export class Renderer {
         rounded(ctx, x - 21, y + 28, 42, 6, 2, '#f1ce86');
         // Tiny hexagonal hive crest.
         ctx.beginPath(); for (let i = 0; i < 6; i++) { const angle = i * TAU / 6 + Math.PI / 6; if (!i) ctx.moveTo(x + Math.cos(angle) * 10, y - 34 + Math.sin(angle) * 10); else ctx.lineTo(x + Math.cos(angle) * 10, y - 34 + Math.sin(angle) * 10); } ctx.closePath(); ctx.fillStyle = '#f8d991'; ctx.fill();
-        text(ctx, 'H', x, y - 34, 10, '#a37739');
-        rounded(ctx, x - 44, y + 53, 88, 25, 12, '#254d3e');
-        text(ctx, carrying ? 'DELIVER HERE' : 'THE HIVE', x, y + 66, 10, '#fff0b8');
+        text(ctx, outpost ? 'O' : 'H', x, y - 34, 10, '#a37739');
+        const name = outpost ? (hive.name || 'OUTPOST').toUpperCase() : carrying ? 'DELIVER HERE' : 'THE HIVE';
+        const labelWidth = outpost ? 132 : 88;
+        rounded(ctx, x - labelWidth / 2, y + 53, labelWidth, 25, 12, '#254d3e');
+        text(ctx, name, x, y + 66, outpost ? 9 : 10, '#fff0b8');
+        if (outpost && hive.quota > 0) {
+            const delivered = state.hiveDeliveries?.[hive.id] || 0;
+            text(ctx, delivered >= hive.quota ? 'DELIVERY COMPLETE ✓' : `${Math.min(delivered, hive.quota)} / ${hive.quota} POLLEN DELIVERED`, x, y + 90, 8, delivered >= hive.quota ? '#d8e9aa' : '#f2dda7');
+        }
     }
 
     drawHazard(hazard, time) {
         const ctx = this.ctx, { x, y, r, type } = hazard;
         ctx.save();
         if (type === 'rain') {
+            if (hazard.active === false) ctx.globalAlpha = 0.65;
             ellipse(ctx, x, y + 5, r, r * 0.58, 0, 'rgba(51,80,93,.17)');
             ctx.strokeStyle = 'rgba(207,230,238,.46)'; ctx.lineWidth = 1.7;
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < (hazard.active === false ? 0 : 15); i++) {
                 const px = x + Math.sin(i * 17.3) * r * 0.8;
                 const py = y - r * 0.4 + ((time * 100 + i * 14) % (r * 1.1));
                 ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - 4, py + 12); ctx.stroke();
@@ -330,7 +492,7 @@ export class Renderer {
             const cy = y - r * 0.55;
             ellipse(ctx, x, cy + 8, r * 0.82, 20, 0, '#92aeb0');
             circle(ctx, x - r * 0.36, cy, 24, '#aec7c3'); circle(ctx, x, cy - 11, 33, '#bccfc9'); circle(ctx, x + r * 0.4, cy, 24, '#a5bfbd');
-            text(ctx, 'PASSING SHOWER', x, y + r + 17, 8, '#dce7d0');
+            text(ctx, hazard.warning ? 'RAIN APPROACHING' : hazard.active === false ? 'CLEARING SKIES' : 'PASSING SHOWER', x, y + r + 17, 8, '#dce7d0');
         } else if (type === 'spider') {
             ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(243,238,219,.55)';
             for (let i = 0; i < 8; i++) {
@@ -357,6 +519,48 @@ export class Renderer {
             circle(ctx, x, y - 18, 12, '#aa8971');
             ctx.beginPath(); ctx.moveTo(x - 4, y - 27); ctx.lineTo(x, y - 38); ctx.lineTo(x + 4, y - 27); ctx.closePath(); ctx.fillStyle = '#e7be65'; ctx.fill();
             circle(ctx, x - 5, y - 22, 2, '#322f2a'); circle(ctx, x + 5, y - 22, 2, '#322f2a');
+        } else if (type === 'wasp') {
+            const behavior = hazard.behaviorState || 'patrol';
+            const tired = behavior === 'rest', alert = behavior === 'warning';
+            ellipse(ctx, x + 3, y + 17, 23, 8, 0, 'rgba(31,52,29,.2)');
+            if (alert || behavior === 'chase') {
+                ctx.strokeStyle = alert ? '#f1d487' : '#dea074'; ctx.lineWidth = 1.6; ctx.setLineDash([4, 5]);
+                ctx.beginPath(); ctx.arc(x, y, r + 9 + Math.sin(time * 6) * 2, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+            }
+            ctx.save(); ctx.translate(x, y - 4);
+            const angle = Number.isFinite(hazard.targetX) && Number.isFinite(hazard.targetY) ? Math.atan2(hazard.targetY - y, hazard.targetX - x) : Math.sin(time * 0.6 + (hazard.phase || 0)) * 0.4;
+            ctx.rotate(angle);
+            const wing = tired ? 0.7 : 0.8 + Math.abs(Math.sin(time * 26)) * 0.35;
+            ellipse(ctx, -2, -13, 13 * wing, 6, 0.7, 'rgba(226,240,214,.72)');
+            ellipse(ctx, -2, 13, 13 * wing, 6, -0.7, 'rgba(226,240,214,.72)');
+            ellipse(ctx, -9, 0, 17, 9, 0, '#e0b259');
+            ctx.save(); ctx.beginPath(); ctx.ellipse(-9, 0, 17, 9, 0, 0, TAU); ctx.clip();
+            ctx.fillStyle = '#6b563d'; ctx.fillRect(-21, -11, 4, 22); ctx.fillRect(-11, -11, 5, 22); ctx.restore();
+            circle(ctx, 9, 0, 8, '#8a7149'); circle(ctx, 15, -1, 7, '#cfab60');
+            circle(ctx, 18, -4, 1.6, '#3f4434'); circle(ctx, 18, 3, 1.6, '#3f4434');
+            ctx.strokeStyle = '#68583d'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(14, -7); ctx.lineTo(21, -13); ctx.moveTo(14, 7); ctx.lineTo(21, 13); ctx.stroke();
+            ctx.restore();
+            text(ctx, alert ? 'SPOTTED! KEEP MOVING' : behavior === 'chase' ? 'WASP CHASING' : tired ? 'WASP RESTING' : 'WASP PATROL', x, y + r + 24, 8, alert ? '#ffe3a0' : '#e7debc');
+            if (alert) text(ctx, '!', x, y - r - 17, 18, '#ffe3a0');
+        } else if (type === 'machine') {
+            ellipse(ctx, x + 7, y + 25, r * 1.12, r * 0.6, 0, 'rgba(30,48,34,.24)');
+            ctx.save(); ctx.translate(x, y); ctx.rotate(hazard.axis === 'y' ? Math.PI / 2 : 0);
+            // A small field mower; the striped frame is also its danger footprint.
+            rounded(ctx, -38, -30, 66, 60, 11, '#8a7e55');
+            rounded(ctx, -34, -26, 58, 52, 9, '#c1ae6e');
+            for (const side of [-1, 1]) {
+                rounded(ctx, -29, side * 30 - 7, 22, 14, 4, '#4b5445');
+                rounded(ctx, 16, side * 24 - 5, 15, 10, 3, '#4b5445');
+                ctx.strokeStyle = '#75826a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-24, side * 30 - 4); ctx.lineTo(-24, side * 30 + 4); ctx.moveTo(-17, side * 30 - 4); ctx.lineTo(-17, side * 30 + 4); ctx.stroke();
+            }
+            rounded(ctx, -21, -19, 26, 38, 5, '#6a8959'); rounded(ctx, -17, -15, 18, 17, 3, '#bed0ab');
+            rounded(ctx, 5, -18, 27, 36, 6, '#8da566');
+            for (let i = 0; i < 3; i++) { ctx.strokeStyle = '#5d7951'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(13 + i * 5, -11); ctx.lineTo(13 + i * 5, 11); ctx.stroke(); }
+            rounded(ctx, 31, -32, 9, 64, 3, '#d6bf7e');
+            for (let i = 0; i < 5; i++) { ctx.strokeStyle = '#817553'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(32, -27 + i * 12); ctx.lineTo(39, -20 + i * 12); ctx.stroke(); }
+            circle(ctx, -8, -23, 3, hazard.active === false && !hazard.warning ? '#acc788' : '#f5d77b'); ctx.restore();
+            ctx.strokeStyle = hazard.active === false ? 'rgba(207,221,162,.4)' : 'rgba(244,213,153,.65)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 7]); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+            text(ctx, hazard.warning ? 'MOWER STARTING SOON' : hazard.active === false ? 'MOWER IDLING' : 'FIELD MOWER · KEEP CLEAR', x, y + r + 18, 8, '#efe1b6');
         } else if (type === 'pesticide') {
             const active = hazard.active, warning = hazard.warning;
             circle(ctx, x, y, r, active ? 'rgba(188,214,77,.24)' : warning ? 'rgba(236,195,80,.15)' : 'rgba(53,77,49,.12)');
@@ -463,12 +667,28 @@ export class Renderer {
     drawWaypoints(world, state) {
         const targets = [];
         const full = state.carried >= state.capacity;
-        if (state.carried > 0) targets.push({ ...world.hive, label: full ? 'BASKETS FULL · HIVE' : 'HIVE', color: '#f5dc94' });
+        const nearest = items => items.sort((a, b) => distance(a, state.bee) - distance(b, state.bee))[0];
+        const hives = world.hives?.length ? world.hives : [world.hive];
+        const incompleteHive = nearest(hives.filter(hive => (state.hiveDeliveries?.[hive.id] || 0) < (hive.quota || 0)));
+        const home = hives.find(hive => hive.id === 'home') || world.hive;
+        const lowEnergy = Number.isFinite(state.energy) && state.energy < state.maxEnergy * 0.25;
+        if (state.carried > 0 || lowEnergy) {
+            const destination = lowEnergy ? nearest([...hives]) : full && incompleteHive ? incompleteHive : home;
+            const outpost = destination.id && destination.id !== 'home';
+            targets.push({ ...destination, label: lowEnergy ? 'REST AT HIVE' : outpost ? 'DELIVER TO OUTPOST' : full ? 'BASKETS FULL · HIVE' : 'HIVE', color: '#f5dc94' });
+        }
         if (!full) {
-            const species = state.sequence[state.sequenceIndex];
-            const candidate = world.flowers.filter(f => f.type === species && f.ready && f.id !== state.lastSequenceFlower)
-                .sort((a, b) => Math.hypot(a.x - state.bee.x, a.y - state.bee.y) - Math.hypot(b.x - state.bee.x, b.y - state.bee.y))[0];
+            const species = this.nextSpecies(world, state);
+            let candidate = nearest(world.flowers.filter(f => f.type === species && f.ready && f.open !== false && !hiddenFlower(f) && f.id !== state.lastSequenceFlower));
+            if (!candidate && species) candidate = nearest(world.flowers.filter(f => f.type === species && !hiddenFlower(f) && f.id !== state.lastSequenceFlower));
             if (candidate) targets.push({ ...candidate, label: FLOWERS[species]?.name || 'NEXT FLOWER', color: FLOWERS[species]?.color || '#fff4d8' });
+            else if (!species && (state.hiddenFound || 0) < (world.missions?.hiddenRequired || 0)) {
+                const hidden = nearest(world.flowers.filter(f => f.behavior === 'hidden' && !f.found && !f.hiddenCollected));
+                if (hidden) targets.push({ ...hidden, label: hidden.revealed ? 'COLLECT HIDDEN BLOOM' : 'SEARCH THIS GROVE', color: '#dfdfb5' });
+            } else if (!species && state.delivered + state.carried < state.target) {
+                const pollen = nearest(world.flowers.filter(f => f.ready && f.open !== false && !hiddenFlower(f)));
+                if (pollen) targets.push({ ...pollen, label: 'GATHER MORE POLLEN', color: '#f5e5b5' });
+            }
         }
         for (const target of targets) {
             const p = this.project(target.x, target.y);
@@ -495,10 +715,27 @@ export class Renderer {
         const sx = w / world.width, sy = h / world.height;
         ctx.save(); ctx.beginPath(); ctx.roundRect(x, y, w, h, 6); ctx.clip();
         for (const patch of world.patches || []) circle(ctx, x + patch.x * sx, y + patch.y * sy, patch.r * sx, patch.restored ? '#8fa965' : '#9c9f6b');
+        for (const zone of world.zones || []) {
+            circle(ctx, x + zone.x * sx, y + zone.y * sy, zone.r * sx, zone.type === 'dark' ? 'rgba(39,65,51,.5)' : zone.type === 'gate' ? 'rgba(189,200,159,.22)' : 'rgba(206,224,187,.12)');
+            if (zone.type === 'gate') text(ctx, zone.active === false ? '·' : '−', x + zone.x * sx, y + zone.y * sy, 8, '#e1d6aa');
+        }
         for (const o of world.obstacles || []) circle(ctx, x + o.x * sx, y + o.y * sy, Math.max(2, o.r * sx), '#3b634d');
         for (const hazard of world.hazards || []) circle(ctx, x + hazard.x * sx, y + hazard.y * sy, Math.max(2, hazard.r * sx * 0.6), '#b8997a');
-        for (const flower of world.flowers || []) circle(ctx, x + flower.x * sx, y + flower.y * sy, flower.ready ? 2 : 1.1, FLOWERS[flower.type]?.color || '#e8dab0');
-        rounded(ctx, x + world.hive.x * sx - 3, y + world.hive.y * sy - 3, 6, 6, 1, '#ffda7b');
+        for (const flower of world.flowers || []) {
+            const fx = x + flower.x * sx, fy = y + flower.y * sy;
+            if (hiddenFlower(flower)) {
+                ctx.save(); ctx.strokeStyle = 'rgba(222,225,182,.43)'; ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.ellipse(fx, fy, 180 * sx, 180 * sy, 0, 0, TAU); ctx.stroke(); ctx.restore();
+                text(ctx, '?', fx, fy, 8, '#c9d0a9');
+                continue;
+            }
+            circle(ctx, fx, fy, flower.ready && flower.open !== false ? 2 : 1.1, FLOWERS[flower.type]?.color || '#e8dab0');
+            if (flower.rare || flower.behavior === 'rare') { ctx.strokeStyle = '#f5d888'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(fx, fy, 3.5, 0, TAU); ctx.stroke(); }
+        }
+        for (const hive of world.hives?.length ? world.hives : [world.hive]) {
+            const complete = hive.quota > 0 && (state.hiveDeliveries?.[hive.id] || 0) >= hive.quota;
+            rounded(ctx, x + hive.x * sx - 3, y + hive.y * sy - 3, 6, 6, 1, complete ? '#d8e9aa' : '#ffda7b');
+        }
         ctx.strokeStyle = 'rgba(235,242,217,.37)'; ctx.lineWidth = 1;
         ctx.strokeRect(x + this.camera.x * sx, y + this.camera.y * sy, this.viewWidth * sx, this.viewHeight * sy);
         circle(ctx, x + state.bee.x * sx, y + state.bee.y * sy, 4, '#fff7c9'); circle(ctx, x + state.bee.x * sx, y + state.bee.y * sy, 1.5, '#7c6843');

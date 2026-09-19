@@ -19,7 +19,7 @@ const scenario = (overrides = {}, options = {}) => {
         flowers: [{ x: 500, y: 450, type: 'clover' }, { x: 650, y: 450, type: 'clover' }, { x: 800, y: 450, type: 'aster' }],
         ...overrides,
     };
-    const game = new BioBuzzGame(level, { reducedMotion: true, onEvent: (name, detail) => events.push({ name, ...detail }), ...options });
+    const game = new BioBuzzGame(level, { generate: false, reducedMotion: true, onEvent: (name, detail) => events.push({ name, ...detail }), ...options });
     return { game, events };
 };
 
@@ -221,7 +221,7 @@ test('saved progress roundtrips, rejects corrupt values, preserves best scores a
     assert.equal(corrupt.capacityLevel, 2);
     assert.equal(corrupt.best[0], 0);
     assert.equal(corrupt.best[2], 0);
-    assert.deepEqual(corrupt.settings, { music: 1, sfx: 0, muted: false, reducedMotion: true });
+    assert.deepEqual(corrupt.settings, { music: 1, sfx: 0, muted: false, reducedMotion: true, difficulty: 'normal' });
 
     const save = defaultSave();
     const result = { level: { id: 0 }, state: { mode: 'won', score: 1000, health: 4 } };
@@ -299,9 +299,9 @@ function fly(game, target) {
     }
 }
 
-for (const level of LEVELS) test(`a real flight can complete ${level.name} with starting baskets and no special ability`, t => {
+for (const level of LEVELS) test(`authored map regression: ${level.name} with starting baskets and no special ability`, t => {
     const events = [];
-    const game = new BioBuzzGame(level, { reducedMotion: true, onEvent: (name, detail) => events.push({ name, ...detail }) });
+    const game = new BioBuzzGame(level, { generate: false, reducedMotion: true, onEvent: (name, detail) => events.push({ name, ...detail }) });
     let trips = 0;
     while (game.state.mode === 'playing' && trips++ < 120) {
         const state = game.state;

@@ -28,7 +28,7 @@
             </div>
             <section class="game-shell" aria-label="BioBuzz game">
                 <div id="gameHud" class="game-hud" aria-label="Game status">
-                    <div class="landscape-name"><span class="hud-label">Your landscape</span><strong id="levelName">Backyard Garden</strong></div>
+                    <div class="landscape-name"><span class="hud-label">Your landscape <span id="difficultyValue" class="difficulty-value">Normal</span></span><strong id="levelName">Backyard Garden</strong></div>
                     <div class="hud-stat"><span class="hud-label">Score</span><strong id="scoreValue">0</strong></div>
                     <div class="hud-stat health-stat"><span class="hud-label">Health</span><strong id="healthValue">♥ ♥ ♥</strong></div>
                     <div class="hud-stat"><span class="hud-label">Pollen</span><strong id="pollenValue">0 / 8</strong></div>
@@ -40,9 +40,12 @@
                     <canvas id="worldCanvas" width="1100" height="650" tabindex="0" role="img" aria-label="BioBuzz game world. Move with WASD or arrow keys, use your ability with Space, and pause with Escape. Visit flowers, follow the flower trail, and bring pollen to the hive.">Your browser needs canvas support to play BioBuzz.</canvas>
 
                     <div class="in-world-hud">
-                        <div class="hive-status"><span aria-hidden="true">⬡</span><div><span class="hud-label">Hive delivery</span><strong id="deliveryValue">0 / 12</strong></div></div>
+                        <div class="flight-status"><div class="hive-status"><span aria-hidden="true">⬡</span><div><span class="hud-label">Hive delivery</span><strong id="deliveryValue">0 / 12</strong></div></div><div class="energy-status"><div><span class="hud-label">Flight energy</span><strong id="energyValue">110 / 110</strong></div><progress id="energyMeter" max="110" value="110" aria-label="Flight energy"></progress><span id="comboValue" class="combo-value">1× · ready for a combo</span></div></div>
                         <div class="restoration-status"><span class="hud-label">Ecosystem restored</span><strong id="restorationValue">0%</strong></div>
                     </div>
+
+                    <span id="conditionValue" class="condition-status" hidden></span>
+                    <details id="missionDrawer" class="mission-drawer"><summary><span aria-hidden="true">☷</span> Flight goals <span id="missionCount">0 / 2</span></summary><div class="mission-panel"><p class="menu-eyebrow">REQUIRED TO RESTORE THIS HABITAT</p><ul id="missionList" class="mission-list"></ul><p class="menu-eyebrow">A LITTLE EXTRA · OPTIONAL</p><p id="bonusText" class="mission-bonus"></p><p id="inventoryText" class="inventory-text"></p><p class="mission-note">Energy low? Release the movement keys to rest, visit a flower, or stop at any hive.</p></div></details>
 
                     <button id="abilityButton" class="ability-button" type="button" aria-label="Use bee ability"><span class="ability-symbol" aria-hidden="true">✦</span><span><strong id="abilityLabel">Nectar dash</strong><span id="abilityCooldown">Ready</span></span><kbd>SPACE</kbd></button>
 
