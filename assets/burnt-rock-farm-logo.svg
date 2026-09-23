@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" role="img" aria-labelledby="title desc">
+  <title id="title">Burnt Rock Farm logo</title>
+  <desc id="desc">Black distressed text reading Burnt Rock Farm in a hand-stamped style.</desc>
+  <rect width="600" height="420" fill="#f8f7f3"/>
+  <rect x="24" y="24" width="552" height="372" fill="none" stroke="#111" stroke-width="8" stroke-dasharray="12 18" opacity="0.7"/>
+  <g fill="#111" font-family="Impact, 'Arial Black', sans-serif" font-size="110" letter-spacing="4">
+    <text x="65" y="145">BURNT</text>
+    <text x="65" y="255">ROCK</text>
+    <text x="65" y="365">FARM</text>
+  </g>
+</svg>
